@@ -16,6 +16,8 @@
     const ShieldCheck = (p) => <Icon {...p} path='<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/>' />;
     const Sparkles = (p) => <Icon {...p} path='<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>' />;
     const Send = (p) => <Icon {...p} path='<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>' />;
+    const LayoutGrid = (p) => <Icon {...p} path='<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>' />;
+    const MessageSquare = (p) => <Icon {...p} path='<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' />;
     const Droplets = (p) => <Icon {...p} path='<path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7 6.3 7 6.3s-2.14 2.76-3.29 3.69C2.57 10.92 2 12.02 2 13.18 2 15.4 3.8 17.2 6 17.2c.34 0 .68-.04 1-.1"/><path d="M12.56 6.6c.14-.17.29-.35.44-.52.92-1.07 2.1-2.4 3.73-4.08h.02c.35.34 1 1 2.25 2.5 1.45 1.74 3 3.75 3 6.02 0 2.94-2.3 5.48-5.32 5.48-1.54 0-2.92-.68-3.9-1.73"/>' />;
 
     // --- DATA & CONSTANTS ---
@@ -188,6 +190,9 @@
       // Tab 2 State
       const [rotPest, setRotPest] = useState(PESTS[1].id);
       const [lastUsedGroup, setLastUsedGroup] = useState('');
+
+      // Mobile bottom-nav: which single panel is shown on small screens
+      const [mobileView, setMobileView] = useState('workspace'); // 'sources' | 'workspace' | 'assistant'
 
       // Chat State
       const [chatInput, setChatInput] = useState('');
@@ -479,10 +484,10 @@
           </header>
 
           {/* Main Grid */}
-          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden pb-16 lg:pb-0">
             
             {/* Left Sidebar - Sources */}
-            <aside className="w-full lg:w-[320px] bg-[#fcfbf9] border-r border-slate-300 p-5 flex flex-col gap-4 overflow-y-auto shrink-0">
+            <aside className={`${mobileView === 'sources' ? 'flex' : 'hidden'} lg:flex w-full lg:w-[320px] bg-[#fcfbf9] border-r border-slate-300 p-5 flex-col gap-4 overflow-y-auto shrink-0`}>
               <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                 <h2 className="text-xs font-bold text-slate-500 tracking-wider uppercase flex items-center gap-2">
                   <FileText className="w-4 h-4" /> Sources (2)
@@ -525,22 +530,22 @@
             </aside>
 
             {/* Middle Panel - Workspace Tabs */}
-            <main className="flex-1 flex flex-col overflow-hidden bg-[#fbfbfa]">
-              <div className="px-6 pt-4 border-b border-slate-200 bg-white">
-                <div className="flex gap-4">
+            <main className={`${mobileView === 'workspace' ? 'flex' : 'hidden'} lg:flex flex-1 flex-col overflow-hidden bg-[#fbfbfa]`}>
+              <div className="px-4 sm:px-6 pt-4 border-b border-slate-200 bg-white">
+                <div className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar">
                   {[
                     { id: 'lookup', icon: Search, label: t('蟲害機制庫', 'MoA Library') },
                     { id: 'rotate', icon: RefreshCw, label: t('輪替助手', 'Rotation Planner') },
                     { id: 'mix', icon: Beaker, label: t('調配與混合', 'Mixing & Sequences') }
                   ].map(tab => (
                     <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                      className={`pb-3 px-2 text-sm font-bold border-b-2 transition-all flex items-center gap-2 ${activeTab === tab.id ? 'text-[#114b2d] border-[#114b2d]' : 'text-slate-400 border-transparent hover:text-slate-700'}`}>
+                      className={`pb-3 px-2 text-sm font-bold border-b-2 transition-all flex items-center gap-2 whitespace-nowrap shrink-0 ${activeTab === tab.id ? 'text-[#114b2d] border-[#114b2d]' : 'text-slate-400 border-transparent hover:text-slate-700'}`}>
                       <tab.icon className="w-4 h-4" /> {tab.label}
                     </button>
                   ))}
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-[#fbfbfa]">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-[#fbfbfa]">
                 {activeTab === 'lookup' && renderLookupTab()}
                 {activeTab === 'rotate' && renderRotateTab()}
                 {activeTab === 'mix' && renderMixTab()}
@@ -548,7 +553,7 @@
             </main>
 
             {/* Right Panel - AI Assistant */}
-            <section className="w-full lg:w-[320px] xl:w-[350px] bg-[#f4f2ea] border-t lg:border-t-0 lg:border-l border-slate-300 p-4 flex flex-col shrink-0">
+            <section className={`${mobileView === 'assistant' ? 'flex' : 'hidden'} lg:flex w-full lg:w-[320px] xl:w-[350px] bg-[#f4f2ea] border-t lg:border-t-0 lg:border-l border-slate-300 p-4 flex-col shrink-0`}>
               <div className="flex items-center gap-2 border-b border-slate-300 pb-3 mb-3">
                 <Sparkles className="w-4 h-4 text-emerald-600" />
                 <h3 className="text-xs font-bold text-slate-700 tracking-wider uppercase">Notebook Assistant</h3>
@@ -587,6 +592,22 @@
             </section>
 
           </div>
+
+          {/* Mobile Bottom Navigation (hidden on desktop) */}
+          <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#f4f2ea]/95 backdrop-blur border-t border-slate-300 flex items-stretch h-16 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+            {[
+              { id: 'sources', icon: FileText, label: t('來源', 'Sources') },
+              { id: 'workspace', icon: LayoutGrid, label: t('工作區', 'Workspace') },
+              { id: 'assistant', icon: MessageSquare, label: t('助手', 'Assistant') }
+            ].map(nav => (
+              <button key={nav.id} onClick={() => setMobileView(nav.id)}
+                className={`flex-1 flex flex-col items-center justify-center gap-1 transition-colors ${mobileView === nav.id ? 'text-[#114b2d]' : 'text-slate-400'}`}>
+                <nav.icon className="w-5 h-5" />
+                <span className="text-[10px] font-bold tracking-wide">{nav.label}</span>
+                {mobileView === nav.id && <span className="absolute bottom-0 h-0.5 w-10 bg-[#114b2d] rounded-full"></span>}
+              </button>
+            ))}
+          </nav>
         </div>
       );
     }
