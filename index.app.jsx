@@ -35,6 +35,438 @@
       { id:"grasshopper", zh:"草蜢 / 甲虫",   en:"Grasshoppers & Beetles", emoji:"🦗" }
     ];
 
+    // Color-accurate SVG icons for each pest, sized 32x32 viewBox.
+    // Colors reflect the actual pest appearance in the field.
+    const PestIcon = ({ pest, className = "w-9 h-9" }) => {
+      const icons = {
+        // Bright lime green, wedge body, large hind jumping leg
+        leafhopper: (
+          <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
+            <path d="M16 5 L23 11 L21 24 L11 24 L9 11 Z" fill="#84cc16" stroke="#365314" strokeWidth="0.8"/>
+            <ellipse cx="16" cy="8" rx="3" ry="2.5" fill="#65a30d" stroke="#365314" strokeWidth="0.5"/>
+            <circle cx="14.5" cy="8" r="0.7" fill="#0a0a0a"/>
+            <circle cx="17.5" cy="8" r="0.7" fill="#0a0a0a"/>
+            <line x1="14.5" y1="6" x2="12" y2="2.5" stroke="#365314" strokeWidth="0.7"/>
+            <line x1="17.5" y1="6" x2="20" y2="2.5" stroke="#365314" strokeWidth="0.7"/>
+            <path d="M20 16 L27 13 L26 19 L22 24" fill="none" stroke="#365314" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round"/>
+            <line x1="11" y1="18" x2="6" y2="22" stroke="#365314" strokeWidth="1.2" strokeLinecap="round"/>
+          </svg>
+        ),
+        // Pale tent-winged jumping insect with prominent transparent wings
+        psyllid: (
+          <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
+            <ellipse cx="11" cy="16" rx="5" ry="9" fill="#f8fafc" stroke="#94a3b8" strokeWidth="0.7" transform="rotate(-20 11 16)"/>
+            <ellipse cx="21" cy="16" rx="5" ry="9" fill="#f8fafc" stroke="#94a3b8" strokeWidth="0.7" transform="rotate(20 21 16)"/>
+            <ellipse cx="16" cy="16" rx="2.5" ry="8" fill="#e2e8f0" stroke="#64748b" strokeWidth="0.6"/>
+            <circle cx="16" cy="7" r="2.2" fill="#cbd5e1" stroke="#64748b" strokeWidth="0.5"/>
+            <line x1="14.8" y1="5" x2="12.5" y2="2.5" stroke="#475569" strokeWidth="0.6"/>
+            <line x1="17.2" y1="5" x2="19.5" y2="2.5" stroke="#475569" strokeWidth="0.6"/>
+            <circle cx="15" cy="7" r="0.5" fill="#0a0a0a"/>
+            <circle cx="17" cy="7" r="0.5" fill="#0a0a0a"/>
+          </svg>
+        ),
+        // White waxy oval with segmentation and lateral filaments
+        mealybug: (
+          <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
+            <ellipse cx="16" cy="16" rx="8.5" ry="6.5" fill="#fafafa" stroke="#94a3b8" strokeWidth="0.8"/>
+            <path d="M11 11 Q16 13 21 11" fill="none" stroke="#cbd5e1" strokeWidth="0.6"/>
+            <path d="M10 16 H22" fill="none" stroke="#cbd5e1" strokeWidth="0.6"/>
+            <path d="M11 21 Q16 19 21 21" fill="none" stroke="#cbd5e1" strokeWidth="0.6"/>
+            <line x1="8" y1="12" x2="4" y2="10" stroke="#cbd5e1" strokeWidth="0.7"/>
+            <line x1="7.5" y1="16" x2="3" y2="16" stroke="#cbd5e1" strokeWidth="0.7"/>
+            <line x1="8" y1="20" x2="4" y2="22" stroke="#cbd5e1" strokeWidth="0.7"/>
+            <line x1="24" y1="12" x2="28" y2="10" stroke="#cbd5e1" strokeWidth="0.7"/>
+            <line x1="24.5" y1="16" x2="29" y2="16" stroke="#cbd5e1" strokeWidth="0.7"/>
+            <line x1="24" y1="20" x2="28" y2="22" stroke="#cbd5e1" strokeWidth="0.7"/>
+          </svg>
+        ),
+        // Tiny yellow-amber elongated sliver with fringed wings
+        thrips: (
+          <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
+            <rect x="14" y="6" width="4" height="20" rx="1.8" fill="#eab308" stroke="#854d0e" strokeWidth="0.6"/>
+            <circle cx="16" cy="7" r="2.2" fill="#a16207" stroke="#854d0e" strokeWidth="0.5"/>
+            <line x1="14" y1="13" x2="18" y2="13" stroke="#854d0e" strokeWidth="0.4"/>
+            <line x1="14" y1="17" x2="18" y2="17" stroke="#854d0e" strokeWidth="0.4"/>
+            <line x1="14" y1="21" x2="18" y2="21" stroke="#854d0e" strokeWidth="0.4"/>
+            <line x1="14" y1="10" x2="9" y2="11" stroke="#854d0e" strokeWidth="0.8" strokeLinecap="round"/>
+            <line x1="14" y1="14" x2="9" y2="16" stroke="#854d0e" strokeWidth="0.8" strokeLinecap="round"/>
+            <line x1="14" y1="19" x2="9" y2="22" stroke="#854d0e" strokeWidth="0.8" strokeLinecap="round"/>
+            <line x1="18" y1="10" x2="23" y2="11" stroke="#854d0e" strokeWidth="0.8" strokeLinecap="round"/>
+            <line x1="18" y1="14" x2="23" y2="16" stroke="#854d0e" strokeWidth="0.8" strokeLinecap="round"/>
+            <line x1="18" y1="19" x2="23" y2="22" stroke="#854d0e" strokeWidth="0.8" strokeLinecap="round"/>
+            <line x1="15" y1="5" x2="13" y2="2.5" stroke="#854d0e" strokeWidth="0.6"/>
+            <line x1="17" y1="5" x2="19" y2="2.5" stroke="#854d0e" strokeWidth="0.6"/>
+          </svg>
+        ),
+        // Red round body with 8 spider legs (arachnid, not insect)
+        spider_mite: (
+          <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
+            <ellipse cx="16" cy="16" rx="6" ry="5" fill="#dc2626" stroke="#7f1d1d" strokeWidth="0.7"/>
+            <circle cx="13.5" cy="14.5" r="1" fill="#450a0a"/>
+            <circle cx="18.5" cy="14.5" r="1" fill="#450a0a"/>
+            <line x1="10.5" y1="14" x2="4" y2="10" stroke="#7f1d1d" strokeWidth="1.2" strokeLinecap="round"/>
+            <line x1="10" y1="16" x2="3" y2="16" stroke="#7f1d1d" strokeWidth="1.2" strokeLinecap="round"/>
+            <line x1="11" y1="19" x2="5" y2="23" stroke="#7f1d1d" strokeWidth="1.2" strokeLinecap="round"/>
+            <line x1="13" y1="20.5" x2="10" y2="27" stroke="#7f1d1d" strokeWidth="1.2" strokeLinecap="round"/>
+            <line x1="21.5" y1="14" x2="28" y2="10" stroke="#7f1d1d" strokeWidth="1.2" strokeLinecap="round"/>
+            <line x1="22" y1="16" x2="29" y2="16" stroke="#7f1d1d" strokeWidth="1.2" strokeLinecap="round"/>
+            <line x1="21" y1="19" x2="27" y2="23" stroke="#7f1d1d" strokeWidth="1.2" strokeLinecap="round"/>
+            <line x1="19" y1="20.5" x2="22" y2="27" stroke="#7f1d1d" strokeWidth="1.2" strokeLinecap="round"/>
+          </svg>
+        ),
+        // Green segmented worm body
+        caterpillar: (
+          <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
+            <circle cx="6" cy="19" r="4" fill="#22c55e" stroke="#14532d" strokeWidth="0.7"/>
+            <circle cx="11.5" cy="18" r="4.3" fill="#16a34a" stroke="#14532d" strokeWidth="0.7"/>
+            <circle cx="17" cy="17" r="4.3" fill="#22c55e" stroke="#14532d" strokeWidth="0.7"/>
+            <circle cx="22.5" cy="16" r="4.3" fill="#16a34a" stroke="#14532d" strokeWidth="0.7"/>
+            <circle cx="27.5" cy="15" r="3.5" fill="#22c55e" stroke="#14532d" strokeWidth="0.7"/>
+            <circle cx="28.5" cy="13.5" r="0.8" fill="#0a0a0a"/>
+            <line x1="6" y1="23" x2="6" y2="26" stroke="#14532d" strokeWidth="1.1" strokeLinecap="round"/>
+            <line x1="11.5" y1="22" x2="11.5" y2="25" stroke="#14532d" strokeWidth="1.1" strokeLinecap="round"/>
+            <line x1="17" y1="21" x2="17" y2="24" stroke="#14532d" strokeWidth="1.1" strokeLinecap="round"/>
+            <line x1="22.5" y1="20" x2="22.5" y2="23" stroke="#14532d" strokeWidth="1.1" strokeLinecap="round"/>
+          </svg>
+        ),
+        // Green grasshopper with distinctive bent jumping leg
+        grasshopper: (
+          <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
+            <ellipse cx="14" cy="16" rx="9" ry="3.8" fill="#65a30d" stroke="#365314" strokeWidth="0.7" transform="rotate(-12 14 16)"/>
+            <ellipse cx="6" cy="14.5" rx="3.2" ry="2.8" fill="#4d7c0f" stroke="#365314" strokeWidth="0.6"/>
+            <circle cx="4.5" cy="13.5" r="0.8" fill="#0a0a0a"/>
+            <line x1="5" y1="12.5" x2="2" y2="9" stroke="#365314" strokeWidth="0.7" strokeLinecap="round"/>
+            <line x1="6" y1="11.5" x2="4" y2="7" stroke="#365314" strokeWidth="0.7" strokeLinecap="round"/>
+            <path d="M18 15 L24 9 L26 14 L21 22" fill="#4d7c0f" stroke="#365314" strokeWidth="0.7" strokeLinejoin="round"/>
+            <line x1="21" y1="22" x2="27" y2="28" stroke="#365314" strokeWidth="1.4" strokeLinecap="round"/>
+            <line x1="11" y1="18" x2="9" y2="25" stroke="#365314" strokeWidth="1.1" strokeLinecap="round"/>
+            <line x1="15" y1="18.5" x2="14" y2="25" stroke="#365314" strokeWidth="1.1" strokeLinecap="round"/>
+            <path d="M13 14 Q17 13 21 15" fill="none" stroke="#365314" strokeWidth="0.5"/>
+          </svg>
+        ),
+        // "All" — 2x2 grid of pest-color dots indicating "all categories"
+        all: (
+          <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
+            <circle cx="10" cy="10" r="4" fill="#84cc16"/>
+            <circle cx="22" cy="10" r="4" fill="#eab308"/>
+            <circle cx="10" cy="22" r="4" fill="#dc2626"/>
+            <circle cx="22" cy="22" r="4" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="0.7"/>
+          </svg>
+        ),
+      };
+      return icons[pest] || icons.all;
+    };
+
+    // IRAC group → chemical class name lookup (bilingual)
+    // Covers every group present in the ACTIVES database; unknown groups fall back to the IRAC code itself.
+    const GROUP_NAMES = {
+      zh: {
+        "1A":"氨基甲酸酯", "1B":"有机磷",
+        "2A":"环二烯有机氯", "2B":"苯吡唑",
+        "3A":"拟除虫菊酯",
+        "4A":"新烟碱", "4C":"亚砜亚胺", "4D":"丁烯酰胺", "4E":"介离子",
+        "5":"刺糖菌素", "6":"阿维菌素",
+        "7B":"保幼激素类", "7C":"保幼激素类",
+        "9B":"吡啶杂氮", "9D":"吡咯杂环",
+        "10A":"螨生长抑制",
+        "11A":"苏云金菌",
+        "12A":"ATP酶抑制", "12C":"ATP酶抑制",
+        "13":"解偶联剂",
+        "14":"烟碱通道",
+        "15":"苯甲酰脲", "16":"几丁质",
+        "18":"蜕皮激素",
+        "19":"章鱼胺",
+        "21A":"METI 杀螨", "21B":"METI 杀螨",
+        "22A":"钠通道阻断", "22B":"钠通道阻断",
+        "23":"脂质合成",
+        "25A":"复合体 II",
+        "28":"双酰胺",
+        "29":"弦音器", "30":"GABA 通道", "36":"新化学",
+        "UN":"未明确", "UNF":"真菌制剂", "UNM":"矿物油",
+      },
+      en: {
+        "1A":"Carbamate", "1B":"Organophosphate",
+        "2A":"Cyclodiene", "2B":"Phenylpyrazole",
+        "3A":"Pyrethroid",
+        "4A":"Neonicotinoid", "4C":"Sulfoximine", "4D":"Butenolide", "4E":"Mesoionic",
+        "5":"Spinosyn", "6":"Avermectin",
+        "7B":"JH Analog", "7C":"JH Analog",
+        "9B":"Pyridine az.", "9D":"Pyropene",
+        "10A":"Mite Grow Inh",
+        "11A":"Bt",
+        "12A":"ATP Synth", "12C":"ATP Synth",
+        "13":"Uncoupler",
+        "14":"nAChR Blkr",
+        "15":"Benzoylurea", "16":"Chitin Inh",
+        "18":"Ecdysone Ag",
+        "19":"Octopamine",
+        "21A":"METI", "21B":"METI",
+        "22A":"VG-Na Blkr", "22B":"VG-Na Blkr",
+        "23":"Lipid Biosyn",
+        "25A":"Complex II",
+        "28":"Diamide",
+        "29":"Chordotonal", "30":"GABA Alloster.", "36":"New Chem",
+        "UN":"Unknown", "UNF":"Fungal Agent", "UNM":"Mineral Oil",
+      },
+    };
+    // IRAC group → mode of action description (bilingual, group-level granularity)
+    // Per-chemical specifics within a group are essentially shared — IRAC classifies by MoA, after all.
+    const GROUP_MOA = {
+      zh: {
+        "1A":"氨基甲酸酯类。可逆性抑制乙酰胆碱酯酶 (AChE),使乙酰胆碱在神经突触持续累积,引起害虫过度兴奋、麻痹与死亡。速效,持效较短。",
+        "1B":"有机磷类。磷酰化 AChE 的活性丝氨酸位点,作用与 1A 类似但结合更持久,神经抑制更难恢复。",
+        "2A":"环二烯有机氯。阻断 GABA-门控氯离子通道,使神经过度兴奋。多数产品因环境与人体危害严重已被禁用。",
+        "2B":"苯吡唑类 (Fiprole)。阻断 GABA-门控与谷氨酸-门控氯离子通道,对昆虫的选择性远高于哺乳动物。",
+        "3A":"拟除虫菊酯类。延长电压门控钠通道的开放时间,导致神经持续放电与麻痹。脂溶性高,以接触作用为主。",
+        "4A":"新烟碱类。选择性激动昆虫烟碱乙酰胆碱受体 (nAChR),引起神经持续刺激。强系统性,木质部移行,可经叶面、根部或种子处理吸收。",
+        "4C":"亚砜亚胺 (Sulfoxaflor)。激动 nAChR,与 4A 结合方式略有不同。强系统性,主治刺吸式害虫。",
+        "4D":"丁烯酰胺 (Flupyradifurone)。激动 nAChR,化学结构独特。系统性,主治刺吸式害虫。",
+        "4E":"介离子 (Triflumezopyrim)。阻断 nAChR 特定亚基组合,主要用于飞虱、稻飞虱。",
+        "5":"刺糖菌素类。作用于 nAChR 别构位点,与 4A 不同;源自土壤放线菌 Saccharopolyspora spinosa 的天然代谢物。",
+        "6":"阿维菌素类。激活谷氨酸-门控氯离子通道,使昆虫与螨类神经超极化、麻痹。具穿层渗透性。",
+        "7B":"保幼激素类似物 (Fenoxycarb)。模仿昆虫保幼激素,扰乱发育与变态,主要影响幼虫与卵。",
+        "7C":"保幼激素类似物 (Pyriproxyfen)。与 7B 同位点但化学结构不同,效力更强,广泛用于粉虱、介壳虫与蚊虫。",
+        "9B":"吡啶杂氮甲烷 (Pymetrozine)。作用于刺吸式害虫弦音器 TRPV 通道,使害虫停止取食、几日内饿死。",
+        "9D":"吡咯杂环 (Afidopyropen)。与 9B 同靶点不同位点。",
+        "10A":"螨生长抑制剂 (Hexythiazox/Etoxazole)。抑制螨类几丁质合成酶 CHS1,若螨蜕皮失败死亡。仅对未成熟期有效,需在初期施用。",
+        "11A":"苏云金芽孢杆菌 (Bt)。产生 Cry 蛋白晶体,在昆虫中肠碱性环境激活后,与中肠膜受体结合并打孔,导致中毒死亡。极具选择性,几乎无抗药性。",
+        "12A":"ATP 酶抑制剂 (Diafenthiuron)。前体药,经害虫氧化代谢转化为活性硫脲,抑制线粒体 ATP 合成酶。",
+        "12C":"ATP 酶抑制剂 (Propargite/Tetradifon)。与 12A 同机制,化学结构不同。",
+        "13":"解偶联剂 (Chlorfenapyr)。前体药,经害虫代谢激活,解偶联线粒体氧化磷酸化,使 ATP 合成崩溃、能量代谢失败。",
+        "14":"nAChR 通道阻断剂 (Cartap 类)。物理性阻断 nAChR 通道,与 4A 激动剂作用方式相反;源自海生环节动物毒素。",
+        "15":"苯甲酰脲类。抑制几丁质合成酶 CHS1,新表皮无法形成,昆虫蜕皮时死亡。对卵与幼虫最有效,成虫不杀。",
+        "16":"几丁质合成抑制剂 (Buprofezin)。机制与 15 不同,并干扰激素与产卵,专攻同翅目 (粉虱、介壳虫、飞虱)。",
+        "18":"蜕皮激素受体激动剂 (Methoxyfenozide/Tebufenozide)。激动昆虫蜕皮激素受体,引发过早、不完全蜕皮致死。主要对鳞翅目。",
+        "19":"章鱼胺受体激动剂 (Amitraz)。激动昆虫与螨类章鱼胺受体,扰乱神经传导。多用于螨与蜱。",
+        "21A":"线粒体复合体 I 抑制剂 (Pyridaben/Tebufenpyrad/Fenpyroximate)。METI 杀螨剂,抑制电子传递链复合体 I,中断能量代谢。",
+        "21B":"线粒体复合体 I 抑制剂 (Rotenone)。与 21A 同靶点,源自鱼藤、毛鱼藤等植物根部的天然提取物。",
+        "22A":"电压钠通道阻断剂 (Indoxacarb)。前体药,经害虫酯酶代谢激活,阻断电压门控钠通道 (与 3A 修饰通道方向相反)。",
+        "22B":"电压钠通道阻断剂 (Metaflumizone)。与 22A 同机制,化学结构不同。",
+        "23":"乙酰辅酶 A 羧化酶抑制剂 (Spirotetramat/Spirodiclofen)。抑制脂质生合成的关键酶,使害虫脂肪储备崩溃、繁殖力下降。",
+        "25A":"线粒体复合体 II 抑制剂 (Cyflumetofen/Cyenopyrafen)。抑制琥珀酸脱氢酶,中断三羧酸循环与电子传递。",
+        "28":"双酰胺类 (Chlorantraniliprole/Cyantraniliprole/Flubendiamide)。激活鱼尼丁受体 (RyR),使肌细胞钙库持续释放钙离子,引起肌肉收缩瘫痪、停止取食。",
+        "29":"弦音器调节剂 (Flonicamid)。抑制弦音器细胞中烟酰胺合成,扰乱机械感受,使害虫定向与取食异常。",
+        "30":"GABA-门控氯通道别构调节剂 (Isocycloseram/Fluxametamide)。与 2A/2B 同靶点不同位点,选择性更高、对哺乳动物更安全。",
+        "36":"新化学待分类 (Dimpropyridaz, 2023+)。研究显示作用涉及弦音器调节,IRAC 完整描述待定。",
+        "UN":"作用机制未明确。多为植物源 (如印楝素)、合成化合物或矿物源,经验上具杀虫活性但机制尚未确定。",
+        "UNF":"真菌制剂 (Beauveria bassiana 等)。真菌孢子附着虫体角质层后萌发,菌丝穿透并在体腔内繁殖,杀死宿主。需湿润环境。",
+        "UNM":"矿物油 (Petroleum/White Oil)。物理性堵塞昆虫气孔,导致窒息死亡。无化学性作用,故无抗药性问题。",
+      },
+      en: {
+        "1A":"Carbamate. Reversibly inhibits acetylcholinesterase (AChE), causing acetylcholine to accumulate at nerve synapses → continuous firing → paralysis and death. Fast-acting, short residual.",
+        "1B":"Organophosphate. Phosphorylates the active serine site of AChE — similar to 1A but binds more persistently, harder to reverse.",
+        "2A":"Cyclodiene OC. Blocks GABA-gated chloride channels, causing hyperexcitation. Most products banned due to environmental/health risks.",
+        "2B":"Phenylpyrazole (Fiprole). Blocks GABA-gated and glutamate-gated chloride channels; highly insect-selective vs mammals.",
+        "3A":"Pyrethroid. Prolongs voltage-gated sodium channel open state, causing repetitive nerve firing and paralysis. Lipophilic, primarily contact action.",
+        "4A":"Neonicotinoid. Selective agonist of insect nicotinic acetylcholine receptor (nAChR), causing continuous nerve stimulation. Strongly systemic, xylem-mobile via foliar, soil drench, or seed treatment.",
+        "4C":"Sulfoximine (Sulfoxaflor). Agonist at nAChR, binding somewhat differently from 4A. Strongly systemic; mainly for sap-feeding pests.",
+        "4D":"Butenolide (Flupyradifurone). Distinct chemistry that agonizes nAChR. Systemic; mainly for sap-feeding pests.",
+        "4E":"Mesoionic (Triflumezopyrim). Blocks specific nAChR subunit configurations; primarily for planthoppers.",
+        "5":"Spinosyn. Allosteric agonist at nAChR, distinct site from 4A. Derived from soil actinomycete Saccharopolyspora spinosa.",
+        "6":"Avermectin. Activates glutamate-gated chloride channels, hyperpolarizing nerves in insects and mites. Has translaminar action.",
+        "7B":"Juvenile Hormone Analog (Fenoxycarb). Mimics insect juvenile hormone, disrupting development and metamorphosis; affects larvae and eggs.",
+        "7C":"Juvenile Hormone Analog (Pyriproxyfen). Similar to 7B but different chemistry; higher potency. Widely used against whiteflies, scales, and mosquitoes.",
+        "9B":"Pyridine azomethine (Pymetrozine). Acts on TRPV channels in sucking-insect chordotonal organs, causing them to stop feeding and starve within days.",
+        "9D":"Pyropene (Afidopyropen). Same target as 9B at a different binding pocket.",
+        "10A":"Mite Growth Inhibitor (Hexythiazox/Etoxazole). Inhibits mite chitin synthase CHS1; nymphs fail to molt. Effective only on immature stages — apply early.",
+        "11A":"Bacillus thuringiensis (Bt). Cry protein crystals are activated in the alkaline insect midgut, bind to membrane receptors, and form pores → systemic intoxication. Highly selective, very low resistance pressure.",
+        "12A":"ATP Synthase Inhibitor (Diafenthiuron). Pro-insecticide bioactivated to a thiourea form that inhibits mitochondrial ATP synthase.",
+        "12C":"ATP Synthase Inhibitor (Propargite/Tetradifon). Same mechanism as 12A, different chemistry.",
+        "13":"Uncoupler (Chlorfenapyr). Pro-insecticide bioactivated by insect metabolism; uncouples mitochondrial oxidative phosphorylation → ATP collapse → energy failure.",
+        "14":"nAChR Channel Blocker (Cartap, nereistoxin analogs). Physically blocks the nAChR channel — opposite action to 4A agonists. Derived from marine annelid toxin.",
+        "15":"Benzoylurea. Inhibits chitin synthase CHS1, preventing new cuticle formation; insects die during molt. Most effective on eggs and larvae; adults not killed.",
+        "16":"Chitin Inhibitor (Buprofezin). Different mechanism from 15; also disrupts hormones and oviposition. Specific to Homoptera (whiteflies, scales, planthoppers).",
+        "18":"Ecdysone Agonist (Methoxyfenozide/Tebufenozide). Activates insect ecdysone receptor, triggering premature incomplete molt → death. Mostly used against Lepidoptera.",
+        "19":"Octopamine Agonist (Amitraz). Activates octopamine receptors in insects and mites, disrupting nerve transmission. Mostly used against mites and ticks.",
+        "21A":"Mitochondrial Complex I Inhibitor (Pyridaben/Tebufenpyrad/Fenpyroximate). METI acaricide that blocks electron transport chain Complex I → energy metabolism halt.",
+        "21B":"Mitochondrial Complex I Inhibitor (Rotenone). Same target as 21A, derived from Derris and related plant roots.",
+        "22A":"Voltage-Na Blocker (Indoxacarb). Pro-insecticide bioactivated by insect esterases; blocks voltage-gated sodium channels (opposite direction to 3A which holds them open).",
+        "22B":"Voltage-Na Blocker (Metaflumizone). Same mechanism as 22A, different chemistry.",
+        "23":"Acetyl-CoA Carboxylase Inhibitor (Spirotetramat/Spirodiclofen). Inhibits the key enzyme in insect lipid biosynthesis → fat reserves and fertility collapse.",
+        "25A":"Mitochondrial Complex II Inhibitor (Cyflumetofen/Cyenopyrafen). Inhibits succinate dehydrogenase → TCA cycle and electron transport disruption.",
+        "28":"Diamide (Chlorantraniliprole/Cyantraniliprole/Flubendiamide). Activates ryanodine receptors (RyR), causing continuous Ca²⁺ release from internal stores → muscle contraction paralysis and feeding cessation.",
+        "29":"Chordotonal Modulator (Flonicamid). Inhibits NAD+ synthesis in chordotonal cells, disrupting mechanoreception → abnormal orientation and feeding.",
+        "30":"GABA Allosteric Modulator (Isocycloseram/Fluxametamide). Same target as 2A/2B at a different site — higher selectivity, lower mammalian toxicity.",
+        "36":"New Chemistry, classification pending (Dimpropyridaz, 2023+). Studies suggest chordotonal modulation; full IRAC descriptor pending.",
+        "UN":"Mode of action unclear. Mostly plant-derived (e.g., azadirachtin), synthetic, or mineral compounds with empirically demonstrated insecticidal activity but undetermined mechanism.",
+        "UNF":"Fungal Agent (Beauveria bassiana, etc.). Fungal spores adhere to the insect cuticle, germinate, penetrate via germ tubes, and proliferate inside the host → systemic mycosis. Requires humid conditions.",
+        "UNM":"Mineral Oil (Petroleum/White Oil). Physically blocks insect spiracles → suffocation. No chemical action, hence no resistance issues.",
+      }
+    };
+    // GROUP_CROSS_RESISTANCE — known cross-resistance for each IRAC group, drawn from
+    // peer-reviewed literature + IRAC's core principle (cross-resistance is expected within
+    // a Mode-of-Action group). The high-value cases are the sub-groups that SHARE a target
+    // site (1A↔1B AChE, 2A↔2B GABA/RDL, 4A↔4C↔4D↔4E nAChR) — because rotating between them
+    // is not a true mechanism change. Only groups with a documented/established relationship
+    // get an entry; others show no cross-resistance section (we don't claim what isn't known).
+    const GROUP_CROSS_RESISTANCE = {
+      zh: {
+        "1A":"与有机磷 (1B) 共享乙酰胆碱酯酶 (AChE) 靶标。不敏感 AChE 突变 (如 G119S) 可同时抗 1A 与 1B,多种害虫已有田间报告。1A↔1B 互换并非真正更换机制。",
+        "1B":"与氨基甲酸酯 (1A) 共享 AChE 靶标。不敏感 AChE 突变 (如 G119S) 可同时抗 1A 与 1B。1A↔1B 互换不能有效管理抗药性。",
+        "2A":"与苯吡唑 (2B,氟虫腈/乙虫腈) 共享 GABA 氯离子通道 (RDL) 靶标。环二烯选育出的 Rdl 突变 (A302S) 对氟虫腈有交叉抗性。",
+        "2B":"与环二烯 (2A,硫丹) 共享 GABA/RDL 靶标;Rdl 突变 (A302S) 对二者可交叉抗性。注:30 类 (Isocycloseram) 虽同靶点但结合位点不同,与 2A/2B 无交叉抗性。",
+        "3A":"所有拟除虫菊酯共享钠通道靶标;击倒抗性 (kdr) 突变对整类交叉抗性。3A 内部轮换无效。部分代谢抗性还可波及有机磷、氨基甲酸酯与新烟碱。",
+        "4A":"与亚砜亚胺 (4C)、丁烯酰胺 (4D)、介离子 (4E) 同作用于 nAChR。田间新烟碱抗性多为代谢型,故 4C/4D/4E 常仍有效;但若为靶标突变型抗性,可能交叉抗性。",
+        "4C":"与新烟碱 (4A) 共享 nAChR 靶标。因田间新烟碱抗性多为代谢型,对新烟碱抗性害虫常仍有效;但同靶标,不宜视为真正更换机制。",
+        "4D":"与新烟碱 (4A) 共享 nAChR 靶标。对代谢型新烟碱抗性害虫常仍有效;但同靶标,靶标突变时可能交叉抗性。",
+        "4E":"作用于 nAChR,但文献报告与新烟碱基本无靶标交叉抗性,常可控制新烟碱抗性害虫。",
+        "5":"多杀霉素 (Spinosad) 与乙基多杀菌素 (Spinetoram) 机制相同,相互交叉抗性明显 (小菜蛾、蓟马已有报告)。两者之间轮换无效。",
+        "6":"阿维菌素与甲维盐共享谷氨酸氯通道靶标,相互交叉抗性明显。两者之间轮换无效。",
+        "7B":"与 7C (Pyriproxyfen) 同为保幼激素类似物,共享靶标,可能相互交叉抗性。",
+        "7C":"与 7B (Fenoxycarb) 同靶标 (保幼激素),可能相互交叉抗性。",
+        "9B":"与吡咯杂环 (9D,Afidopyropen) 同靶标 (弦音器 TRPV) 但结合位点不同,交叉抗性通常较低。",
+        "9D":"与 9B (Pymetrozine) 同靶标不同位点,设计上交叉抗性较低。",
+        "12A":"与 12C 同为线粒体 ATP 合成酶抑制剂,共享靶标,可能相互交叉抗性。",
+        "12C":"与 12A (Diafenthiuron) 同靶标,可能相互交叉抗性。",
+        "15":"所有苯甲酰脲 (除虫脲/氟铃脲/虱螨脲/六伏隆) 同抑制几丁质合成酶,相互交叉抗性明显。15 类内部轮换无效。",
+        "18":"蜕皮激素受体激动剂 (灭幼脲/甲氧虫酰肼) 同靶标,相互交叉抗性明显 (小菜蛾、夜蛾已有报告)。内部轮换无效。",
+        "21A":"所有 METI-I 类 (哒螨灵/唑螨酯/唑虫酰胺) 同抑制线粒体复合体 I,相互交叉抗性明显 (叶螨已有报告);与 21B (鱼藤酮) 同靶标。内部轮换无效。",
+        "21B":"鱼藤酮与 21A 同抑制线粒体复合体 I,可能交叉抗性。",
+        "22A":"茚虫威 (22A) 与氰氟虫腙 (22B) 同阻断电压钠通道 (与 3A 方向相反),共享靶标,部分害虫已有相互交叉抗性报告。",
+        "22B":"氰氟虫腙 (22B) 与茚虫威 (22A) 同靶标,可能相互交叉抗性。",
+        "23":"螺虫乙酯与螺螨酯同抑制乙酰辅酶 A 羧化酶,共享靶标,可能相互交叉抗性。",
+        "28":"氯虫苯甲酰胺、溴氰虫酰胺、氟苯虫酰胺等双酰胺共享鱼尼丁受体 (RyR) 靶标。RyR 突变 (如 I4790K) 对所有双酰胺产生高度交叉抗性 (小菜蛾抗性可达数千至数十万倍)。双酰胺之间轮换几乎无效。",
+        "30":"虽与 2A/2B 同作用于 RDL,但结合位点不同;文献显示对环二烯/氟虫腈的 Rdl 突变无交叉抗性,可作为 GABA 靶标害虫的轮替选择。",
+      },
+      en: {
+        "1A":"Shares the acetylcholinesterase (AChE) target with organophosphates (1B). Insensitive-AChE mutations (e.g. G119S) confer resistance to both 1A and 1B — documented in many field pests. Rotating 1A↔1B is not a true mechanism change.",
+        "1B":"Shares the AChE target with carbamates (1A). Insensitive-AChE mutations (e.g. G119S) confer resistance to both. Rotating 1A↔1B does not manage resistance.",
+        "2A":"Shares the GABA-gated chloride channel (RDL) target with phenylpyrazoles (2B, fipronil/ethiprole). The cyclodiene-selected Rdl mutation (A302S) gives cross-resistance to fipronil.",
+        "2B":"Shares the GABA/RDL target with cyclodienes (2A, endosulfan); the Rdl A302S mutation can cross-resist both. Note: Group 30 (isocycloseram) hits the same channel at a different site and is NOT cross-resistant with 2A/2B.",
+        "3A":"All pyrethroids share the sodium-channel target; knockdown-resistance (kdr) mutations cross-resist the whole class — rotating within 3A is futile. Metabolic resistance can also extend to OPs, carbamates and neonicotinoids.",
+        "4A":"Shares the nAChR target with sulfoximine (4C), butenolide (4D) and mesoionic (4E). Field neonicotinoid resistance is mostly metabolic, so 4C/4D/4E often still work — but where resistance is target-site, cross-resistance can occur.",
+        "4C":"Shares the nAChR target with neonicotinoids (4A). Usually still effective against neonic-resistant pests (their resistance is mostly metabolic) — but same target, so not a true mechanism rotation.",
+        "4D":"Shares the nAChR target with neonicotinoids (4A). Often still controls metabolically neonic-resistant pests, but target-site resistance can cross over.",
+        "4E":"Acts on nAChR, but literature reports little to no target-site cross-resistance with neonicotinoids — often controls neonic-resistant pests.",
+        "5":"Spinosad and spinetoram share a mechanism and show clear mutual cross-resistance (documented in diamondback moth, thrips). Rotating between the two does not help.",
+        "6":"Abamectin and emamectin benzoate share the glutamate-gated chloride channel target with clear mutual cross-resistance. Rotating between the two does not help.",
+        "7B":"Shares the juvenile-hormone target with 7C (pyriproxyfen); mutual cross-resistance possible.",
+        "7C":"Shares the juvenile-hormone target with 7B (fenoxycarb); mutual cross-resistance possible.",
+        "9B":"Shares the chordotonal TRPV target with pyropene (9D, afidopyropen) at a different binding site; cross-resistance is usually low.",
+        "9D":"Same target as 9B (pymetrozine) at a different site; designed for low cross-resistance.",
+        "12A":"Shares the mitochondrial ATP-synthase target with 12C; mutual cross-resistance possible.",
+        "12C":"Shares the target with 12A (diafenthiuron); mutual cross-resistance possible.",
+        "15":"All benzoylureas (diflubenzuron/novaluron/lufenuron/hexaflumuron) inhibit chitin synthase and show clear mutual cross-resistance. Rotating within Group 15 is futile.",
+        "18":"Ecdysone-receptor agonists (chromafenozide/methoxyfenozide) share the target with clear mutual cross-resistance (documented in diamondback moth, armyworm). Rotating within the group is futile.",
+        "21A":"All METI-I compounds (pyridaben/fenpyroximate/tolfenpyrad) inhibit mitochondrial Complex I with clear mutual cross-resistance (documented in spider mites); same target as 21B (rotenone). Rotating within the group is futile.",
+        "21B":"Rotenone inhibits Complex I like 21A; cross-resistance possible.",
+        "22A":"Indoxacarb (22A) and metaflumizone (22B) both block the voltage-gated sodium channel (opposite direction to 3A); they share the target and mutual cross-resistance has been reported in some pests.",
+        "22B":"Shares the sodium-channel target with indoxacarb (22A); mutual cross-resistance possible.",
+        "23":"Spirotetramat and spirodiclofen both inhibit acetyl-CoA carboxylase; shared target, mutual cross-resistance possible.",
+        "28":"Chlorantraniliprole, cyantraniliprole and flubendiamide share the ryanodine-receptor (RyR) target. The RyR mutation (e.g. I4790K) cross-resists ALL diamides (resistance up to thousands–hundreds of thousands-fold in diamondback moth). Rotating among diamides is essentially futile.",
+        "30":"Hits the same RDL channel as 2A/2B but at a different site; literature shows no cross-resistance to the cyclodiene/fipronil Rdl mutation — a usable rotation choice against GABA-target pests.",
+      }
+    };
+    // Map IRAC group → site of action by looking at any active in that group (always consistent per our audit).
+    const groupSite = (g, actives) => actives.find(a => a.g === g)?.s || 'unknown';
+    // Cross-resistant sub-group clusters: different IRAC codes that SHARE a target site, so
+    // "rotating" between them is not a true mechanism change. Verified from peer-reviewed
+    // literature. kind: 'shared' = cross-resistance likely; 'partial' = shares target but
+    // field resistance is usually metabolic so it often still works (the Group 4 nAChR family).
+    // (9B↔9D omitted on purpose: afidopyropen was designed to defeat pymetrozine resistance,
+    //  so that rotation is genuinely useful and shouldn't be discouraged.)
+    const CROSS_RESISTANCE_CLUSTERS = [
+      { groups: ['1A','1B'],            kind: 'shared'  }, // acetylcholinesterase (AChE)
+      { groups: ['2A','2B'],            kind: 'shared'  }, // GABA-gated chloride channel (RDL)
+      { groups: ['4A','4C','4D','4E'],  kind: 'partial' }, // nicotinic ACh receptor (nAChR)
+      { groups: ['7B','7C'],            kind: 'shared'  }, // juvenile hormone receptor
+      { groups: ['12A','12C'],          kind: 'shared'  }, // mitochondrial ATP synthase
+      { groups: ['21A','21B'],          kind: 'shared'  }, // mitochondrial Complex I
+      { groups: ['22A','22B'],          kind: 'shared'  }, // voltage-gated Na channel (blocker)
+    ];
+    // Robust external-link opener. In-app browsers (WhatsApp, file previews) silently
+    // ignore target="_blank", so taps do nothing. This tries a new tab, then falls back
+    // to same-window navigation when that's blocked.
+    const openExternal = (e, url) => {
+      if (e) { e.stopPropagation(); e.preventDefault(); }
+      try {
+        const w = window.open(url, '_blank', 'noopener,noreferrer');
+        if (!w) window.location.href = url;
+      } catch (_) {
+        window.location.href = url;
+      }
+    };
+    // Common Malaysian crops — used to refine GB 2763-2026 MRL search query.
+    const COMMON_CROPS = [
+      { value: 'durian',  zh: '榴莲', en: 'Durian' },
+      { value: 'citrus',  zh: '柑橘', en: 'Citrus' },
+      { value: 'mango',   zh: '芒果', en: 'Mango' },
+      { value: 'banana',  zh: '香蕉', en: 'Banana' },
+      { value: 'papaya',  zh: '木瓜', en: 'Papaya' },
+      { value: 'tomato',  zh: '番茄', en: 'Tomato' },
+      { value: 'chili',   zh: '辣椒', en: 'Chili' },
+    ];
+    // Chemical → GB 2763-2026 pesticide ID on the FoodMate portal (2763.foodmate.net).
+    // Lets us link DIRECTLY to a chemical's full MRL-by-crop table (one tap to data),
+    // instead of dumping the farmer on a search-results page. Verified against the
+    // official FoodMate index (612 entries) on 2026-05-29.
+    // Chemicals NOT listed here have no usable MRL page — biologicals/mineral oils that
+    // are MRL-EXEMPT (Bt, Beauveria, White Oil) or actives too new for GB 2763-2026
+    // (Dimpropyridaz, Isocycloseram, Formetanate) — these fall back to a search link.
+    const CHEM_FOODMATE_ID = {
+      "Abamectin": 12, "Acephate": 515, "Acetamiprid": 116, "Afidopyropen": 420,
+      "Amitraz": 425, "Azadirachtin": 539, "Bifenthrin": 277, "Buprofezin": 380,
+      "Carbaryl": 244, "Carbosulfan": 111, "Cartap hydrochloride": 411,
+      "Chlorantraniliprole": 302, "Chlorfenapyr": 75, "Chlorpyrifos": 125,
+      "Chromafenozide": 213, "Clothianidin": 370, "Cyantraniliprole": 487,
+      "Cyflumetofen": 110, "Cypermethrin": 312, "Deltamethrin": 488,
+      "Diafenthiuron": 112, "Dicofol": 395, "Diflubenzuron": 79, "Dimethoate": 272,
+      "Dinotefuran": 152, "Emamectin benzoate": 226, "Endosulfan": 284,
+      "Esfenvalerate": 362, "Ethiprole": 504, "Etofenprox": 330, "Fenitrothion": 412,
+      "Fenobucarb": 550, "Fenoxycarb": 43, "Fenpyroximate": 556, "Fenthion": 24,
+      "Fipronil": 167, "Flonicamid": 173, "Flubendiamide": 158, "Flupyradifurone": 161,
+      "Hexaflumuron": 181, "Hexythiazox": 378, "Imidacloprid": 48, "Indoxacarb": 541,
+      "Isoprocarb": 526, "Lambda-cyhalothrin": 307, "Lufenuron": 418, "Malathion": 320,
+      "Metaflumizone": 360, "Methamidophos": 227, "Methomyl": 341,
+      "Methoxyfenozide": 250, "Novaluron": 194, "Propargite": 366, "Pymetrozine": 53,
+      "Pyridaben": 81, "Pyridalyl": 388, "Pyriproxyfen": 46, "Rotenone": 545,
+      "Spinetoram": 505, "Spinosad": 131, "Spirodiclofen": 293, "Spirotetramat": 290,
+      "Sulfoxaflor": 172, "Thiamethoxam": 372, "Tolfenpyrad": 553,
+      "Triflumezopyrim": 387,
+    };
+    // Chemical → official GB 2763-2026 Chinese name (from the FoodMate index).
+    // Displayed as "English 中文" so Chinese-speaking farmers recognise the product.
+    // Dimpropyridaz & Isocycloseram are omitted — too new for a standardised Chinese
+    // name; they show English only rather than an invented translation.
+    const CHEM_ZH = {
+      "Abamectin": "阿维菌素", "Acephate": "乙酰甲胺磷", "Acetamiprid": "啶虫脒",
+      "Afidopyropen": "双丙环虫酯", "Amitraz": "双甲脒", "Azadirachtin": "印楝素",
+      "Bacillus thuringiensis": "苏云金杆菌", "Beauveria bassiana": "球孢白僵菌",
+      "Bifenthrin": "联苯菊酯", "Buprofezin": "噻嗪酮", "Carbaryl": "甲萘威",
+      "Carbosulfan": "丁硫克百威", "Cartap hydrochloride": "杀螟丹",
+      "Chlorantraniliprole": "氯虫苯甲酰胺", "Chlorfenapyr": "虫螨腈",
+      "Chlorpyrifos": "毒死蜱", "Chromafenozide": "环虫酰肼", "Clothianidin": "噻虫胺",
+      "Cyantraniliprole": "溴氰虫酰胺", "Cyflumetofen": "丁氟螨酯",
+      "Cypermethrin": "氯氰菊酯", "Deltamethrin": "溴氰菊酯", "Diafenthiuron": "丁醚脲",
+      "Dicofol": "三氯杀螨醇", "Diflubenzuron": "除虫脲", "Dimethoate": "乐果",
+      "Dinotefuran": "呋虫胺", "Emamectin benzoate": "甲氨基阿维菌素苯甲酸盐",
+      "Endosulfan": "硫丹", "Esfenvalerate": "S-氰戊菊酯", "Ethiprole": "乙虫腈",
+      "Etofenprox": "醚菊酯", "Fenitrothion": "杀螟硫磷", "Fenobucarb": "仲丁威",
+      "Fenoxycarb": "苯氧威", "Fenpyroximate": "唑螨酯", "Fenthion": "倍硫磷",
+      "Fipronil": "氟虫腈", "Flonicamid": "氟啶虫酰胺", "Flubendiamide": "氟苯虫酰胺",
+      "Flupyradifurone": "氟吡呋喃酮", "Formetanate hydrochloride": "伐虫脒盐酸盐",
+      "Hexaflumuron": "氟铃脲", "Hexythiazox": "噻螨酮", "Imidacloprid": "吡虫啉",
+      "Indoxacarb": "茚虫威", "Isoprocarb": "异丙威",
+      "Lambda-cyhalothrin": "高效氯氟氰菊酯", "Lufenuron": "虱螨脲",
+      "Malathion": "马拉硫磷", "Metaflumizone": "氰氟虫腙", "Methamidophos": "甲胺磷",
+      "Methomyl": "灭多威", "Methoxyfenozide": "甲氧虫酰肼", "Novaluron": "氟酰脲",
+      "Propargite": "炔螨特", "Pymetrozine": "吡蚜酮", "Pyridaben": "哒螨灵",
+      "Pyridalyl": "三氟甲吡醚", "Pyriproxyfen": "吡丙醚", "Rotenone": "鱼藤酮",
+      "Spinetoram": "乙基多杀菌素", "Spinosad": "多杀霉素", "Spirodiclofen": "螺螨酯",
+      "Spirotetramat": "螺虫乙酯", "Sulfoxaflor": "氟啶虫胺腈", "Thiamethoxam": "噻虫嗪",
+      "Tolfenpyrad": "唑虫酰胺", "Triflumezopyrim": "三氟苯嘧啶", "White Oil": "矿物油",
+    };
+    // "English 中文" label (Chinese appended only when we have an official name).
+    const chemLabel = (n) => (CHEM_ZH[n] ? `${n} ${CHEM_ZH[n]}` : n);
+    // Site → tile color classes (background tint + border + label color when UNSELECTED)
+    const SITE_TILE_STYLES = {
+      neural:      { bg:"bg-sky-50",     border:"border-sky-200",    hover:"hover:bg-sky-100",    label:"text-sky-700",    borderL:"border-l-sky-400" },
+      growth:      { bg:"bg-violet-50",  border:"border-violet-200", hover:"hover:bg-violet-100", label:"text-violet-700", borderL:"border-l-violet-400" },
+      respiratory: { bg:"bg-orange-50",  border:"border-orange-200", hover:"hover:bg-orange-100", label:"text-orange-700", borderL:"border-l-orange-400" },
+      midgut:      { bg:"bg-amber-50",   border:"border-amber-200",  hover:"hover:bg-amber-100",  label:"text-amber-800",  borderL:"border-l-amber-400" },
+      unknown:     { bg:"bg-slate-50",   border:"border-slate-200",  hover:"hover:bg-slate-100",  label:"text-slate-600",  borderL:"border-l-slate-400" },
+    };
+
     const ACTIVES = [
       // GRASSHOPPER & BEETLES
       {pest:"grasshopper",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
@@ -244,13 +676,16 @@
     // ========================================================================
     const L = {
       zh: {
-        appTitle: "虫药轮替助手", appSubtitle: "依据 Tee 先生《Bunting A》机制图整理",
+        appTitle: "虫药轮替", appSubtitle: "依据 Tee 先生《Bunting A》机制图整理",
         tabLibrary: "机制库", tabRotate: "轮替助手", tabMix: "调配顺序",
         assistant: "快速查询", assistantHint: "问问特定害虫、机制或活性成分…",
         searchPlaceholder: "搜寻活性成分、机制或害虫…",
         filterAll: "全部", filterRisk: "抗药性风险", filterSite: "作用部位",
-        selectPest: "选择害虫", lastUsed: "上次用过的 IRAC 机制组",
+        selectPest: "选择害虫", lastUsed: "上次用过的 IRAC 机制组", tapToChange: "点击更改", siteChanger: "换机制",
         rotateTo: "建议轮替", rotateAvoid: "避免使用 (相同机制)",
+        rotateCaution: "谨慎 — 靶标相同",
+        cautionNote_shared: "与所选机制共享靶标,可能交叉抗性,换用并非真正更换机制。",
+        cautionNote_partial: "与所选机制共享靶标;田间抗性多为代谢型,常仍有效,但非真正更换机制。",
         site_neural: "神经与肌肉", site_respiratory: "呼吸系统",
         site_growth: "生长与发育", site_unknown: "未知 / 无特定", site_midgut: "中肠 (Bt)",
         risk_low: "低", risk_mid: "中", risk_high: "高",
@@ -296,8 +731,11 @@
         assistant: "Quick Lookup", assistantHint: "Ask about a pest, group, or active ingredient…",
         searchPlaceholder: "Search active, group or pest…",
         filterAll: "All", filterRisk: "risks", filterSite: "Action site",
-        selectPest: "Select pest", lastUsed: "Last-used IRAC group",
+        selectPest: "Select pest", lastUsed: "Last-used IRAC group", tapToChange: "Tap to change", siteChanger: "Site changer",
         rotateTo: "Rotate to", rotateAvoid: "Avoid (same group)",
+        rotateCaution: "Caution — shares a target",
+        cautionNote_shared: "Shares the selected target — likely cross-resistant; switching is not a real mechanism change.",
+        cautionNote_partial: "Shares the target; field resistance is usually metabolic so it often still works, but it isn't a true mechanism change.",
         site_neural: "Nerve & Muscle", site_respiratory: "Respiration",
         site_growth: "Growth & Development", site_unknown: "Unknown / Non-specific", site_midgut: "Midgut (Bt)",
         risk_low: "Low", risk_mid: "Med", risk_high: "High",
@@ -379,28 +817,36 @@
         else if (fontScale === 'l') html.classList.add('text-scale-l');
         try { localStorage.setItem('moa.fontScale', fontScale); } catch(e) {}
       }, [fontScale]);
+      // Register the service worker (offline support). 'sw.js' is resolved relative to the
+      // page, so it works under any GitHub Pages sub-path. Fails silently if unsupported.
+      useEffect(() => {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+      }, []);
       const [tab, setTab] = useState('library');
       const mainRef = useRef(null);
       const [showBackToTop, setShowBackToTop] = useState(false);
       useEffect(() => {
-        const el = mainRef.current;
-        if (!el) return;
-        const onScroll = () => setShowBackToTop(el.scrollTop > 400);
-        el.addEventListener('scroll', onScroll, { passive: true });
-        return () => el.removeEventListener('scroll', onScroll);
+        // Root uses min-h-screen so the WINDOW scrolls (not the <main> element).
+        // Listen on window so the button actually appears.
+        const onScroll = () => {
+          const y = window.scrollY || document.documentElement.scrollTop || 0;
+          setShowBackToTop(y > 400);
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
       }, []);
       // Reset scroll position when switching tabs
       useEffect(() => {
-        if (mainRef.current) mainRef.current.scrollTop = 0;
+        window.scrollTo(0, 0);
         setShowBackToTop(false);
       }, [tab]);
       const scrollToTop = () => {
-        const el = mainRef.current;
-        if (!el) return;
         try {
-          el.scrollTo({ top: 0, behavior: 'smooth' });
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (e) {
-          el.scrollTop = 0; // fallback for older browsers
+          window.scrollTo(0, 0); // fallback for older browsers
         }
       };
       const [showAssistant, setShowAssistant] = useState(false);
@@ -419,29 +865,58 @@
           if (riskFilter !== 'all' && a.r !== riskFilter) return false;
           if (!q) return true;
           const pestObj = PESTS.find(p => p.id === a.pest);
-          const hay = (a.n + ' ' + a.g + ' ' + (a.zh||'') + ' ' + pestObj.zh + ' ' + pestObj.en).toLowerCase();
+          const hay = (a.n + ' ' + a.g + ' ' + (CHEM_ZH[a.n] || a.zh || '') + ' ' + pestObj.zh + ' ' + pestObj.en).toLowerCase();
           return hay.includes(q);
         });
       }, [query, pestFilter, riskFilter]);
 
+      // ---- Card expansion (one expanded at a time) ----
+      const [expandedCard, setExpandedCard] = useState(null);
+      // ---- Selected crop for MRL search refinement (persists globally) ----
+      const [crop, setCrop] = useState(() => {
+        try { return localStorage.getItem('moa.crop') || ''; } catch(e) { return ''; }
+      });
+      useEffect(() => {
+        try { localStorage.setItem('moa.crop', crop); } catch(e) {}
+      }, [crop]);
+
       // ---- Rotation tab state ----
       const [rotPest, setRotPest] = useState('spider_mite');
       const [rotGroup, setRotGroup] = useState('');
+      const [groupPickerExpanded, setGroupPickerExpanded] = useState(false);
+      const [showCrossInfo, setShowCrossInfo] = useState(false);
 
       const rotation = useMemo(() => {
         if (!rotGroup) return null;
         const pool = ACTIVES.filter(a => a.pest === rotPest);
         const groupsAvail = [...new Set(pool.map(a => a.g))];
+        const selectedSite = groupSite(rotGroup, ACTIVES);
+        // Cross-resistant sibling groups (different code, shared target). These must NOT be
+        // offered as good rotations — they go into a separate "caution" tier instead.
+        const cluster = CROSS_RESISTANCE_CLUSTERS.find(c => c.groups.includes(rotGroup));
+        const crossGroups = cluster ? cluster.groups.filter(g => g !== rotGroup) : [];
+        const crossKind = cluster ? cluster.kind : null;
+        const buildGroup = (g) => {
+          const items = pool.filter(a => a.g === g);
+          const lowRiskCount = items.filter(x => x.r === 'low').length;
+          const site = groupSite(g, ACTIVES);
+          return { g, items, lowRiskCount, site, differentSite: site !== selectedSite ? 1 : 0 };
+        };
         const suggested = groupsAvail
-          .filter(g => g !== rotGroup)
-          .map(g => {
-            const items = pool.filter(a => a.g === g);
-            const lowRiskCount = items.filter(x => x.r === 'low').length;
-            return { g, items, lowRiskCount };
-          })
-          .sort((a, b) => b.lowRiskCount - a.lowRiskCount); // prefer low-risk groups
+          .filter(g => g !== rotGroup && !crossGroups.includes(g))
+          .map(buildGroup)
+          .sort((a, b) => {
+            // Primary: site changers rank higher — they break the cross-resistance cycle.
+            if (a.differentSite !== b.differentSite) return b.differentSite - a.differentSite;
+            // Secondary: more low-risk actives in the group is better.
+            return b.lowRiskCount - a.lowRiskCount;
+          });
+        // Caution: cross-resistant sibling groups that are actually available for this pest.
+        const caution = groupsAvail
+          .filter(g => crossGroups.includes(g))
+          .map(buildGroup);
         const avoid = pool.filter(a => a.g === rotGroup);
-        return { suggested, avoid };
+        return { suggested, caution, crossKind, avoid };
       }, [rotPest, rotGroup]);
 
       const groupsForRotPest = useMemo(() => {
@@ -455,7 +930,7 @@
       }, [rotPest]);
 
       // ---- Reset rotGroup when pest changes ----
-      useEffect(() => { setRotGroup(''); }, [rotPest]);
+      useEffect(() => { setRotGroup(''); setGroupPickerExpanded(false); }, [rotPest]);
 
       // ========================================================================
       // SUB-VIEWS
@@ -463,41 +938,170 @@
 
       const renderActiveCard = (a, i) => {
         const pestObj = PESTS.find(p => p.id === a.pest);
-        const displayName = lang === 'zh' && a.zh ? `${a.zh} (${a.n})` : a.n;
+        const displayName = chemLabel(a.n);
+        const cardKey = `${a.pest}-${a.g}-${a.n}`;
+        const isExpanded = expandedCard === cardKey;
+        const moaText = (GROUP_MOA[lang] || {})[a.g] || '';
+        const crText = (GROUP_CROSS_RESISTANCE[lang] || {})[a.g] || '';
+        const cropObj = COMMON_CROPS.find(c => c.value === crop);
+        const cropTerm = cropObj ? (lang === 'zh' ? cropObj.zh : cropObj.en) : '';
+        // DIRECT link to this chemical's full MRL-by-crop table on the GB 2763-2026
+        // portal (one tap → the data), the same way the DT50 link lands on PPDB.
+        // Falls back to a site-restricted search only for the handful of exempt /
+        // too-new actives that have no MRL page.
+        // NOTE: 2763.foodmate.net has NO working TLS — the https:// endpoint fails / loops
+        // ("A problem repeatedly occurred" in iOS in-app browsers). The http:// endpoint
+        // loads fine and does not upgrade-redirect, so we link to http:// directly.
+        // Top-level navigation from an https page to an http page is permitted by browsers
+        // (mixed-content blocking only applies to embedded subresources).
+        const fid = CHEM_FOODMATE_ID[a.n];
+        const mrlSearchURL = `https://www.google.com/search?q=${encodeURIComponent(
+          `site:2763.foodmate.net ${a.n}${cropTerm ? ' ' + cropTerm : ''}`
+        )}`;
+        const mrlURL = fid
+          ? `http://2763.foodmate.net/pesticides/limit/${fid}.html`
+          : mrlSearchURL;
+        const dt50URL = `https://www.google.com/search?q=${encodeURIComponent(`${a.n} DT50 PPDB`)}`;
+        const toggleExpand = () => setExpandedCard(isExpanded ? null : cardKey);
         return (
-          <div key={i} className={`bg-white rounded-2xl border border-slate-200 border-l-4 ${siteAccent[a.s]} p-3 shadow-sm`}>
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-extrabold text-base text-slate-900 break-words">{displayName}</span>
-                  <span className="text-xs font-bold bg-[#114b2d] text-white px-2 py-0.5 rounded-full whitespace-nowrap">{a.g}</span>
+          <div key={cardKey} className={`bg-white rounded-2xl border border-slate-200 border-l-4 ${siteAccent[a.s]} shadow-sm overflow-hidden`}>
+            {/* Tappable summary area */}
+            <div role="button" tabIndex={0}
+                 onClick={toggleExpand}
+                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(); } }}
+                 className="cursor-pointer p-3 hover:bg-slate-50 transition-colors">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-extrabold text-base text-slate-900 break-words">{displayName}</span>
+                    <span className="text-xs font-bold bg-[#114b2d] text-white px-2 py-0.5 rounded-full whitespace-nowrap">{a.g}</span>
+                  </div>
+                  <div className="text-sm text-slate-700 font-bold mt-1 flex items-center gap-1.5">
+                    <PestIcon pest={a.pest} className="w-5 h-5 shrink-0" />
+                    <span className="truncate">{lang === 'zh' ? pestObj.zh : pestObj.en}</span>
+                  </div>
                 </div>
-                <div className="text-sm text-slate-700 font-bold mt-1 truncate">{pestObj.emoji} {lang === 'zh' ? pestObj.zh : pestObj.en}</div>
+                <span className={`text-sm font-extrabold px-3 py-1 rounded-full border whitespace-nowrap ${riskBadge[a.r]}`}>{t[`risk_${a.r}`]}</span>
               </div>
-              <span className={`text-sm font-extrabold px-3 py-1 rounded-full border whitespace-nowrap ${riskBadge[a.r]}`}>{t[`risk_${a.r}`]}</span>
-            </div>
-            <div className="mt-2.5 flex flex-wrap gap-1.5 text-xs">
-              <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`site_${a.s}`]}</span>
-              <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`mob_${a.m}`]}</span>
-              {a.tl && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.tl}</span>}
-              {a.ud && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.ud}</span>}
-            </div>
-            {a.note && t[`note_${a.note}`] && (() => {
-              const isWarning = a.note === 'cross_abamectin';
-              const isAdded = a.note.startsWith('added_') || a.note.startsWith('challenge_');
-              const cls = isWarning
-                ? 'bg-amber-50 text-amber-900 border border-amber-200'
-                : isAdded
-                  ? 'bg-indigo-50 text-indigo-900 border border-indigo-200'
-                  : 'bg-slate-50 text-slate-700 border border-slate-200';
-              return (
-                <div className={`mt-2 flex items-start gap-1.5 text-xs font-semibold rounded-lg px-2.5 py-1.5 ${cls}`}>
-                  {isWarning && <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
-                  {isAdded && <Plus className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
-                  <span>{t[`note_${a.note}`]}</span>
+              <div className="mt-2.5 flex flex-wrap gap-1.5 text-xs">
+                <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`site_${a.s}`]}</span>
+                <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`mob_${a.m}`]}</span>
+                {a.tl && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.tl}</span>}
+                {a.ud && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.ud}</span>}
+              </div>
+              {a.note && t[`note_${a.note}`] && (() => {
+                const isWarning = a.note === 'cross_abamectin';
+                const isAdded = a.note.startsWith('added_') || a.note.startsWith('challenge_');
+                const cls = isWarning
+                  ? 'bg-amber-50 text-amber-900 border border-amber-200'
+                  : isAdded
+                    ? 'bg-indigo-50 text-indigo-900 border border-indigo-200'
+                    : 'bg-slate-50 text-slate-700 border border-slate-200';
+                return (
+                  <div className={`mt-2 flex items-start gap-1.5 text-xs font-semibold rounded-lg px-2.5 py-1.5 ${cls}`}>
+                    {isWarning && <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
+                    {isAdded && <Plus className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
+                    <span>{t[`note_${a.note}`]}</span>
+                  </div>
+                );
+              })()}
+              {/* Expand affordance — down-chevron, shown only when collapsed */}
+              {!isExpanded && (
+                <div className="mt-1.5 flex items-center justify-center text-slate-300">
+                  <ChevronDown className="w-4 h-4" />
                 </div>
-              );
-            })()}
+              )}
+            </div>
+
+            {/* Expanded panel (sibling, not inside tappable area — so link clicks don't collapse) */}
+            {isExpanded && (
+              <div className="border-t border-slate-200 bg-slate-50/70 px-3 py-3 space-y-3 animate-in">
+                {/* Mode of Action */}
+                <div>
+                  <div className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                    {lang === 'zh' ? '作用机制' : 'Mode of Action'} · {a.g}
+                  </div>
+                  <div className="text-sm text-slate-700 leading-relaxed">
+                    {moaText || (lang === 'zh' ? '机制信息待补。' : 'Mechanism details to be added.')}
+                  </div>
+                </div>
+                {/* Cross-resistance — only shown when documented for this IRAC group */}
+                {crText && (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-2">
+                    <div className="text-[11px] font-extrabold text-amber-700 uppercase tracking-wider mb-1">
+                      {lang === 'zh' ? '⚠ 交叉抗性' : '⚠ Cross-resistance'}
+                    </div>
+                    <div className="text-sm text-amber-900 leading-relaxed">
+                      {crText}
+                    </div>
+                  </div>
+                )}
+                {/* DT50 */}
+                <div>
+                  <div className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                    {lang === 'zh' ? '半衰期 (DT50)' : 'Half-life (DT50)'}
+                  </div>
+                  <a href={dt50URL} onClick={(e) => openExternal(e, dt50URL)}
+                     className="text-sm text-[#114b2d] underline font-bold hover:text-emerald-700 break-all">
+                    {lang === 'zh' ? `查询 ${a.n} 的 DT50 (PPDB) →` : `Look up ${a.n} DT50 (PPDB) →`}
+                  </a>
+                </div>
+                {/* China MRL — GB 2763-2026 */}
+                <div>
+                  <div className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                    {lang === 'zh' ? '中国 MRL · GB 2763-2026' : 'China MRL · GB 2763-2026'}
+                  </div>
+                  {/* Crop chip row — tells the farmer which row to find in the table.
+                      Selection persists globally via localStorage. */}
+                  <div className="mb-4">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                      {lang === 'zh' ? '你的作物' : 'Your crop'}
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {COMMON_CROPS.map(c => (
+                        <button key={c.value}
+                          onClick={(e) => { e.stopPropagation(); setCrop(crop === c.value ? '' : c.value); }}
+                          className={`text-xs px-2 py-0.5 rounded-full border-2 font-bold transition-all ${
+                            crop === c.value
+                              ? 'bg-emerald-600 text-white border-emerald-700'
+                              : 'bg-white text-slate-700 border-slate-300 hover:border-emerald-400'
+                          }`}>
+                          {lang === 'zh' ? c.zh : c.en}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <a href={mrlURL} onClick={(e) => openExternal(e, mrlURL)}
+                     className="text-sm text-[#114b2d] underline font-bold hover:text-emerald-700 break-all block">
+                    {fid
+                      ? (lang === 'zh'
+                          ? `📋 查看 ${a.n} 的 MRL 数据表 →`
+                          : `📋 View ${a.n} MRL table →`)
+                      : (lang === 'zh'
+                          ? `🔍 查询 ${a.n}${cropTerm ? ' · ' + cropTerm : ''} 的 MRL →`
+                          : `🔍 Search ${a.n}${cropTerm ? ' · ' + cropTerm : ''} MRL →`)}
+                  </a>
+                  {fid && cropTerm && (
+                    <div className="text-[11px] text-emerald-700 font-semibold mt-0.5">
+                      {lang === 'zh'
+                        ? `↳ 打开后在表中查找你的作物:「${cropTerm}」`
+                        : `↳ On the page, find your crop in the table: "${cropTerm}"`}
+                    </div>
+                  )}
+                  <div className="text-[11px] text-slate-500 mt-1.5 italic">
+                    {lang === 'zh'
+                      ? '数据来源:食品伙伴网 (2763.foodmate.net),仅供参考,以国家标准原文为准。'
+                      : 'Data source: FoodMate (2763.foodmate.net). Reference only — verify against the official GB 2763-2026 text.'}
+                  </div>
+                </div>
+                {/* Collapse — at the bottom of the expanded card */}
+                <button onClick={toggleExpand}
+                  aria-label={lang === 'zh' ? '收起' : 'Collapse'}
+                  className="w-full flex items-center justify-center text-slate-300 hover:text-slate-500 transition-colors">
+                  <ChevronDown className="w-4 h-4 rotate-180" />
+                </button>
+              </div>
+            )}
           </div>
         );
       };
@@ -512,20 +1116,50 @@
               className="w-full bg-white border border-slate-300 rounded-xl pl-10 pr-3 py-3 text-base focus:ring-2 focus:ring-[#114b2d]/30 focus:outline-none shadow-sm" />
           </div>
 
-          {/* Filters */}
-          <div className="flex gap-2">
-            <select value={pestFilter} onChange={e => setPestFilter(e.target.value)}
-              className="flex-1 min-w-0 bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#114b2d]/30 truncate">
-              <option value="all">{lang==='zh'?'全部害虫':'All pests'}</option>
-              {PESTS.map(p => <option key={p.id} value={p.id}>{p.emoji} {lang==='zh'?p.zh:p.en}</option>)}
-            </select>
-            <select value={riskFilter} onChange={e => setRiskFilter(e.target.value)}
-              className="flex-1 min-w-0 bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#114b2d]/30 truncate">
-              <option value="all">{t.filterAll} {t.filterRisk}</option>
-              <option value="low">{t.risk_low}</option>
-              <option value="mid">{t.risk_mid}</option>
-              <option value="high">{t.risk_high}</option>
-            </select>
+          {/* Pest tile selector — visual color-coded tiles in Malaysian farmer priority order */}
+          <div>
+            <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+              <button onClick={() => setPestFilter('all')}
+                className={`p-1.5 min-h-[80px] rounded-xl border text-xs font-bold transition-all flex flex-col items-center justify-center gap-0.5 ${pestFilter === 'all' ? 'bg-[#114b2d] text-white border-[#114b2d] shadow-md' : 'bg-white text-slate-700 border-slate-200 hover:border-[#114b2d]/40'}`}>
+                <PestIcon pest="all" className="w-7 h-7" />
+                <span className="leading-tight">{lang==='zh'?'全部':'All'}</span>
+              </button>
+              {PESTS.map(p => (
+                <button key={p.id} onClick={() => setPestFilter(p.id)}
+                  className={`p-1.5 min-h-[80px] rounded-xl border text-xs font-bold transition-all flex flex-col items-center justify-center gap-0.5 ${pestFilter === p.id ? 'bg-[#114b2d] text-white border-[#114b2d] shadow-md' : 'bg-white text-slate-700 border-slate-200 hover:border-[#114b2d]/40'}`}>
+                  <PestIcon pest={p.id} className="w-7 h-7" />
+                  <span className="leading-tight text-center break-words">{lang === 'zh' ? p.zh : p.en}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Risk tile selector — color-coded to match card risk badges (green/amber/rose) */}
+          <div className="grid grid-cols-4 gap-1.5">
+            <button onClick={() => setRiskFilter('all')}
+              className={`p-2.5 rounded-xl border text-sm font-bold transition-all flex flex-col items-center justify-center gap-1 ${riskFilter === 'all' ? 'bg-[#114b2d] text-white border-[#114b2d] shadow-md' : 'bg-white text-slate-700 border-slate-200 hover:border-[#114b2d]/40'}`}>
+              <span className="flex items-center gap-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+              </span>
+              <span className="leading-tight">{lang==='zh'?'全部':'All'}</span>
+            </button>
+            <button onClick={() => setRiskFilter('low')}
+              className={`p-2.5 rounded-xl border text-sm font-bold transition-all flex flex-col items-center justify-center gap-1 ${riskFilter === 'low' ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-emerald-50 text-emerald-900 border-emerald-200 hover:bg-emerald-100'}`}>
+              <span className={`w-3 h-3 rounded-full ${riskFilter === 'low' ? 'bg-white' : 'bg-emerald-500'}`}></span>
+              <span className="leading-tight">{t.risk_low}</span>
+            </button>
+            <button onClick={() => setRiskFilter('mid')}
+              className={`p-2.5 rounded-xl border text-sm font-bold transition-all flex flex-col items-center justify-center gap-1 ${riskFilter === 'mid' ? 'bg-amber-500 text-white border-amber-500 shadow-md' : 'bg-amber-50 text-amber-900 border-amber-200 hover:bg-amber-100'}`}>
+              <span className={`w-3 h-3 rounded-full ${riskFilter === 'mid' ? 'bg-white' : 'bg-amber-500'}`}></span>
+              <span className="leading-tight">{t.risk_mid}</span>
+            </button>
+            <button onClick={() => setRiskFilter('high')}
+              className={`p-2.5 rounded-xl border text-sm font-bold transition-all flex flex-col items-center justify-center gap-1 ${riskFilter === 'high' ? 'bg-rose-600 text-white border-rose-600 shadow-md' : 'bg-rose-50 text-rose-900 border-rose-200 hover:bg-rose-100'}`}>
+              <span className={`w-3 h-3 rounded-full ${riskFilter === 'high' ? 'bg-white' : 'bg-rose-500'}`}></span>
+              <span className="leading-tight">{t.risk_high}</span>
+            </button>
           </div>
 
           {/* Result count */}
@@ -544,6 +1178,21 @@
         </div>
       );
 
+      // Small building blocks for the cross-resistance explainer (HTML, so text uses the
+      // app font + weight and scales with the font-size control — matching the rest of the UI).
+      const crDots = (tone) => (
+        <span className="flex gap-1 justify-center">
+          <span className={`inline-block w-3.5 h-3.5 rounded-full border-2 ${tone}`}></span>
+          <span className={`inline-block w-3.5 h-3.5 rounded-full border-2 ${tone}`}></span>
+        </span>
+      );
+      const crArrow = () => (
+        <svg width="30" height="12" viewBox="0 0 30 12" className="text-slate-400 mx-auto">
+          <line x1="0" y1="6" x2="23" y2="6" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M21 2 L28 6 L21 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+
       const renderRotateView = () => (
         <div className="space-y-5 max-w-3xl">
           {/* Pest picker */}
@@ -552,25 +1201,64 @@
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {PESTS.map(p => (
                 <button key={p.id} onClick={() => setRotPest(p.id)}
-                  className={`p-3 rounded-xl border text-sm font-bold transition-all ${rotPest === p.id ? 'bg-[#114b2d] text-white border-[#114b2d] shadow-md' : 'bg-white text-slate-700 border-slate-200 hover:border-[#114b2d]/40'}`}>
-                  <div className="text-3xl mb-1.5">{p.emoji}</div>
-                  {lang === 'zh' ? p.zh : p.en}
+                  className={`p-3 rounded-xl border text-sm font-bold transition-all flex flex-col items-center justify-center gap-1.5 ${rotPest === p.id ? 'bg-[#114b2d] text-white border-[#114b2d] shadow-md' : 'bg-white text-slate-700 border-slate-200 hover:border-[#114b2d]/40'}`}>
+                  <PestIcon pest={p.id} className="w-10 h-10" />
+                  <span className="leading-tight text-center">{lang === 'zh' ? p.zh : p.en}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Group picker */}
+          {/* Group picker — tiles tinted by site of action; collapses to a compact bar after selection */}
           <div>
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">{t.lastUsed}</label>
-            <div className="flex flex-wrap gap-2">
-              {groupsForRotPest.map(g => (
-                <button key={g} onClick={() => setRotGroup(g)}
-                  className={`px-4 py-2.5 rounded-xl text-base font-extrabold border transition-all ${rotGroup === g ? 'bg-rose-600 text-white border-rose-600 shadow-md' : 'bg-white text-slate-700 border-slate-300 hover:border-rose-400'}`}>
-                  {g}
-                </button>
-              ))}
-            </div>
+            {(!rotGroup || groupPickerExpanded) ? (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 animate-in">
+                {groupsForRotPest.map(g => {
+                  const site = groupSite(g, ACTIVES);
+                  const styles = SITE_TILE_STYLES[site] || SITE_TILE_STYLES.unknown;
+                  const className_ = (lang === 'zh' ? GROUP_NAMES.zh : GROUP_NAMES.en)[g] || '';
+                  const selected = rotGroup === g;
+                  return (
+                    <button key={g} onClick={() => { setRotGroup(g); setGroupPickerExpanded(false); }}
+                      className={`p-2.5 min-h-[80px] rounded-xl border-2 font-extrabold transition-all flex flex-col items-center justify-center gap-1 ${
+                        selected
+                          ? 'bg-rose-600 text-white border-rose-700 shadow-md'
+                          : `${styles.bg} ${styles.border} ${styles.hover}`
+                      }`}>
+                      <span className={`text-lg leading-none ${selected ? 'text-white' : 'text-slate-900'}`}>{g}</span>
+                      {className_ && (
+                        <span className={`text-[11px] leading-tight text-center font-bold ${selected ? 'text-rose-50' : styles.label}`}>
+                          {className_}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              // Collapsed bar — selected group prominent, tap anywhere to re-expand
+              <button onClick={() => setGroupPickerExpanded(true)}
+                className="w-full p-3 rounded-xl border-2 border-rose-300 bg-rose-50 hover:bg-rose-100 flex items-center justify-between gap-3 transition-all animate-in">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="bg-rose-600 text-white px-3 py-2 rounded-lg font-extrabold text-lg leading-none shrink-0">
+                    {rotGroup}
+                  </div>
+                  <div className="text-left min-w-0">
+                    <div className="font-extrabold text-rose-900 text-sm leading-tight truncate">
+                      {(lang === 'zh' ? GROUP_NAMES.zh : GROUP_NAMES.en)[rotGroup] || rotGroup}
+                    </div>
+                    <div className="text-xs text-rose-700 font-bold mt-0.5">
+                      {t[`site_${groupSite(rotGroup, ACTIVES)}`]}
+                    </div>
+                  </div>
+                </div>
+                <div className="text-rose-600 flex items-center gap-1 shrink-0">
+                  <span className="text-xs font-bold">{t.tapToChange}</span>
+                  <ChevronDown className="w-4 h-4" />
+                </div>
+              </button>
+            )}
           </div>
 
           {/* Results */}
@@ -583,9 +1271,34 @@
                   <h3 className="text-base font-extrabold text-rose-800">{t.rotateAvoid} — {rotGroup}</h3>
                 </div>
                 <div className="text-sm text-rose-700 font-semibold">
-                  {rotation.avoid.map(a => lang==='zh' && a.zh ? `${a.zh} (${a.n})` : a.n).join(' · ')}
+                  {rotation.avoid.map(a => chemLabel(a.n)).join(' · ')}
                 </div>
               </div>
+
+              {/* Caution — cross-resistant sibling groups (shared target site) */}
+              {rotation.caution && rotation.caution.length > 0 && (
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <AlertTriangle className="w-4 h-4 text-amber-700" />
+                    <h3 className="text-base font-extrabold text-amber-800">
+                      {t.rotateCaution} — {rotation.caution.map(c => c.g).join(' / ')}
+                    </h3>
+                  </div>
+                  <div className="text-[13px] text-amber-800 leading-relaxed mb-2.5">
+                    {rotation.crossKind === 'partial' ? t.cautionNote_partial : t.cautionNote_shared}
+                  </div>
+                  <div className="space-y-1.5">
+                    {rotation.caution.map(({ g, items }) => (
+                      <div key={g} className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-xs font-extrabold bg-amber-600 text-white px-2.5 py-0.5 rounded-full shrink-0">{g}</span>
+                        <span className="text-sm text-amber-900 font-semibold">
+                          {items.map(a => chemLabel(a.n)).join(' · ')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Suggested */}
               <div>
@@ -594,30 +1307,111 @@
                   <h3 className="text-base font-extrabold text-[#114b2d]">{t.rotateTo}</h3>
                 </div>
                 <div className="space-y-2">
-                  {rotation.suggested.slice(0, 8).map(({ g, items, lowRiskCount }) => (
-                    <div key={g} className="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm font-extrabold bg-[#114b2d] text-white px-3 py-1 rounded-full">{g}</span>
-                        {lowRiskCount > 0 && (
-                          <span className="text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
-                            {lowRiskCount} {t.risk_low}-{lang==='zh'?'风险':'risk'}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {items.map((a, i) => (
-                          <span key={i} className={`text-sm px-2.5 py-1 rounded-lg border font-semibold ${riskBadge[a.r]}`}>
-                            <span className={`inline-block w-1.5 h-1.5 rounded-full ${riskDot[a.r]} mr-1.5 align-middle`}></span>
-                            {lang==='zh' && a.zh ? `${a.zh}` : a.n}
+                  {rotation.suggested.slice(0, 8).map(({ g, items, lowRiskCount, site, differentSite }) => {
+                    const styles = SITE_TILE_STYLES[site] || SITE_TILE_STYLES.unknown;
+                    const className_ = (lang === 'zh' ? GROUP_NAMES.zh : GROUP_NAMES.en)[g] || '';
+                    return (
+                      <div key={g} className={`bg-white border border-slate-200 rounded-2xl p-3 shadow-sm border-l-4 ${styles.borderL}`}>
+                        <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+                          <span className="text-sm font-extrabold bg-[#114b2d] text-white px-3 py-1 rounded-full">{g}</span>
+                          {className_ && (
+                            <span className={`text-xs font-bold px-2 py-1 rounded-full ${styles.bg} ${styles.label} border ${styles.border}`}>
+                              {className_}
+                            </span>
+                          )}
+                          {differentSite === 1 && (
+                            <span className="text-xs font-extrabold bg-emerald-600 text-white px-2 py-1 rounded-full flex items-center gap-1">
+                              ✓ {t.siteChanger}
+                            </span>
+                          )}
+                          {lowRiskCount > 0 && (
+                            <span className="text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
+                              {lowRiskCount} {t.risk_low}-{lang==='zh'?'风险':'risk'}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {items.map((a, i) => (
+                            <span key={i} className={`text-sm px-2.5 py-1 rounded-lg border font-semibold ${riskBadge[a.r]}`}>
+                              <span className={`inline-block w-1.5 h-1.5 rounded-full ${riskDot[a.r]} mr-1.5 align-middle`}></span>
+                              {chemLabel(a.n)}
                           </span>
                         ))}
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
           )}
+
+          {/* Cross-resistance explainer — collapsible card, styled to match the others. */}
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden border-l-4 border-l-[#114b2d]">
+            <button onClick={() => setShowCrossInfo(v => !v)}
+              className="w-full flex items-center justify-between gap-2 p-4 text-left hover:bg-slate-50 transition-colors">
+              <span className="flex items-center gap-2 text-sm font-extrabold text-[#114b2d]">
+                <Info className="w-4 h-4 shrink-0" />
+                {lang === 'zh' ? '什么是交叉抗性?' : 'What is cross-resistance?'}
+              </span>
+              <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform shrink-0 ${showCrossInfo ? 'rotate-180' : ''}`} />
+            </button>
+            {showCrossInfo && (
+              <div className="px-4 pb-4 animate-in">
+                <div className="max-w-md mx-auto space-y-3">
+                  {/* Panel 1 — different target → works */}
+                  <div className="rounded-xl border border-slate-200 p-3">
+                    <div className="flex items-center gap-2 mb-3">
+                      <svg width="18" height="18" viewBox="0 0 18 18" className="text-emerald-600 shrink-0"><path d="M3 9 l4 4 l8 -9" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      <div className="min-w-0">
+                        <div className="text-sm font-bold text-emerald-700">{lang === 'zh' ? '换到不同靶标 → 有效' : 'New target → works'}</div>
+                        <div className="text-xs text-slate-500">{lang === 'zh' ? '喷 1A → 喷 28' : 'spray 1A → 28'}</div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-[1fr_auto_auto_auto_1fr] items-center gap-x-1.5 gap-y-1.5">
+                      <div className="flex justify-center">{crDots('bg-blue-100 border-blue-600')}</div>
+                      <div>{crArrow()}</div>
+                      <div className="flex justify-center"><span className="px-3 py-1 rounded-full text-sm font-extrabold border-2 bg-violet-100 text-violet-800 border-violet-600 whitespace-nowrap">{lang === 'zh' ? '组 28' : 'Grp 28'}</span></div>
+                      <div>{crArrow()}</div>
+                      <div className="flex justify-center">{crDots('bg-slate-200 border-slate-400 opacity-70')}</div>
+                      <div className="text-center text-xs font-semibold text-slate-500">{lang === 'zh' ? '存活·抗①' : 'survive ·①'}</div>
+                      <div></div>
+                      <div className="text-center text-xs font-semibold text-violet-700 whitespace-nowrap">{lang === 'zh' ? '新靶标 ②' : 'new ②'}</div>
+                      <div></div>
+                      <div className="text-center text-xs font-semibold text-emerald-700">{lang === 'zh' ? '被杀死' : 'killed'}</div>
+                    </div>
+                  </div>
+                  {/* Panel 2 — same target → fails */}
+                  <div className="rounded-xl border border-slate-200 p-3">
+                    <div className="flex items-center gap-2 mb-3">
+                      <svg width="18" height="18" viewBox="0 0 18 18" className="text-rose-600 shrink-0"><path d="M4 4 l10 10 M14 4 l-10 10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" /></svg>
+                      <div className="min-w-0">
+                        <div className="text-sm font-bold text-rose-700">{lang === 'zh' ? '换到相同靶标 → 失效' : 'Same target → fails'}</div>
+                        <div className="text-xs text-slate-500">{lang === 'zh' ? '喷 1A → 喷 1B' : 'spray 1A → 1B'}</div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-[1fr_auto_auto_auto_1fr] items-center gap-x-1.5 gap-y-1.5">
+                      <div className="flex justify-center">{crDots('bg-blue-100 border-blue-600')}</div>
+                      <div>{crArrow()}</div>
+                      <div className="flex justify-center"><span className="px-3 py-1 rounded-full text-sm font-extrabold border-2 bg-blue-100 text-blue-800 border-blue-600 whitespace-nowrap">{lang === 'zh' ? '组 1B' : 'Grp 1B'}</span></div>
+                      <div>{crArrow()}</div>
+                      <div className="flex justify-center">{crDots('bg-blue-100 border-blue-600')}</div>
+                      <div className="text-center text-xs font-semibold text-slate-500">{lang === 'zh' ? '存活·抗①' : 'survive ·①'}</div>
+                      <div></div>
+                      <div className="text-center text-xs font-semibold text-blue-700 whitespace-nowrap">{lang === 'zh' ? '相同靶标 ①' : 'same ①'}</div>
+                      <div></div>
+                      <div className="text-center text-xs font-semibold text-rose-700">{lang === 'zh' ? '仍存活' : 'alive'}</div>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-600 leading-relaxed mt-3">
+                  {lang === 'zh'
+                    ? '颜色代表农药攻击的「靶标」。喷雾 B 若颜色相同,就是打同一个靶标 — 害虫已经抗它,轮替等于没换 (这就是交叉抗性)。'
+                    : 'Colour = the target a pesticide attacks. If spray B is the same colour, it hits the same target — the pests already resist it, so the rotation changes nothing. That is cross-resistance.'}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       );
 
@@ -749,7 +1543,7 @@
           </div>
 
           {/* Main content */}
-          <main ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-6 pb-24">
+          <main ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-6 pb-20">
             {tab === 'library' && renderLibraryView()}
             {tab === 'rotate' && renderRotateView()}
             {tab === 'mix' && renderMixView()}
@@ -758,54 +1552,10 @@
           {/* Back-to-top button (appears after scrolling) */}
           {showBackToTop && (
             <button onClick={scrollToTop}
-              className="fixed bottom-24 right-5 z-30 w-12 h-12 bg-white hover:bg-slate-50 text-[#114b2d] rounded-full shadow-lg flex items-center justify-center border-2 border-[#114b2d] transition-all hover:scale-105 animate-in"
+              className="fixed bottom-5 right-5 z-30 w-12 h-12 bg-white hover:bg-slate-50 text-[#114b2d] rounded-full shadow-lg flex items-center justify-center border-2 border-[#114b2d] transition-all hover:scale-105 animate-in"
               aria-label={t.backToTop}>
               <ArrowUp className="w-5 h-5" />
             </button>
-          )}
-
-          {/* Floating assistant button */}
-          <button onClick={() => setShowAssistant(true)}
-            className="fixed bottom-5 right-5 z-30 w-14 h-14 bg-[#114b2d] hover:bg-emerald-800 text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105"
-            aria-label={t.assistant}>
-            <Sparkles className="w-6 h-6" />
-          </button>
-
-          {/* Assistant drawer (slide-up sheet on mobile, side panel on desktop) */}
-          {showAssistant && (
-            <>
-              <div className="fixed inset-0 bg-black/30 z-40 animate-in" onClick={() => setShowAssistant(false)}></div>
-              <div className="fixed inset-x-0 bottom-0 sm:inset-y-0 sm:right-0 sm:left-auto sm:w-96 bg-[#fcfbf7] z-50 rounded-t-3xl sm:rounded-none shadow-2xl flex flex-col max-h-[85vh] sm:max-h-none animate-in">
-                <div className="flex items-center justify-between p-4 border-b border-slate-200">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#114b2d]" />
-                    <h2 className="text-base font-extrabold text-slate-800">{t.assistant}</h2>
-                  </div>
-                  <button onClick={() => setShowAssistant(false)}
-                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600">
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-                <div ref={chatRef} className="flex-1 overflow-y-auto p-4 space-y-3">
-                  {chatLog.map((m, i) => (
-                    <div key={i} className={`text-base font-semibold leading-relaxed rounded-2xl p-3 border ${m.role === 'user' ? 'bg-slate-100 border-slate-200 ml-8' : 'bg-emerald-50/60 border-emerald-100 mr-8'}`}>
-                      {m.text}
-                    </div>
-                  ))}
-                </div>
-                <div className="p-4 border-t border-slate-200 space-y-2">
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t.assistantHint}</div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {askButtons.map(b => (
-                      <button key={b.id} onClick={() => handleQuickAsk(b.id)}
-                        className="text-sm font-semibold text-slate-700 hover:text-[#114b2d] bg-white border border-slate-300 hover:border-[#114b2d]/40 rounded-full px-3 py-1.5 transition-colors shadow-sm">
-                        {b.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </>
           )}
 
           {/* About / source modal */}
