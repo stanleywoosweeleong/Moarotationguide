@@ -22,7 +22,7 @@
     const Plus = (p) => <Icon {...p} path='<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>' />;
 
     // ========================================================================
-    // DATABASE — derived from "Bunting A" insecticide rotation chart (Tee, 2024)
+    // DATABASE — derived from "Bunting A" insecticide rotation chart (Mr. Tee, 2024)
     // ========================================================================
 
     const PESTS = [
@@ -456,6 +456,92 @@
       "Spirotetramat": "螺虫乙酯", "Sulfoxaflor": "氟啶虫胺腈", "Thiamethoxam": "噻虫嗪",
       "Tolfenpyrad": "唑虫酰胺", "Triflumezopyrim": "三氟苯嘧啶", "White Oil": "矿物油",
     };
+    // ── WHO hazard classification (acute toxicity to humans) ──────────────────
+    // WHO Recommended Classification of Pesticides by Hazard: Ia extremely >
+    // Ib highly > II moderately > III slightly > U unlikely. NL = not in the WHO
+    // list (newer chemistries / biologicals / mineral oils).
+    // Verified this session against WHO/INCHEM/JMPR/PPDB-aligned sources for the
+    // high-hazard set and the classics; the rest follow established WHO classes.
+    // This is the TECHNICAL active's hazard — always confirm the signal word on
+    // the actual product label, since a diluted formulation can sit lower.
+    const TOX_WHO = {
+      "Abamectin":"Ib","Acephate":"III","Acetamiprid":"II","Afidopyropen":"NL",
+      "Amitraz":"II","Azadirachtin":"NL","Bacillus thuringiensis":"NL","Beauveria bassiana":"NL",
+      "Bifenthrin":"II","Buprofezin":"U","Carbaryl":"II","Carbosulfan":"II",
+      "Cartap hydrochloride":"II","Chlorantraniliprole":"U","Chlorfenapyr":"II","Chlorpyrifos":"II",
+      "Chromafenozide":"U","Clothianidin":"U","Cyantraniliprole":"U","Cyflumetofen":"III",
+      "Cypermethrin":"II","Deltamethrin":"II","Diafenthiuron":"III","Dicofol":"II",
+      "Diflubenzuron":"U","Dimethoate":"II","Dimpropyridaz":"NL","Dinotefuran":"III",
+      "Emamectin benzoate":"II","Endosulfan":"II","Esfenvalerate":"II","Ethiprole":"U",
+      "Etofenprox":"U","Fenitrothion":"II","Fenobucarb":"II","Fenoxycarb":"U",
+      "Fenpyroximate":"II","Fenthion":"II","Fipronil":"II","Flonicamid":"III",
+      "Flubendiamide":"U","Flupyradifurone":"III","Formetanate hydrochloride":"Ib",
+      "Hexaflumuron":"U","Hexythiazox":"U","Imidacloprid":"II","Indoxacarb":"II",
+      "Isocycloseram":"NL","Isoprocarb":"II","Lambda-cyhalothrin":"II","Lufenuron":"U",
+      "Malathion":"III","Metaflumizone":"U","Methamidophos":"Ib","Methomyl":"Ib",
+      "Methoxyfenozide":"U","Novaluron":"U","Propargite":"III","Pymetrozine":"U",
+      "Pyridaben":"II","Pyridalyl":"U","Pyriproxyfen":"U","Rotenone":"II",
+      "Spinetoram":"U","Spinosad":"U","Spirodiclofen":"U","Spirotetramat":"U",
+      "Sulfoxaflor":"II","Thiamethoxam":"III","Tolfenpyrad":"II","Triflumezopyrim":"NL",
+      "White Oil":"NL",
+    };
+    // Colour ramp: red (Ia/Ib) → orange (II) → yellow (III) → green (U) → grey (NL)
+    const TOX_STYLE = {
+      "Ia":"bg-rose-100 text-rose-800 border-rose-600",
+      "Ib":"bg-rose-100 text-rose-800 border-rose-600",
+      "II":"bg-orange-100 text-orange-800 border-orange-500",
+      "III":"bg-yellow-100 text-yellow-800 border-yellow-500",
+      "U":"bg-emerald-100 text-emerald-800 border-emerald-600",
+      "NL":"bg-slate-100 text-slate-600 border-slate-400",
+    };
+    const TOX_LABEL = {
+      zh:{Ia:"极高毒",Ib:"高毒",II:"中等毒",III:"低毒",U:"微毒",NL:"未分级"},
+      en:{Ia:"Extremely haz.",Ib:"Highly haz.",II:"Moderately haz.",III:"Slightly haz.",U:"Unlikely haz.",NL:"Not WHO-listed"},
+    };
+    // Severity rank for sorting (higher = more toxic). NL treated as low-concern
+    // (the unlisted set is biologicals / botanicals / mineral oil / low-tox newer
+    // chemistries), so it is not pushed down unfairly.
+    const TOX_SEVERITY = { Ia:4, Ib:3, II:2, III:1, U:0, NL:0 };
+    const toxSev = (n) => TOX_SEVERITY[TOX_WHO[n] || 'NL'] ?? 0;
+    // ── Banned for agricultural use in Malaysia ──────────────────────────────
+    // Sources: MY Pesticides Board banned/restricted list, the 2025–2030 HHP
+    // phase-out, and the Stockholm Convention (POPs). These stay visible in the
+    // Library with a clear warning, but are never offered as rotation suggestions.
+    const BANNED_MY = {
+      "Endosulfan":    { zh: "斯德哥尔摩公约 POP；马来西亚禁用", en: "Stockholm POP; banned in Malaysia" },
+      "Dicofol":       { zh: "斯德哥尔摩公约 POP；列入 2025–2030 淘汰", en: "Stockholm POP; on MY 2025–2030 phase-out" },
+      "Chlorpyrifos":  { restricted: true, zh: "马来西亚农业用途自 2023 年起禁用；仅准用于非农业害虫防治", en: "Farm use banned in MY since 2023; allowed for non-agricultural pest control only" },
+      "Methamidophos": { zh: "马来西亚 2025–2030 淘汰名单；WHO Ib", en: "On MY 2025–2030 ban list; WHO Ib" },
+      "Methomyl":      { zh: "马来西亚禁用/限用名单；WHO Ib", en: "On MY banned/restricted list; WHO Ib" },
+    };
+    const isBanned = (n) => !!BANNED_MY[n];
+    // ── Not approved / banned in the EU (informational only) ─────────────────
+    // Shown ONLY inside the card details — not on the card face, and with no
+    // effect on rotation (this is EU status, for context, not Malaysian law).
+    // Verified against EFSA residue reports, EUR-Lex, and EU Commission sources.
+    // The modern chemistries (diamides, spinosyns, IGRs, acetamiprid,
+    // flupyradifurone, etc.) remain EU-approved, so they are intentionally absent.
+    const EU_BANNED = {
+      "Acephate":      { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Bifenthrin":    { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Carbaryl":      { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Carbosulfan":   { zh: "欧盟未批准使用 (2007)", en: "Not approved in the EU (2007)" },
+      "Chlorfenapyr":  { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Chlorpyrifos":  { zh: "欧盟自 2020 年起禁用", en: "Banned in the EU since 2020" },
+      "Clothianidin":  { zh: "欧盟禁止露天使用 (2018)", en: "Outdoor use banned in the EU (2018)" },
+      "Dicofol":       { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Dinotefuran":   { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Endosulfan":    { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Fenitrothion":  { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Fenthion":      { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Fipronil":      { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Imidacloprid":  { zh: "欧盟禁止露天使用 (2018)", en: "Outdoor use banned in the EU (2018)" },
+      "Methamidophos": { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Methomyl":      { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Propargite":    { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Sulfoxaflor":   { zh: "欧盟禁止露天使用 (2022)", en: "Outdoor use banned in the EU (2022)" },
+      "Thiamethoxam":  { zh: "欧盟禁止露天使用 (2018)", en: "Outdoor use banned in the EU (2018)" },
+    };
     // "English 中文" label (Chinese appended only when we have an official name).
     const chemLabel = (n) => (CHEM_ZH[n] ? `${n} ${CHEM_ZH[n]}` : n);
     // Site → tile color classes (background tint + border + label color when UNSELECTED)
@@ -726,7 +812,7 @@
         replyMobility_S: "系统性 (Systemic) 农药可由根或叶吸收进入植物维管束输送,适用于藏在叶鞘内或树皮下的害虫。"
       },
       en: {
-        appTitle: "Pest MoA", appSubtitle: "Built from Tee's 'Bunting A' MoA chart",
+        appTitle: "Pest MoA", appSubtitle: "Built from Mr. Tee's 'Bunting A' MoA chart",
         tabLibrary: "MoA Library", tabRotate: "Rotation Helper", tabMix: "Tank-Mix Order",
         assistant: "Quick Lookup", assistantHint: "Ask about a pest, group, or active ingredient…",
         searchPlaceholder: "Search active, group or pest…",
@@ -739,11 +825,11 @@
         site_neural: "Nerve & Muscle", site_respiratory: "Respiration",
         site_growth: "Growth & Development", site_unknown: "Unknown / Non-specific", site_midgut: "Midgut (Bt)",
         risk_low: "Low", risk_mid: "Med", risk_high: "High",
-        mob_N: "Contact", mob_S: "Systemic", mob_SS: "Selective syst.", mob_LS: "Local syst.",
+        mob_N: "Contact", mob_S: "Systemic", mob_SS: "Selective systemic", mob_LS: "Local systemic",
         tl: "Translaminar", ud: "Xylem/Phloem mobile",
         noResults: "No matches.",
         about: "About this data",
-        aboutText: "All data is curated from Tee's July-August 2024 'Bunting A' insecticide mode-of-action (MoA) rotation chart. 7 pest groups, 180+ active ingredients. Rotate IRAC groups every spray to slow resistance.",
+        aboutText: "All data is curated from Mr. Tee's July-August 2024 'Bunting A' insecticide mode-of-action (MoA) rotation chart. 7 pest groups, 180+ active ingredients. Rotate IRAC groups every spray to slow resistance.",
         safetyTitle: "Farmer Safety Notes",
         safetyText: "This is a rotation guide, not a prescription. Before spraying: ① check the product label for crop & pest, ② respect the pre-harvest interval (PHI), ③ never tank-mix insecticides with Glyphosate, ④ consider pollinators and beneficials.",
         groupsCount: "MoA groups", activesCount: "active ingredients",
@@ -824,6 +910,28 @@
           navigator.serviceWorker.register('sw.js').catch(() => {});
         }
       }, []);
+      // PWA install prompt (Chrome/Edge on desktop & Android). Capture the browser's
+      // beforeinstallprompt so we can offer an in-app Install button. iOS Safari doesn't
+      // fire this — there installation is manual via Share → Add to Home Screen.
+      const [installPrompt, setInstallPrompt] = useState(null);
+      const [showInstall, setShowInstall] = useState(false);
+      useEffect(() => {
+        const onPrompt = (e) => { e.preventDefault(); setInstallPrompt(e); setShowInstall(true); };
+        const onInstalled = () => { setShowInstall(false); setInstallPrompt(null); };
+        window.addEventListener('beforeinstallprompt', onPrompt);
+        window.addEventListener('appinstalled', onInstalled);
+        return () => {
+          window.removeEventListener('beforeinstallprompt', onPrompt);
+          window.removeEventListener('appinstalled', onInstalled);
+        };
+      }, []);
+      const doInstall = async () => {
+        if (!installPrompt) return;
+        installPrompt.prompt();
+        try { await installPrompt.userChoice; } catch (e) {}
+        setInstallPrompt(null);
+        setShowInstall(false);
+      };
       const [tab, setTab] = useState('library');
       const mainRef = useRef(null);
       const [showBackToTop, setShowBackToTop] = useState(false);
@@ -888,7 +996,8 @@
 
       const rotation = useMemo(() => {
         if (!rotGroup) return null;
-        const pool = ACTIVES.filter(a => a.pest === rotPest);
+        // Banned actives are excluded from rotation suggestions entirely.
+        const pool = ACTIVES.filter(a => a.pest === rotPest && !isBanned(a.n));
         const groupsAvail = [...new Set(pool.map(a => a.g))];
         const selectedSite = groupSite(rotGroup, ACTIVES);
         // Cross-resistant sibling groups (different code, shared target). These must NOT be
@@ -897,10 +1006,22 @@
         const crossGroups = cluster ? cluster.groups.filter(g => g !== rotGroup) : [];
         const crossKind = cluster ? cluster.kind : null;
         const buildGroup = (g) => {
-          const items = pool.filter(a => a.g === g);
+          // Within a group, list the gentler (less toxic) actives first.
+          const items = pool.filter(a => a.g === g)
+            .slice()
+            .sort((x, y) => toxSev(x.n) - toxSev(y.n));
           const lowRiskCount = items.filter(x => x.r === 'low').length;
+          // Best (lowest) risk tier actually present, with its count — so every card
+          // shows a risk indicator, not only groups that happen to have low-risk actives.
+          const bestTier = ['low', 'mid', 'high'].find(tier => items.some(x => x.r === tier)) || null;
+          const bestTierCount = bestTier ? items.filter(x => x.r === bestTier).length : 0;
           const site = groupSite(g, ACTIVES);
-          return { g, items, lowRiskCount, site, differentSite: site !== selectedSite ? 1 : 0 };
+          // Toxicity scores for sorting: toxBest = safest option in the group,
+          // toxWorst = most toxic option. Lower is safer.
+          const sevs = items.map(x => toxSev(x.n));
+          const toxBest = sevs.length ? Math.min(...sevs) : 0;
+          const toxWorst = sevs.length ? Math.max(...sevs) : 0;
+          return { g, items, lowRiskCount, bestTier, bestTierCount, site, differentSite: site !== selectedSite ? 1 : 0, toxBest, toxWorst };
         };
         const suggested = groupsAvail
           .filter(g => g !== rotGroup && !crossGroups.includes(g))
@@ -908,7 +1029,10 @@
           .sort((a, b) => {
             // Primary: site changers rank higher — they break the cross-resistance cycle.
             if (a.differentSite !== b.differentSite) return b.differentSite - a.differentSite;
-            // Secondary: more low-risk actives in the group is better.
+            // Then: gentler groups first — push higher-toxicity options lower down.
+            if (a.toxBest !== b.toxBest) return a.toxBest - b.toxBest;
+            if (a.toxWorst !== b.toxWorst) return a.toxWorst - b.toxWorst;
+            // Finally: more low-(resistance-)risk actives in the group is better.
             return b.lowRiskCount - a.lowRiskCount;
           });
         // Caution: cross-resistant sibling groups that are actually available for this pest.
@@ -920,7 +1044,7 @@
       }, [rotPest, rotGroup]);
 
       const groupsForRotPest = useMemo(() => {
-        const gs = [...new Set(ACTIVES.filter(a => a.pest === rotPest).map(a => a.g))];
+        const gs = [...new Set(ACTIVES.filter(a => a.pest === rotPest && !isBanned(a.n)).map(a => a.g))];
         return gs.sort((a, b) => {
           // numeric IRAC ordering, all "UN*" codes last (UN, UNB, UNE, UNF, UNM, UNP, UNV)
           const A = a.startsWith('UN') ? 999 : parseInt(a, 10);
@@ -975,6 +1099,11 @@
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-extrabold text-base text-slate-900 break-words">{displayName}</span>
                     <span className="text-xs font-bold bg-[#114b2d] text-white px-2 py-0.5 rounded-full whitespace-nowrap">{a.g}</span>
+                    {isBanned(a.n) && (
+                      <span className={`text-xs font-extrabold text-white px-2 py-0.5 rounded-full whitespace-nowrap inline-flex items-center gap-1 ${BANNED_MY[a.n].restricted ? 'bg-amber-500' : 'bg-rose-600'}`}>
+                        <AlertTriangle className="w-3 h-3" />{BANNED_MY[a.n].restricted ? (lang === 'zh' ? '限用' : 'RESTRICTED') : (lang === 'zh' ? '禁用' : 'BANNED')}
+                      </span>
+                    )}
                   </div>
                   <div className="text-sm text-slate-700 font-bold mt-1 flex items-center gap-1.5">
                     <PestIcon pest={a.pest} className="w-5 h-5 shrink-0" />
@@ -984,6 +1113,14 @@
                 <span className={`text-sm font-extrabold px-3 py-1 rounded-full border whitespace-nowrap ${riskBadge[a.r]}`}>{t[`risk_${a.r}`]}</span>
               </div>
               <div className="mt-2.5 flex flex-wrap gap-1.5 text-xs">
+                {(() => {
+                  const tox = TOX_WHO[a.n] || 'NL';
+                  return (
+                    <span className={`px-2.5 py-1 rounded-full font-bold border ${TOX_STYLE[tox]}`}>
+                      {tox === 'NL' ? TOX_LABEL[lang].NL : `${tox} · ${TOX_LABEL[lang][tox]}`}
+                    </span>
+                  );
+                })()}
                 <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`site_${a.s}`]}</span>
                 <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`mob_${a.m}`]}</span>
                 {a.tl && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.tl}</span>}
@@ -1016,6 +1153,28 @@
             {/* Expanded panel (sibling, not inside tappable area — so link clicks don't collapse) */}
             {isExpanded && (
               <div className="border-t border-slate-200 bg-slate-50/70 px-3 py-3 space-y-3 animate-in">
+                {isBanned(a.n) && (() => {
+                  const restricted = BANNED_MY[a.n].restricted;
+                  return (
+                    <div className={`flex items-start gap-2 text-sm rounded-lg px-3 py-2.5 border-2 ${restricted ? 'bg-amber-50 text-amber-900 border-amber-300' : 'bg-rose-50 text-rose-800 border-rose-300'}`}>
+                      <AlertTriangle className="w-5 h-5 mt-0.5 shrink-0" />
+                      <div>
+                        <div className="font-extrabold">
+                          {restricted
+                            ? (lang === 'zh' ? '限制使用 — 不可用于作物' : 'Restricted — not for crop use')
+                            : (lang === 'zh' ? '马来西亚已禁用 — 请勿使用' : 'Banned in Malaysia — do not use')}
+                        </div>
+                        <div className={`font-semibold mt-0.5 ${restricted ? 'text-amber-800' : 'text-rose-700'}`}>{BANNED_MY[a.n][lang]}</div>
+                      </div>
+                    </div>
+                  );
+                })()}
+                {EU_BANNED[a.n] && (
+                  <div className="flex items-center gap-2 text-xs text-slate-500">
+                    <span className="font-extrabold text-slate-500 border border-slate-300 rounded px-1.5 py-0.5">EU</span>
+                    <span className="font-semibold">{lang === 'zh' ? EU_BANNED[a.n].zh : EU_BANNED[a.n].en}</span>
+                  </div>
+                )}
                 {/* Mode of Action */}
                 <div>
                   <div className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
@@ -1045,6 +1204,17 @@
                      className="text-sm text-[#114b2d] underline font-bold hover:text-emerald-700 break-all">
                     {lang === 'zh' ? `查询 ${a.n} 的 DT50 (PPDB) →` : `Look up ${a.n} DT50 (PPDB) →`}
                   </a>
+                </div>
+                {/* Toxicity — WHO hazard class (acute toxicity to humans) */}
+                <div>
+                  <div className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                    {lang === 'zh' ? '毒性 · WHO 危害分级' : 'Toxicity · WHO hazard class'}
+                  </div>
+                  <div className="text-[11px] text-slate-400 leading-snug">
+                    {lang === 'zh'
+                      ? '依 WHO 农药危害分级（急性毒性）。请以产品标签信号词为准。'
+                      : 'Per WHO Hazard Classification (acute toxicity). Always confirm the label signal word.'}
+                  </div>
                 </div>
                 {/* China MRL — GB 2763-2026 */}
                 <div>
@@ -1307,7 +1477,7 @@
                   <h3 className="text-base font-extrabold text-[#114b2d]">{t.rotateTo}</h3>
                 </div>
                 <div className="space-y-2">
-                  {rotation.suggested.slice(0, 8).map(({ g, items, lowRiskCount, site, differentSite }) => {
+                  {rotation.suggested.map(({ g, items, bestTier, bestTierCount, site, differentSite }) => {
                     const styles = SITE_TILE_STYLES[site] || SITE_TILE_STYLES.unknown;
                     const className_ = (lang === 'zh' ? GROUP_NAMES.zh : GROUP_NAMES.en)[g] || '';
                     return (
@@ -1324,19 +1494,23 @@
                               ✓ {t.siteChanger}
                             </span>
                           )}
-                          {lowRiskCount > 0 && (
-                            <span className="text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
-                              {lowRiskCount} {t.risk_low}-{lang==='zh'?'风险':'risk'}
+                          {bestTier && (
+                            <span className={`text-xs font-bold border px-2 py-0.5 rounded-full ${riskBadge[bestTier]}`}>
+                              {bestTierCount} {t['risk_' + bestTier]}-{lang==='zh'?'风险':'risk'}
                             </span>
                           )}
                         </div>
                         <div className="flex flex-wrap gap-1.5">
-                          {items.map((a, i) => (
-                            <span key={i} className={`text-sm px-2.5 py-1 rounded-lg border font-semibold ${riskBadge[a.r]}`}>
+                          {items.map((a, i) => {
+                            const tox = TOX_WHO[a.n] || 'NL';
+                            return (
+                            <span key={i} className={`text-sm px-2.5 py-1 rounded-lg border font-semibold inline-flex items-center ${riskBadge[a.r]}`}>
                               <span className={`inline-block w-1.5 h-1.5 rounded-full ${riskDot[a.r]} mr-1.5 align-middle`}></span>
                               {chemLabel(a.n)}
+                              <span className={`ml-1.5 text-[10px] font-extrabold px-1 py-0.5 rounded border ${TOX_STYLE[tox]}`}>{tox === 'NL' ? '—' : tox}</span>
                           </span>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                     );
@@ -1487,20 +1661,29 @@
       // ========================================================================
       return (
         <div className="min-h-screen bg-[#fcfbf7] text-slate-800 flex flex-col font-sans">
-          {/* Header */}
-          <header className="bg-[#f4f2ea] border-b border-slate-300 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 z-10 shrink-0">
+          {/* Header — pad the top/sides by the safe-area insets so the Dynamic
+              Island / notch never covers the controls in installed (standalone) mode. */}
+          <header
+            style={{
+              paddingTop: 'calc(0.75rem + env(safe-area-inset-top))',
+              paddingLeft: 'max(1rem, env(safe-area-inset-left))',
+              paddingRight: 'max(1rem, env(safe-area-inset-right))',
+            }}
+            className="bg-[#f4f2ea] border-b border-slate-300 py-3 flex items-center justify-between gap-3 z-10 shrink-0">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-9 h-9 bg-[#114b2d] rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
                 <Bug className="w-5 h-5" />
               </div>
-              <div className="min-w-0">
+              {/* Title + credit: shown from the sm breakpoint up. Hidden on phones so the
+                  controls get the full width (the credit still lives in the About dialog). */}
+              <div className="min-w-0 hidden sm:block">
                 <h1 className="font-extrabold text-base sm:text-lg text-slate-900 truncate">{t.appTitle}</h1>
                 <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide truncate">{t.appSubtitle}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              {/* Font-size toggle: A / A / A */}
-              <div className="flex items-center bg-white border border-slate-300 rounded-xl shadow-sm overflow-hidden">
+              {/* Font-size toggle: A / A / A — uniform 40px height, evenly sized segments */}
+              <div className="flex items-center h-10 bg-white border border-slate-300 rounded-xl shadow-sm overflow-hidden">
                 {[
                   { id: 's', label: 'A', size: 'text-xs', aria: lang==='zh'?'小字':'Small text' },
                   { id: 'm', label: 'A', size: 'text-sm', aria: lang==='zh'?'中字':'Medium text' },
@@ -1508,18 +1691,18 @@
                 ].map(b => (
                   <button key={b.id} onClick={() => setFontScale(b.id)}
                     aria-label={b.aria}
-                    className={`px-2 py-2 ${b.size} font-extrabold transition-all min-w-[1.75rem] ${fontScale === b.id ? 'bg-[#114b2d] text-white' : 'text-slate-600 hover:bg-slate-50'}`}>
+                    className={`h-full w-8 flex items-center justify-center ${b.size} font-extrabold transition-all ${fontScale === b.id ? 'bg-[#114b2d] text-white' : 'text-slate-600 hover:bg-slate-50'}`}>
                     {b.label}
                   </button>
                 ))}
               </div>
               <button onClick={() => setShowAbout(true)}
-                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-300 shadow-sm transition-all"
+                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-300 shadow-sm transition-all shrink-0"
                 aria-label={t.about}>
                 <Info className="w-5 h-5" />
               </button>
               <button onClick={() => setLang(l => l === 'zh' ? 'en' : 'zh')}
-                className="text-sm font-bold px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 transition-all border border-slate-300 shadow-sm flex items-center gap-1.5">
+                className="h-10 min-w-[5rem] justify-center text-sm font-bold px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-700 transition-all border border-slate-300 shadow-sm flex items-center gap-1.5 shrink-0">
                 <Layers className="w-4 h-4" />
                 {t.langSwitch}
               </button>
@@ -1542,6 +1725,27 @@
             </div>
           </div>
 
+          {/* Install banner — only shows when the browser reports the app is installable
+              (Chrome/Edge desktop & Android). Hidden on iOS, where install is via Share. */}
+          {showInstall && (
+            <div className="bg-[#114b2d] text-white px-4 py-2.5 flex items-center justify-between gap-3 shrink-0 animate-in">
+              <span className="text-sm font-semibold flex items-center gap-2 min-w-0">
+                <Sparkles className="w-4 h-4 shrink-0" />
+                <span className="truncate">{lang === 'zh' ? '安装为应用,离线也能用' : 'Install as an app — works offline'}</span>
+              </span>
+              <div className="flex items-center gap-2 shrink-0">
+                <button onClick={doInstall}
+                  className="text-sm font-extrabold bg-white text-[#114b2d] px-4 py-1 rounded-full hover:bg-slate-100 transition-colors">
+                  {lang === 'zh' ? '安装' : 'Install'}
+                </button>
+                <button onClick={() => setShowInstall(false)} aria-label={lang === 'zh' ? '关闭' : 'Dismiss'}
+                  className="text-white/70 hover:text-white transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Main content */}
           <main ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-6 pb-20">
             {tab === 'library' && renderLibraryView()}
@@ -1552,7 +1756,11 @@
           {/* Back-to-top button (appears after scrolling) */}
           {showBackToTop && (
             <button onClick={scrollToTop}
-              className="fixed bottom-5 right-5 z-30 w-12 h-12 bg-white hover:bg-slate-50 text-[#114b2d] rounded-full shadow-lg flex items-center justify-center border-2 border-[#114b2d] transition-all hover:scale-105 animate-in"
+              style={{
+                bottom: 'calc(1.25rem + env(safe-area-inset-bottom))',
+                right: 'calc(1.25rem + env(safe-area-inset-right))',
+              }}
+              className="fixed z-30 w-12 h-12 bg-white hover:bg-slate-50 text-[#114b2d] rounded-full shadow-lg flex items-center justify-center border-2 border-[#114b2d] transition-all hover:scale-105 animate-in"
               aria-label={t.backToTop}>
               <ArrowUp className="w-5 h-5" />
             </button>
