@@ -18,19 +18,21 @@
     const ChevronDown = (p) => <Icon {...p} path='<polyline points="6 9 12 15 18 9"/>' />;
     const AlertTriangle = (p) => <Icon {...p} path='<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>' />;
     const ArrowUp = (p) => <Icon {...p} path='<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>' />;
+    const Layers = (p) => <Icon {...p} path='<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/>' />;
+    const Plus = (p) => <Icon {...p} path='<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>' />;
 
     // ========================================================================
     // DATABASE — derived from "Bunting A" insecticide rotation chart (Tee, 2024)
     // ========================================================================
 
     const PESTS = [
-      { id:"grasshopper", zh:"草蜢 / 甲蟲",   en:"Grasshoppers & Beetles", emoji:"🦗" },
-      { id:"spider_mite", zh:"紅蜘蛛",        en:"Red Spider Mite",        emoji:"🕷️" },
-      { id:"mealybug",    zh:"粉蚧 / 介殼蟲", en:"Mealybugs & Scales",     emoji:"🐞" },
-      { id:"caterpillar", zh:"毛毛蟲",        en:"Caterpillars",           emoji:"🐛" },
-      { id:"psyllid",     zh:"木蝨",          en:"Psyllids",               emoji:"🪲" },
-      { id:"thrips",      zh:"薊馬",          en:"Thrips",                 emoji:"🪰" },
-      { id:"leafhopper",  zh:"青蚊 (葉蟬)",   en:"Leafhoppers",            emoji:"🦟" }
+      { id:"leafhopper",  zh:"青蚊 (叶蝉)",   en:"Leafhoppers",            emoji:"🦟" },
+      { id:"psyllid",     zh:"木虱",          en:"Psyllids",               emoji:"🪲" },
+      { id:"mealybug",    zh:"粉蚧 / 介壳虫", en:"Mealybugs & Scales",     emoji:"🐞" },
+      { id:"thrips",      zh:"蓟马",          en:"Thrips",                 emoji:"🪰" },
+      { id:"spider_mite", zh:"红蜘蛛",        en:"Red Spider Mite",        emoji:"🕷️" },
+      { id:"caterpillar", zh:"毛毛虫",        en:"Caterpillars",           emoji:"🐛" },
+      { id:"grasshopper", zh:"草蜢 / 甲虫",   en:"Grasshoppers & Beetles", emoji:"🦗" }
     ];
 
     const ACTIVES = [
@@ -49,27 +51,27 @@
       {pest:"grasshopper",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"},
       {pest:"grasshopper",g:"UN",n:"Pyridalyl",s:"unknown",r:"low",m:"S"},
       // SPIDER MITE
-      {pest:"spider_mite",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"S"},
+      {pest:"spider_mite",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
       {pest:"spider_mite",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
       {pest:"spider_mite",g:"3A",n:"Bifenthrin",s:"neural",r:"high",m:"N"},
       {pest:"spider_mite",g:"6",n:"Abamectin",s:"neural",r:"mid",m:"LS",tl:true},
-      {pest:"spider_mite",g:"19",n:"Amitraz",s:"neural",r:"high",m:"N"},
-      {pest:"spider_mite",g:"12A",n:"Diafenthiuron",s:"respiratory",r:"low",m:"N"},
-      {pest:"spider_mite",g:"12C",n:"Propargite",s:"respiratory",r:"low",m:"N"},
-      {pest:"spider_mite",g:"13",n:"Chlorfenapyr",s:"respiratory",r:"mid",m:"LS",tl:true},
-      {pest:"spider_mite",g:"21A",n:"Pyridaben",s:"respiratory",r:"high",m:"N"},
-      {pest:"spider_mite",g:"21A",n:"Fenpyroximate",s:"respiratory",r:"high",m:"N"},
+      {pest:"spider_mite",g:"19",n:"Amitraz",s:"neural",r:"mid",m:"N"},
+      {pest:"spider_mite",g:"12A",n:"Diafenthiuron",s:"respiratory",r:"mid",m:"N",note:"added_diafen_mite"},
+      {pest:"spider_mite",g:"12C",n:"Propargite",s:"respiratory",r:"mid",m:"N"},
+      {pest:"spider_mite",g:"13",n:"Chlorfenapyr",s:"respiratory",r:"low",m:"LS",tl:true},
+      {pest:"spider_mite",g:"21A",n:"Pyridaben",s:"respiratory",r:"high",m:"N",note:"added_pyridaben_mite"},
+      {pest:"spider_mite",g:"21A",n:"Fenpyroximate",s:"respiratory",r:"low",m:"N"},
       {pest:"spider_mite",g:"25A",n:"Cyflumetofen",s:"respiratory",r:"low",m:"N"},
-      {pest:"spider_mite",g:"10A",n:"Hexythiazox",s:"growth",r:"low",m:"N"},
-      {pest:"spider_mite",g:"16",n:"Buprofezin",s:"growth",r:"low",m:"S"},
-      {pest:"spider_mite",g:"23",n:"Spirotetramat",s:"growth",r:"low",m:"S"},
+      {pest:"spider_mite",g:"10A",n:"Hexythiazox",s:"growth",r:"mid",m:"N",note:"challenge_hexythiazox"},
+      {pest:"spider_mite",g:"16",n:"Buprofezin",s:"growth",r:"low",m:"N"},
+      {pest:"spider_mite",g:"23",n:"Spirotetramat",s:"growth",r:"low",m:"S",tl:true,ud:true},
       {pest:"spider_mite",g:"23",n:"Spirodiclofen",s:"growth",r:"low",m:"N"},
-      {pest:"spider_mite",g:"UN",n:"Dicofol",s:"unknown",r:"low",m:"N"},
-      {pest:"spider_mite",g:"UN",n:"Beauveria bassiana",zh:"白殭菌",s:"unknown",r:"low",m:"N"},
+      {pest:"spider_mite",g:"UN",n:"Dicofol",s:"unknown",r:"low",m:"N",note:"cross_abamectin"},
+      {pest:"spider_mite",g:"UNF",n:"Beauveria bassiana",zh:"白僵菌",s:"unknown",r:"low",m:"N"},
       {pest:"spider_mite",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"},
       // MEALYBUG
       {pest:"mealybug",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
-      {pest:"mealybug",g:"1A",n:"Methomyl",s:"neural",r:"high",m:"S"},
+      {pest:"mealybug",g:"1A",n:"Methomyl",s:"neural",r:"high",m:"S",tl:true,note:"challenge_methomyl"},
       {pest:"mealybug",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
       {pest:"mealybug",g:"1B",n:"Acephate",s:"neural",r:"high",m:"S"},
       {pest:"mealybug",g:"1B",n:"Fenthion",s:"neural",r:"high",m:"N"},
@@ -78,23 +80,23 @@
       {pest:"mealybug",g:"3A",n:"Cypermethrin",s:"neural",r:"high",m:"N"},
       {pest:"mealybug",g:"3A",n:"Bifenthrin",s:"neural",r:"high",m:"N"},
       {pest:"mealybug",g:"3A",n:"Lambda-cyhalothrin",s:"neural",r:"high",m:"N"},
-      {pest:"mealybug",g:"4A",n:"Imidacloprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"mealybug",g:"4A",n:"Acetamiprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"mealybug",g:"4A",n:"Thiamethoxam",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"mealybug",g:"4A",n:"Clothianidin",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"mealybug",g:"4A",n:"Dinotefuran",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"mealybug",g:"4A",n:"Imidacloprid",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"mealybug",g:"4A",n:"Acetamiprid",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"mealybug",g:"4A",n:"Thiamethoxam",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"mealybug",g:"4A",n:"Clothianidin",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"mealybug",g:"4A",n:"Dinotefuran",s:"neural",r:"high",m:"S",tl:true},
       {pest:"mealybug",g:"4C",n:"Sulfoxaflor",s:"neural",r:"low",m:"S"},
       {pest:"mealybug",g:"6",n:"Abamectin",s:"neural",r:"mid",m:"LS",tl:true},
-      {pest:"mealybug",g:"9D",n:"Afidopyropen",s:"neural",r:"low",m:"S"},
-      {pest:"mealybug",g:"28",n:"Cyantraniliprole",s:"neural",r:"mid",m:"S",tl:true},
-      {pest:"mealybug",g:"29",n:"Flonicamid",s:"neural",r:"low",m:"S",tl:true},
-      {pest:"mealybug",g:"30",n:"Isocycloseram",s:"neural",r:"low",m:"N"},
-      {pest:"mealybug",g:"7B",n:"Fenoxycarb",s:"growth",r:"low",m:"N",tl:true},
+      {pest:"mealybug",g:"9D",n:"Afidopyropen",s:"neural",r:"mid",m:"S",note:"added_afido"},
+      {pest:"mealybug",g:"28",n:"Cyantraniliprole",s:"neural",r:"mid",m:"S",tl:true,note:"added_tl"},
+      {pest:"mealybug",g:"29",n:"Flonicamid",s:"neural",r:"low",m:"SS",tl:true},
+      {pest:"mealybug",g:"30",n:"Isocycloseram",s:"neural",r:"low",m:"N",note:"added_new_chem"},
+      {pest:"mealybug",g:"7B",n:"Fenoxycarb",s:"growth",r:"low",m:"N"},
       {pest:"mealybug",g:"7C",n:"Pyriproxyfen",s:"growth",r:"low",m:"N",tl:true},
       {pest:"mealybug",g:"16",n:"Buprofezin",s:"growth",r:"low",m:"N"},
       {pest:"mealybug",g:"23",n:"Spirotetramat",s:"growth",r:"low",m:"S",tl:true,ud:true},
       {pest:"mealybug",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"},
-      {pest:"mealybug",g:"UN",n:"White Oil",s:"unknown",r:"low",m:"N"},
+      {pest:"mealybug",g:"UNM",n:"White Oil",s:"unknown",r:"low",m:"N",note:"added_white_oil"},
       // CATERPILLAR
       {pest:"caterpillar",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
       {pest:"caterpillar",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
@@ -104,26 +106,26 @@
       {pest:"caterpillar",g:"3A",n:"Cypermethrin",s:"neural",r:"high",m:"N"},
       {pest:"caterpillar",g:"3A",n:"Bifenthrin",s:"neural",r:"high",m:"N"},
       {pest:"caterpillar",g:"3A",n:"Lambda-cyhalothrin",s:"neural",r:"high",m:"N"},
-      {pest:"caterpillar",g:"4A",n:"Imidacloprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"caterpillar",g:"4A",n:"Acetamiprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"caterpillar",g:"4A",n:"Imidacloprid",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"caterpillar",g:"4A",n:"Acetamiprid",s:"neural",r:"high",m:"S",tl:true},
       {pest:"caterpillar",g:"5",n:"Spinosad",s:"neural",r:"mid",m:"N"},
       {pest:"caterpillar",g:"5",n:"Spinetoram",s:"neural",r:"mid",m:"N"},
       {pest:"caterpillar",g:"6",n:"Abamectin",s:"neural",r:"mid",m:"LS",tl:true},
       {pest:"caterpillar",g:"6",n:"Emamectin benzoate",s:"neural",r:"mid",m:"LS",tl:true},
-      {pest:"caterpillar",g:"14",n:"Cartap hydrochloride",s:"neural",r:"low",m:"S"},
+      {pest:"caterpillar",g:"14",n:"Cartap hydrochloride",s:"neural",r:"mid",m:"S",tl:true,note:"added_cartap"},
       {pest:"caterpillar",g:"22A",n:"Indoxacarb",s:"neural",r:"mid",m:"N"},
-      {pest:"caterpillar",g:"22B",n:"Metaflumizone",s:"neural",r:"mid",m:"N"},
+      {pest:"caterpillar",g:"22B",n:"Metaflumizone",s:"neural",r:"low",m:"N",note:"added_meta"},
       {pest:"caterpillar",g:"28",n:"Chlorantraniliprole",s:"neural",r:"mid",m:"SS",tl:true},
       {pest:"caterpillar",g:"28",n:"Flubendiamide",s:"neural",r:"mid",m:"LS",tl:true},
-      {pest:"caterpillar",g:"13",n:"Chlorfenapyr",s:"respiratory",r:"mid",m:"LS",tl:true},
+      {pest:"caterpillar",g:"13",n:"Chlorfenapyr",s:"respiratory",r:"low",m:"LS",tl:true},
       {pest:"caterpillar",g:"21A",n:"Tolfenpyrad",s:"respiratory",r:"low",m:"N"},
-      {pest:"caterpillar",g:"21B",n:"Rotenone",zh:"魚藤",s:"respiratory",r:"low",m:"N"},
+      {pest:"caterpillar",g:"21B",n:"Rotenone",zh:"鱼藤",s:"respiratory",r:"low",m:"N"},
       {pest:"caterpillar",g:"7B",n:"Fenoxycarb",s:"growth",r:"low",m:"N"},
-      {pest:"caterpillar",g:"15",n:"Lufenuron",s:"growth",r:"low",m:"S",tl:true,ud:true},
-      {pest:"caterpillar",g:"15",n:"Hexaflumuron",s:"growth",r:"low",m:"S",tl:true,ud:true},
+      {pest:"caterpillar",g:"15",n:"Lufenuron",s:"growth",r:"low",m:"N"},
+      {pest:"caterpillar",g:"15",n:"Hexaflumuron",s:"growth",r:"low",m:"N"},
       {pest:"caterpillar",g:"15",n:"Diflubenzuron",s:"growth",r:"low",m:"N"},
-      {pest:"caterpillar",g:"18",n:"Chromafenozide",s:"growth",r:"low",m:"S"},
-      {pest:"caterpillar",g:"11A",n:"Bacillus thuringiensis",s:"midgut",r:"mid",m:"N"},
+      {pest:"caterpillar",g:"18",n:"Chromafenozide",s:"growth",r:"low",m:"N"},
+      {pest:"caterpillar",g:"11A",n:"Bacillus thuringiensis",s:"midgut",r:"mid",m:"N",note:"added_bt"},
       {pest:"caterpillar",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"},
       {pest:"caterpillar",g:"UN",n:"Pyridalyl",s:"unknown",r:"low",m:"S"},
       // PSYLLID
@@ -132,67 +134,67 @@
       {pest:"psyllid",g:"2B",n:"Fipronil",s:"neural",r:"mid",m:"SS"},
       {pest:"psyllid",g:"3A",n:"Bifenthrin",s:"neural",r:"high",m:"N"},
       {pest:"psyllid",g:"3A",n:"Cypermethrin",s:"neural",r:"high",m:"N"},
-      {pest:"psyllid",g:"4A",n:"Imidacloprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"psyllid",g:"4A",n:"Acetamiprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"psyllid",g:"4A",n:"Thiamethoxam",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"psyllid",g:"4A",n:"Clothianidin",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"psyllid",g:"4A",n:"Dinotefuran",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"psyllid",g:"4C",n:"Sulfoxaflor",s:"neural",r:"low",m:"S",tl:true},
+      {pest:"psyllid",g:"4A",n:"Imidacloprid",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"psyllid",g:"4A",n:"Acetamiprid",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"psyllid",g:"4A",n:"Thiamethoxam",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"psyllid",g:"4A",n:"Clothianidin",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"psyllid",g:"4A",n:"Dinotefuran",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"psyllid",g:"4C",n:"Sulfoxaflor",s:"neural",r:"low",m:"S"},
       {pest:"psyllid",g:"4D",n:"Flupyradifurone",s:"neural",r:"low",m:"S"},
       {pest:"psyllid",g:"6",n:"Abamectin",s:"neural",r:"mid",m:"LS",tl:true},
-      {pest:"psyllid",g:"9B",n:"Pymetrozine",s:"neural",r:"low",m:"S",ud:true},
-      {pest:"psyllid",g:"9D",n:"Afidopyropen",s:"neural",r:"low",m:"S"},
-      {pest:"psyllid",g:"14",n:"Cartap hydrochloride",s:"neural",r:"low",m:"S"},
-      {pest:"psyllid",g:"28",n:"Cyantraniliprole",s:"neural",r:"mid",m:"S",tl:true,note:"piercing-sucking"},
+      {pest:"psyllid",g:"9B",n:"Pymetrozine",s:"neural",r:"low",m:"S",tl:true,ud:true,note:"challenge_pymetrozine"},
+      {pest:"psyllid",g:"9D",n:"Afidopyropen",s:"neural",r:"mid",m:"S",note:"added_afido"},
+      {pest:"psyllid",g:"14",n:"Cartap hydrochloride",s:"neural",r:"mid",m:"S",tl:true,note:"added_cartap"},
+      {pest:"psyllid",g:"28",n:"Cyantraniliprole",s:"neural",r:"mid",m:"S",tl:true,note:"added_tl"},
       {pest:"psyllid",g:"12A",n:"Diafenthiuron",s:"respiratory",r:"low",m:"N"},
-      {pest:"psyllid",g:"13",n:"Chlorfenapyr",s:"respiratory",r:"mid",m:"LS",tl:true},
-      {pest:"psyllid",g:"21A",n:"Pyridaben",s:"respiratory",r:"high",m:"N"},
+      {pest:"psyllid",g:"13",n:"Chlorfenapyr",s:"respiratory",r:"low",m:"LS",tl:true},
+      {pest:"psyllid",g:"21A",n:"Pyridaben",s:"respiratory",r:"low",m:"N"},
       {pest:"psyllid",g:"21A",n:"Tolfenpyrad",s:"respiratory",r:"low",m:"N"},
-      {pest:"psyllid",g:"21B",n:"Rotenone",zh:"魚藤",s:"respiratory",r:"low",m:"N"},
-      {pest:"psyllid",g:"7C",n:"Pyriproxyfen",s:"growth",r:"low",m:"N",tl:true},
-      {pest:"psyllid",g:"16",n:"Buprofezin",s:"growth",r:"low",m:"S"},
+      {pest:"psyllid",g:"21B",n:"Rotenone",zh:"鱼藤",s:"respiratory",r:"low",m:"N",note:"added_rotenone"},
+      {pest:"psyllid",g:"7C",n:"Pyriproxyfen",s:"growth",r:"low",m:"N",tl:true,note:"added_pyriproxyfen"},
+      {pest:"psyllid",g:"16",n:"Buprofezin",s:"growth",r:"low",m:"N"},
       {pest:"psyllid",g:"23",n:"Spirotetramat",s:"growth",r:"low",m:"S",tl:true,ud:true},
       {pest:"psyllid",g:"UN",n:"Dicofol",s:"unknown",r:"low",m:"N"},
-      {pest:"psyllid",g:"UN",n:"Beauveria bassiana",zh:"白殭菌",s:"unknown",r:"low",m:"N"},
+      {pest:"psyllid",g:"UNF",n:"Beauveria bassiana",zh:"白僵菌",s:"unknown",r:"low",m:"N",note:"added_beauveria"},
       {pest:"psyllid",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"},
       // THRIPS
       {pest:"thrips",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
-      {pest:"thrips",g:"1A",n:"Methomyl",s:"neural",r:"high",m:"S"},
-      {pest:"thrips",g:"1A",n:"Methamidophos",s:"neural",r:"high",m:"S"},
+      {pest:"thrips",g:"1A",n:"Methomyl",s:"neural",r:"high",m:"S",tl:true,note:"challenge_methomyl"},
+      {pest:"thrips",g:"1B",n:"Methamidophos",s:"neural",r:"high",m:"S"},
       {pest:"thrips",g:"1A",n:"Formetanate hydrochloride",s:"neural",r:"high",m:"N"},
       {pest:"thrips",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
       {pest:"thrips",g:"2B",n:"Fipronil",s:"neural",r:"mid",m:"SS"},
       {pest:"thrips",g:"3A",n:"Bifenthrin",s:"neural",r:"high",m:"N"},
       {pest:"thrips",g:"3A",n:"Lambda-cyhalothrin",s:"neural",r:"high",m:"N"},
-      {pest:"thrips",g:"4A",n:"Imidacloprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"thrips",g:"4A",n:"Acetamiprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"thrips",g:"4A",n:"Thiamethoxam",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"thrips",g:"4A",n:"Clothianidin",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"thrips",g:"4A",n:"Dinotefuran",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"thrips",g:"4A",n:"Imidacloprid",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"thrips",g:"4A",n:"Acetamiprid",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"thrips",g:"4A",n:"Thiamethoxam",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"thrips",g:"4A",n:"Clothianidin",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"thrips",g:"4A",n:"Dinotefuran",s:"neural",r:"high",m:"S",tl:true},
       {pest:"thrips",g:"5",n:"Spinosad",s:"neural",r:"mid",m:"N"},
-      {pest:"thrips",g:"5",n:"Spinetoram",s:"neural",r:"mid",m:"N"},
+      {pest:"thrips",g:"5",n:"Spinetoram",s:"neural",r:"high",m:"N",note:"added_spinetoram_thrips"},
       {pest:"thrips",g:"6",n:"Abamectin",s:"neural",r:"mid",m:"LS",tl:true},
-      {pest:"thrips",g:"9B",n:"Pymetrozine",s:"neural",r:"low",m:"S",ud:true},
-      {pest:"thrips",g:"9D",n:"Afidopyropen",s:"neural",r:"low",m:"S"},
-      {pest:"thrips",g:"14",n:"Cartap hydrochloride",s:"neural",r:"low",m:"S"},
+      {pest:"thrips",g:"9B",n:"Pymetrozine",s:"neural",r:"low",m:"S",tl:true,ud:true,note:"challenge_pymetrozine"},
+      {pest:"thrips",g:"9D",n:"Afidopyropen",s:"neural",r:"mid",m:"S",note:"added_afido"},
+      {pest:"thrips",g:"14",n:"Cartap hydrochloride",s:"neural",r:"mid",m:"S",tl:true,note:"challenge_cartap"},
       {pest:"thrips",g:"22A",n:"Indoxacarb",s:"neural",r:"mid",m:"N"},
-      {pest:"thrips",g:"28",n:"Cyantraniliprole",s:"neural",r:"mid",m:"S",tl:true,note:"piercing-sucking"},
+      {pest:"thrips",g:"28",n:"Cyantraniliprole",s:"neural",r:"mid",m:"S",tl:true,note:"added_tl"},
       {pest:"thrips",g:"29",n:"Flonicamid",s:"neural",r:"low",m:"SS",tl:true},
       {pest:"thrips",g:"30",n:"Isocycloseram",s:"neural",r:"low",m:"N"},
       {pest:"thrips",g:"36",n:"Dimpropyridaz",s:"neural",r:"low",m:"N"},
       {pest:"thrips",g:"12A",n:"Diafenthiuron",s:"respiratory",r:"low",m:"N"},
-      {pest:"thrips",g:"13",n:"Chlorfenapyr",s:"respiratory",r:"mid",m:"LS",tl:true},
+      {pest:"thrips",g:"13",n:"Chlorfenapyr",s:"respiratory",r:"low",m:"LS",tl:true},
       {pest:"thrips",g:"21A",n:"Tolfenpyrad",s:"respiratory",r:"low",m:"N"},
-      {pest:"thrips",g:"21B",n:"Rotenone",zh:"魚藤",s:"respiratory",r:"low",m:"N"},
-      {pest:"thrips",g:"15",n:"Novaluron",s:"growth",r:"low",m:"S",tl:true,ud:true},
+      {pest:"thrips",g:"21B",n:"Rotenone",zh:"鱼藤",s:"respiratory",r:"low",m:"N"},
+      {pest:"thrips",g:"15",n:"Novaluron",s:"growth",r:"low",m:"N"},
       {pest:"thrips",g:"23",n:"Spirotetramat",s:"growth",r:"low",m:"S",tl:true,ud:true},
       {pest:"thrips",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"},
       {pest:"thrips",g:"UN",n:"Pyridalyl",s:"unknown",r:"low",m:"S"},
       // LEAFHOPPER
       {pest:"leafhopper",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
-      {pest:"leafhopper",g:"1A",n:"Methomyl",s:"neural",r:"high",m:"S"},
+      {pest:"leafhopper",g:"1A",n:"Methomyl",s:"neural",r:"high",m:"S",tl:true,note:"challenge_methomyl"},
       {pest:"leafhopper",g:"1A",n:"Isoprocarb",s:"neural",r:"high",m:"N"},
-      {pest:"leafhopper",g:"1A",n:"Fenobucarb",s:"neural",r:"high",m:"S"},
+      {pest:"leafhopper",g:"1A",n:"Fenobucarb",s:"neural",r:"high",m:"N"},
       {pest:"leafhopper",g:"1A",n:"Carbosulfan",s:"neural",r:"high",m:"S"},
       {pest:"leafhopper",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
       {pest:"leafhopper",g:"1B",n:"Chlorpyrifos",s:"neural",r:"high",m:"N"},
@@ -203,38 +205,38 @@
       {pest:"leafhopper",g:"3A",n:"Etofenprox",s:"neural",r:"high",m:"N"},
       {pest:"leafhopper",g:"3A",n:"Esfenvalerate",s:"neural",r:"high",m:"N"},
       {pest:"leafhopper",g:"3A",n:"Lambda-cyhalothrin",s:"neural",r:"high",m:"N"},
-      {pest:"leafhopper",g:"4A",n:"Imidacloprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"leafhopper",g:"4A",n:"Acetamiprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"leafhopper",g:"4A",n:"Thiamethoxam",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"leafhopper",g:"4A",n:"Clothianidin",s:"neural",r:"high",m:"S",tl:true,ud:true},
-      {pest:"leafhopper",g:"4A",n:"Dinotefuran",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"leafhopper",g:"4A",n:"Imidacloprid",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"leafhopper",g:"4A",n:"Acetamiprid",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"leafhopper",g:"4A",n:"Thiamethoxam",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"leafhopper",g:"4A",n:"Clothianidin",s:"neural",r:"high",m:"S",tl:true},
+      {pest:"leafhopper",g:"4A",n:"Dinotefuran",s:"neural",r:"high",m:"S",tl:true},
       {pest:"leafhopper",g:"4C",n:"Sulfoxaflor",s:"neural",r:"low",m:"S"},
-      {pest:"leafhopper",g:"4E",n:"Triflumezopyrim",s:"neural",r:"low",m:"S"},
-      {pest:"leafhopper",g:"9B",n:"Pymetrozine",s:"neural",r:"low",m:"S",ud:true},
-      {pest:"leafhopper",g:"9D",n:"Afidopyropen",s:"neural",r:"low",m:"S"},
-      {pest:"leafhopper",g:"14",n:"Cartap hydrochloride",s:"neural",r:"low",m:"S"},
+      {pest:"leafhopper",g:"4E",n:"Triflumezopyrim",s:"neural",r:"low",m:"S",tl:true},
+      {pest:"leafhopper",g:"9B",n:"Pymetrozine",s:"neural",r:"low",m:"S",tl:true,ud:true,note:"challenge_pymetrozine"},
+      {pest:"leafhopper",g:"9D",n:"Afidopyropen",s:"neural",r:"mid",m:"S",note:"added_afido"},
+      {pest:"leafhopper",g:"14",n:"Cartap hydrochloride",s:"neural",r:"mid",m:"S",tl:true,note:"challenge_cartap"},
       {pest:"leafhopper",g:"22A",n:"Indoxacarb",s:"neural",r:"mid",m:"N"},
-      {pest:"leafhopper",g:"28",n:"Cyantraniliprole",s:"neural",r:"mid",m:"S",tl:true,note:"piercing-sucking"},
+      {pest:"leafhopper",g:"28",n:"Cyantraniliprole",s:"neural",r:"mid",m:"S",tl:true,note:"challenge_tl"},
       {pest:"leafhopper",g:"29",n:"Flonicamid",s:"neural",r:"low",m:"SS",tl:true},
-      {pest:"leafhopper",g:"36",n:"Dimpropyridaz",s:"neural",r:"low",m:"N"},
+      {pest:"leafhopper",g:"36",n:"Dimpropyridaz",s:"neural",r:"low",m:"N",note:"added_new_chem"},
       {pest:"leafhopper",g:"12A",n:"Diafenthiuron",s:"respiratory",r:"low",m:"N"},
       {pest:"leafhopper",g:"21A",n:"Tolfenpyrad",s:"respiratory",r:"low",m:"N"},
-      {pest:"leafhopper",g:"16",n:"Buprofezin",s:"growth",r:"low",m:"S"},
-      {pest:"leafhopper",g:"18",n:"Methoxyfenozide",s:"growth",r:"low",m:"N"},
+      {pest:"leafhopper",g:"16",n:"Buprofezin",s:"growth",r:"low",m:"N"},
+      {pest:"leafhopper",g:"18",n:"Methoxyfenozide",s:"growth",r:"mid",m:"N"},
       {pest:"leafhopper",g:"23",n:"Spirotetramat",s:"growth",r:"low",m:"S",tl:true,ud:true},
       {pest:"leafhopper",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"}
     ];
 
     const MIX_SEQUENCE = [
       {step:1, zh:"水箱配 ½ ~ ¾ 水",                 en:"Fill tank ½ ~ ¾ with water"},
-      {step:2, zh:"調整 pH 至 6.0 或以下",             en:"Adjust pH to 6.0 or below"},
-      {step:3, zh:"水分散粒劑 (WDG)、可濕性粉劑 (WP)",  en:"Water-dispersible granules (WDG), wettable powders (WP)"},
-      {step:4, zh:"攪拌 5 分鐘",                      en:"Stir / agitate for 5 minutes"},
-      {step:5, zh:"石油分散 (OD)、懸浮液濃縮 (SC)、懸乳劑 (SE)", en:"Oil dispersion (OD), suspension concentrate (SC), suspoemulsion (SE)"},
-      {step:6, zh:"乳油 (EC)、水乳劑 (EW)",             en:"Emulsifiable concentrate (EC), emulsion in water (EW)"},
-      {step:7, zh:"可溶性液體 (SG, SP)",                en:"Soluble granules / powders (SG, SP)"},
-      {step:8, zh:"可溶性液體 (SL)",                    en:"Soluble liquids (SL)"},
-      {step:9, zh:"表面活性劑 → 加滿水箱",              en:"Surfactants → top up the tank"}
+      {step:2, zh:"调整 pH 至 6.0 或以下",             en:"Adjust pH to 6.0 or below"},
+      {step:3, zh:"水分散粒剂 (WDG)、可湿性粉剂 (WP)",  en:"Water-dispersible granules (WDG), wettable powders (WP)"},
+      {step:4, zh:"搅拌 5 分钟",                      en:"Stir / agitate for 5 minutes"},
+      {step:5, zh:"石油分散 (OD)、悬浮液浓缩 (SC)、悬乳剂 (SE)", en:"Oil dispersion (OD), suspension concentrate (SC), suspoemulsion (SE)"},
+      {step:6, zh:"乳油 (EC)、水乳剂 (EW)",             en:"Emulsifiable concentrate (EC), emulsion in water (EW)"},
+      {step:7, zh:"可溶性液体 (SG, SP)",                en:"Soluble granules / powders (SG, SP)"},
+      {step:8, zh:"可溶性液体 (SL)",                    en:"Soluble liquids (SL)"},
+      {step:9, zh:"表面活性剂 → 加满水箱",              en:"Surfactants → top up the tank"}
     ];
 
     // ========================================================================
@@ -242,34 +244,54 @@
     // ========================================================================
     const L = {
       zh: {
-        appTitle: "蟲害輪替助手", appSubtitle: "依據 Tee 先生《Bunting A》機制圖整理",
-        tabLibrary: "機制庫", tabRotate: "輪替助手", tabMix: "調配順序",
-        assistant: "快速查詢", assistantHint: "問問特定害蟲、機制或活性成分…",
-        searchPlaceholder: "搜尋活性成分、機制或害蟲…",
-        filterAll: "全部", filterRisk: "抗藥性風險", filterSite: "作用部位",
-        selectPest: "選擇害蟲", lastUsed: "上次用過的 IRAC 機制組",
-        rotateTo: "建議輪替", rotateAvoid: "避免使用 (相同機制)",
-        site_neural: "神經與肌肉", site_respiratory: "呼吸系統",
-        site_growth: "生長與發育", site_unknown: "未知 / 無特定", site_midgut: "中腸 (Bt)",
+        appTitle: "虫药轮替助手", appSubtitle: "依据 Tee 先生《Bunting A》机制图整理",
+        tabLibrary: "机制库", tabRotate: "轮替助手", tabMix: "调配顺序",
+        assistant: "快速查询", assistantHint: "问问特定害虫、机制或活性成分…",
+        searchPlaceholder: "搜寻活性成分、机制或害虫…",
+        filterAll: "全部", filterRisk: "抗药性风险", filterSite: "作用部位",
+        selectPest: "选择害虫", lastUsed: "上次用过的 IRAC 机制组",
+        rotateTo: "建议轮替", rotateAvoid: "避免使用 (相同机制)",
+        site_neural: "神经与肌肉", site_respiratory: "呼吸系统",
+        site_growth: "生长与发育", site_unknown: "未知 / 无特定", site_midgut: "中肠 (Bt)",
         risk_low: "低", risk_mid: "中", risk_high: "高",
-        mob_N: "接觸", mob_S: "系統", mob_SS: "選擇系統", mob_LS: "局部系統",
-        tl: "穿層滲透", ud: "上下移行",
-        noResults: "沒有符合的結果。",
-        about: "資料來源",
-        aboutText: "本工具的所有資料整理自 Tee 先生 2024 年 7-8 月編製的《Bunting A》殺蟲劑作用機制 (MoA) 輪替指南。包含 7 類常見害蟲與 180+ 活性成分。每次用藥請輪替不同的 IRAC 機制組,以延緩抗藥性發生。",
-        safetyTitle: "農戶安全提醒",
-        safetyText: "本指南僅為機制輪替參考。實際用藥前請: ① 核對農藥標籤所列適用作物與蟲害, ② 遵守安全採收間隔期 (PHI), ③ 不要與 Glyphosate (草甘膦) 混用其他殺蟲劑, ④ 留意對授粉昆蟲與天敵的影響。",
-        groupsCount: "個機制組", activesCount: "個活性成分",
-        warningHigh: "高抗藥性風險",
-        legend: "圖例", langSwitch: "English", backToTop: "回到頂部",
-        ask1: "紅蜘蛛該如何輪替?", ask2: "Imidacloprid 屬於哪一組?",
-        ask3: "毛毛蟲的低風險選擇?", ask4: "什麼是穿層滲透?",
-        replyIntro: "你好!請從下方挑選快速問題,或用搜尋查特定成分/機制。",
-        replyMobility_TL: "穿層滲透 (Translaminar) 指農藥可穿透葉片表皮,作用於葉背隱藏的害蟲 (例如紅蜘蛛)。",
-        replyMobility_S: "系統性 (Systemic) 農藥可由根或葉吸收進入植物維管束輸送,適用於藏在葉鞘內或樹皮下的害蟲。"
+        mob_N: "接触", mob_S: "系统", mob_SS: "选择系统", mob_LS: "局部系统",
+        tl: "穿层渗透", ud: "上下移行",
+        noResults: "没有符合的结果。",
+        about: "资料来源",
+        aboutText: "本工具的所有资料整理自 Tee 先生 2024 年 7-8 月编制的《Bunting A》杀虫剂作用机制 (MoA) 轮替指南。包含 7 类常见害虫与 180+ 活性成分。每次用药请轮替不同的 IRAC 机制组,以延缓抗药性发生。",
+        safetyTitle: "农户安全提醒",
+        safetyText: "本指南仅为机制轮替参考。实际用药前请: ① 核对农药标签所列适用作物与虫害, ② 遵守安全采收间隔期 (PHI), ③ 不要与 Glyphosate (草甘膦) 混用其他杀虫剂, ④ 留意对授粉昆虫与天敌的影响。",
+        groupsCount: "个机制组", activesCount: "个活性成分",
+        warningHigh: "高抗药性风险",
+        legend: "图例", langSwitch: "EN", backToTop: "回到顶部",
+        note_cross_abamectin: "与 Abamectin (Group 6) 有交叉抗药性,不应轮替使用",
+        note_piercing_sucking: "对刺吸式害虫更有效",
+        note_added_afido: "Bunting A 未列抗药性资料;白粉虱已有田间抗药性报告 (36-104 倍),建议谨慎使用",
+        note_added_tl: "Bunting A 未列穿层渗透;IRAC 文献确认此化学具穿层渗透特性",
+        note_added_new_chem: "Bunting A 未列抗药性资料;新化学,目前无田间抗药性或交叉抗药性报告",
+        note_added_white_oil: "Bunting A 未列资料;IRAC 报告此类油剂从未出现抗药性,作用为物理性窒息",
+        note_added_cartap: "Bunting A 未列抗药性;番茄夜蛾 (巴西)、菜蛾 (中国) 已有田间抗药性报告;商品资料显示具系统性、接触性与穿层渗透",
+        note_added_meta: "Bunting A 列为低风险;甜菜夜蛾 Spodoptera exigua (中国广东) 田间已出现高抗药性 (60-942 倍, 2014 年研究),建议监测使用",
+        note_added_bt: "Bunting A 未列细节;Plutella xylostella (小菜蛾)、Helicoverpa zea、Spodoptera frugiperda 等鳞翅目害虫已有田间抗药性报告 (Tabashnik 综述等);由幼虫取食后中肠激活,接触+取食活性",
+        note_added_pyriproxyfen: "Bunting A 未列穿层渗透;Ishaaya & Horowitz 1995 与 2020 综述均证实此 IGR 具穿层渗透特性",
+        note_added_rotenone: "Bunting A 列为系统性,但 IRAC、AERU、PIM、ScienceDirect 等权威资料皆指鱼藤为非系统性,仅具接触与胃毒作用",
+        note_added_beauveria: "Bunting A 未列作用方式;白僵菌孢子需附着虫体表皮,以芽管穿透角质层感染,属接触性",
+        note_challenge_tl: "Bunting A 在此项标示非穿层渗透;但 IRAC 文献、PubMed 同行评审论文、商品标签 (Benevia、Minecto Xtra 等) 一致确认 Cyantraniliprole 具穿层渗透特性。本应用采纳网络共识",
+        note_challenge_cartap: "Bunting A 此条目标示为低风险;但 Tuta absoluta (巴西)、Plutella xylostella (中国)、Cnaphalocrocis medinalis (印度 Kerala) 已有田间抗药性报告。本应用采纳网络共识为中风险,并补上穿层渗透特性",
+        note_challenge_pymetrozine: "Bunting A 此条目未标穿层渗透;但 Wyss & Bolsinger 1997、LSU Ag Center、维基百科等多源确认 Pymetrozine 同时具系统性 (木质部+韧皮部) 与穿层渗透特性",
+        note_added_diafen_mite: "本品对其他害虫风险较低,但红蜘蛛已有 10-40 倍田间抗药性 (Kerala 印度 Tetranychus gloveri 2025、T. truncatus 2019 研究记录),故仅红蜘蛛标为中风险",
+        note_added_pyridaben_mite: "本品对其他害虫风险较低,但红蜘蛛已有极高田间抗药性 (最高达 5500 倍,Tetranychus urticae 多国报告),故仅红蜘蛛标为高风险",
+        note_added_spinetoram_thrips: "本品对其他害虫风险较低,但西方花蓟马 (Frankliniella occidentalis) 已有全球性田间抗药性,故仅蓟马标为高风险",
+        note_challenge_methomyl: "Bunting A 此条目未标穿层渗透;但 Lannate (DuPont) 与 Methomyl 90 SP 等多家厂商商品标签、UF Extension 及 ScienceDirect 均确认 Methomyl 具系统性、接触性与穿层渗透三重作用",
+        note_challenge_hexythiazox: "Bunting A 此条目标示低风险;但澳洲 1993、PNAS 2012 (希腊 Marathonas 玫瑰株)、塞浦路斯 2013 等多项同行评审研究记录二点叶蝉 Tetranychus urticae 对 Hexythiazox 全球性田间抗药性,本应用采纳网络共识为中风险",
+        ask1: "红蜘蛛该如何轮替?", ask2: "Imidacloprid 属于哪一组?",
+        ask3: "毛毛虫的低风险选择?", ask4: "什么是穿层渗透?",
+        replyIntro: "你好!请从下方挑选快速问题,或用搜寻查特定成分/机制。",
+        replyMobility_TL: "穿层渗透 (Translaminar) 指农药可穿透叶片表皮,作用于叶背隐藏的害虫 (例如红蜘蛛)。",
+        replyMobility_S: "系统性 (Systemic) 农药可由根或叶吸收进入植物维管束输送,适用于藏在叶鞘内或树皮下的害虫。"
       },
       en: {
-        appTitle: "Pest Rotation Assistant", appSubtitle: "Built from Tee's 'Bunting A' MoA chart",
+        appTitle: "Pest MoA", appSubtitle: "Built from Tee's 'Bunting A' MoA chart",
         tabLibrary: "MoA Library", tabRotate: "Rotation Helper", tabMix: "Tank-Mix Order",
         assistant: "Quick Lookup", assistantHint: "Ask about a pest, group, or active ingredient…",
         searchPlaceholder: "Search active, group or pest…",
@@ -289,6 +311,26 @@
         groupsCount: "MoA groups", activesCount: "active ingredients",
         warningHigh: "High resistance risk",
         legend: "Legend", langSwitch: "中文", backToTop: "Back to top",
+        note_cross_abamectin: "Cross-resistance with Abamectin (Group 6); do not rotate between them",
+        note_piercing_sucking: "More effective against piercing-sucking pests",
+        note_added_afido: "Not in Bunting A; field resistance documented in whitefly (36-104×). Use with care.",
+        note_added_tl: "Not in Bunting A; IRAC sources confirm this chemistry is translaminar",
+        note_added_new_chem: "Not in Bunting A; new chemistry, no field resistance or cross-resistance reported yet",
+        note_added_white_oil: "Not in Bunting A; IRAC reports no resistance ever observed (physical suffocation)",
+        note_added_cartap: "Not in Bunting A; field resistance reported in Tuta absoluta (Brazil) and Plutella xylostella (China). Commercial sources describe systemic, contact and translaminar action.",
+        note_added_meta: "Bunting A rates this low; field resistance in beet armyworm Spodoptera exigua (Guangdong, China) documented at 60.3-942× (2014 study). Use with monitoring.",
+        note_added_bt: "Bunting A only gave IRAC code; field resistance documented in lepidopteran pests including Plutella xylostella, Helicoverpa zea, and Spodoptera frugiperda (per Tabashnik review and others). Activated in larval midgut after ingestion (contact + stomach action).",
+        note_added_pyriproxyfen: "Not in Bunting A; translaminar action confirmed by Ishaaya & Horowitz (1995) on cotton leaves and by 2020 fate review.",
+        note_added_rotenone: "Bunting A marks as systemic, but IRAC, AERU, PIM 474, ScienceDirect all describe rotenone as non-systemic with contact and stomach action only.",
+        note_added_beauveria: "Not in Bunting A; spores must adhere to insect cuticle, then penetrate via germ tubes — fundamentally a contact-action biopesticide.",
+        note_challenge_tl: "Bunting A marks this entry as not translaminar; however, IRAC sources, peer-reviewed PubMed papers, and commercial labels (Benevia, Minecto Xtra, etc.) all confirm cyantraniliprole has translaminar action. App uses the web consensus.",
+        note_challenge_cartap: "Bunting A rates this entry as low risk; however, field resistance is documented in Tuta absoluta (Brazil), Plutella xylostella (China), and Cnaphalocrocis medinalis (Kerala, India). App uses web consensus: mid risk with translaminar action.",
+        note_challenge_pymetrozine: "Bunting A does not mark this entry as translaminar; however, Wyss & Bolsinger 1997, LSU Ag Center, Wikipedia, and other sources confirm pymetrozine has both systemic (xylem + phloem) and translaminar action.",
+        note_added_diafen_mite: "Low risk on other pests, but red spider mite has documented 10-40× field resistance (Kerala India: Tetranychus gloveri 2025 study, T. truncatus 2019 Anushree et al.), hence mid risk only for mites.",
+        note_added_pyridaben_mite: "Low risk on other pests, but red spider mite has extreme field resistance (up to 5500× in Tetranychus urticae across multiple countries), hence high risk only for mites.",
+        note_added_spinetoram_thrips: "Lower risk on other pests, but western flower thrips (Frankliniella occidentalis) has global field resistance, hence high risk only for thrips.",
+        note_challenge_methomyl: "Bunting A does not mark this entry as translaminar; however, multiple manufacturer labels (Lannate by DuPont, Methomyl 90 SP), UF Extension, and ScienceDirect all confirm methomyl has systemic, contact, and translaminar action.",
+        note_challenge_hexythiazox: "Bunting A rates this entry as low risk; however, peer-reviewed studies (Australia 1993, PNAS 2012 Marathonas rose strain in Greece, Cyprus 2013, and a global review) document worldwide field resistance in Tetranychus urticae. App uses web consensus: mid risk.",
         ask1: "How do I rotate for red spider mite?", ask2: "Which group is Imidacloprid?",
         ask3: "Low-risk options for caterpillars?", ask4: "What is translaminar?",
         replyIntro: "Hi! Pick a quick question below, or use search to find a specific active/group.",
@@ -405,9 +447,9 @@
       const groupsForRotPest = useMemo(() => {
         const gs = [...new Set(ACTIVES.filter(a => a.pest === rotPest).map(a => a.g))];
         return gs.sort((a, b) => {
-          // numeric IRAC ordering, "UN" last
-          const A = a === 'UN' ? 999 : parseInt(a, 10);
-          const B = b === 'UN' ? 999 : parseInt(b, 10);
+          // numeric IRAC ordering, all "UN*" codes last (UN, UNB, UNE, UNF, UNM, UNP, UNV)
+          const A = a.startsWith('UN') ? 999 : parseInt(a, 10);
+          const B = b.startsWith('UN') ? 999 : parseInt(b, 10);
           return A - B || a.localeCompare(b);
         });
       }, [rotPest]);
@@ -440,6 +482,22 @@
               {a.tl && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.tl}</span>}
               {a.ud && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.ud}</span>}
             </div>
+            {a.note && t[`note_${a.note}`] && (() => {
+              const isWarning = a.note === 'cross_abamectin';
+              const isAdded = a.note.startsWith('added_') || a.note.startsWith('challenge_');
+              const cls = isWarning
+                ? 'bg-amber-50 text-amber-900 border border-amber-200'
+                : isAdded
+                  ? 'bg-indigo-50 text-indigo-900 border border-indigo-200'
+                  : 'bg-slate-50 text-slate-700 border border-slate-200';
+              return (
+                <div className={`mt-2 flex items-start gap-1.5 text-xs font-semibold rounded-lg px-2.5 py-1.5 ${cls}`}>
+                  {isWarning && <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
+                  {isAdded && <Plus className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
+                  <span>{t[`note_${a.note}`]}</span>
+                </div>
+              );
+            })()}
           </div>
         );
       };
@@ -458,7 +516,7 @@
           <div className="flex gap-2">
             <select value={pestFilter} onChange={e => setPestFilter(e.target.value)}
               className="flex-1 min-w-0 bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#114b2d]/30 truncate">
-              <option value="all">{lang==='zh'?'全部害蟲':'All pests'}</option>
+              <option value="all">{lang==='zh'?'全部害虫':'All pests'}</option>
               {PESTS.map(p => <option key={p.id} value={p.id}>{p.emoji} {lang==='zh'?p.zh:p.en}</option>)}
             </select>
             <select value={riskFilter} onChange={e => setRiskFilter(e.target.value)}
@@ -542,7 +600,7 @@
                         <span className="text-sm font-extrabold bg-[#114b2d] text-white px-3 py-1 rounded-full">{g}</span>
                         {lowRiskCount > 0 && (
                           <span className="text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
-                            {lowRiskCount} {t.risk_low}-{lang==='zh'?'風險':'risk'}
+                            {lowRiskCount} {t.risk_low}-{lang==='zh'?'风险':'risk'}
                           </span>
                         )}
                       </div>
@@ -567,7 +625,7 @@
         <div className="max-w-2xl">
           <div className="mb-4 text-sm text-slate-600 font-medium leading-relaxed">
             {lang === 'zh'
-              ? '按下方順序加入水箱,可達到最佳殺蟲效果並避免藥劑互相干擾。'
+              ? '按下方顺序加入水箱,可达到最佳杀虫效果并避免药剂互相干扰。'
               : 'Follow this order when filling the spray tank to maximise efficacy and avoid chemical interference.'}
           </div>
           <ol className="space-y-2">
@@ -581,7 +639,7 @@
           <div className="mt-5 bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-900 leading-relaxed">
             <div className="font-extrabold mb-1 flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> {lang === 'zh' ? '重要' : 'Important'}</div>
             {lang === 'zh'
-              ? '切勿與 Glyphosate (草甘膦) 同箱混用其他殺蟲劑或殺菌劑。'
+              ? '切勿与 Glyphosate (草甘膦) 同箱混用其他杀虫剂或杀菌剂。'
               : 'Never tank-mix insecticides or fungicides with Glyphosate.'}
           </div>
         </div>
@@ -596,16 +654,16 @@
         if (question === 'rotate_mite') {
           const groups = [...new Set(ACTIVES.filter(a => a.pest === 'spider_mite').map(a => a.g))];
           answer = lang === 'zh'
-            ? `紅蜘蛛在資料庫中有 ${groups.length} 個機制組可用 (${groups.join(', ')})。建議避免連續使用 1A/1B/3A/4A (高抗藥性風險),改用 13、23、25A 等低風險組。`
+            ? `红蜘蛛在资料库中有 ${groups.length} 个机制组可用 (${groups.join(', ')})。建议避免连续使用 1A/1B/3A/4A (高抗药性风险),改用 13、23、25A 等低风险组。`
             : `Red spider mite has ${groups.length} groups available (${groups.join(', ')}). Avoid repeating 1A/1B/3A/4A (high resistance risk); rotate into low-risk groups like 13, 23, 25A.`;
         } else if (question === 'imidacloprid_group') {
           answer = lang === 'zh'
-            ? `Imidacloprid 屬於 IRAC 第 4A 組 (Neonicotinoid)。系統性、可上下移行,但抗藥性風險高,常用於粉蚧、薊馬、木蝨、青蚊。`
-            : `Imidacloprid is IRAC group 4A (Neonicotinoid). Systemic with xylem/phloem mobility, but high resistance risk. Common against mealybugs, thrips, psyllids, leafhoppers.`;
+            ? `Imidacloprid 属于 IRAC 第 4A 组 (Neonicotinoid)。系统性、具穿层渗透,但抗药性风险高,常用于粉蚧、蓟马、木虱、青蚊。`
+            : `Imidacloprid is IRAC group 4A (Neonicotinoid). Systemic with translaminar movement, but high resistance risk. Common against mealybugs, thrips, psyllids, leafhoppers.`;
         } else if (question === 'low_risk_caterpillar') {
           const low = ACTIVES.filter(a => a.pest === 'caterpillar' && a.r === 'low');
           answer = lang === 'zh'
-            ? `毛毛蟲的低風險選擇有 ${low.length} 個: ${low.map(a => a.n).slice(0, 8).join(', ')}${low.length > 8 ? '…' : ''}。生長抑制劑 (Group 15、18) 和 Bt (11A) 是溫和的好選擇。`
+            ? `毛毛虫的低风险选择有 ${low.length} 个: ${low.map(a => a.n).slice(0, 8).join(', ')}${low.length > 8 ? '…' : ''}。生长抑制剂 (Group 15、18) 和 Bt (11A) 是温和的好选择。`
             : `${low.length} low-risk options for caterpillars: ${low.map(a => a.n).slice(0, 8).join(', ')}${low.length > 8 ? '…' : ''}. Growth regulators (Group 15, 18) and Bt (11A) are gentle picks.`;
         } else if (question === 'what_is_tl') {
           answer = t.replyMobility_TL;
@@ -667,7 +725,8 @@
                 <Info className="w-5 h-5" />
               </button>
               <button onClick={() => setLang(l => l === 'zh' ? 'en' : 'zh')}
-                className="text-sm font-bold px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 transition-all border border-slate-300 shadow-sm">
+                className="text-sm font-bold px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 transition-all border border-slate-300 shadow-sm flex items-center gap-1.5">
+                <Layers className="w-4 h-4" />
                 {t.langSwitch}
               </button>
             </div>
@@ -729,7 +788,7 @@
                 </div>
                 <div ref={chatRef} className="flex-1 overflow-y-auto p-4 space-y-3">
                   {chatLog.map((m, i) => (
-                    <div key={i} className={`text-sm leading-relaxed rounded-2xl p-3 border ${m.role === 'user' ? 'bg-slate-100 border-slate-200 ml-8' : 'bg-emerald-50/60 border-emerald-100 mr-8'}`}>
+                    <div key={i} className={`text-base font-semibold leading-relaxed rounded-2xl p-3 border ${m.role === 'user' ? 'bg-slate-100 border-slate-200 ml-8' : 'bg-emerald-50/60 border-emerald-100 mr-8'}`}>
                       {m.text}
                     </div>
                   ))}
@@ -761,12 +820,12 @@
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                <div className="p-5 space-y-4 text-sm text-slate-700 leading-relaxed">
+                <div className="p-5 space-y-4 text-base text-slate-800 font-semibold leading-relaxed">
                   <p>{t.aboutText}</p>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center">
                       <div className="text-2xl font-extrabold text-[#114b2d]">{PESTS.length}</div>
-                      <div className="text-xs font-bold text-emerald-700 uppercase tracking-wider mt-0.5">{lang==='zh'?'種害蟲':'pest categories'}</div>
+                      <div className="text-xs font-bold text-emerald-700 uppercase tracking-wider mt-0.5">{lang==='zh'?'种害虫':'pest categories'}</div>
                     </div>
                     <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center">
                       <div className="text-2xl font-extrabold text-[#114b2d]">{ACTIVES.length}</div>
@@ -776,9 +835,9 @@
                   <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
                     <div className="flex items-center gap-2 mb-1.5">
                       <AlertTriangle className="w-4 h-4 text-amber-700" />
-                      <div className="font-extrabold text-sm text-amber-900">{t.safetyTitle}</div>
+                      <div className="font-extrabold text-base text-amber-900">{t.safetyTitle}</div>
                     </div>
-                    <p className="text-xs text-amber-900 leading-relaxed">{t.safetyText}</p>
+                    <p className="text-sm text-amber-900 font-semibold leading-relaxed">{t.safetyText}</p>
                   </div>
                 </div>
               </div>
