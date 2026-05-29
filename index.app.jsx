@@ -1,618 +1,794 @@
 
-    const { useState, useRef, useEffect } = React;
+    const { useState, useRef, useEffect, useMemo } = React;
 
-    // --- ICON STUBS (Replacing lucide-react for standalone HTML) ---
+    // ========================================================================
+    // ICONS (stand-ins for lucide-react, inline so no extra runtime needed)
+    // ========================================================================
     const Icon = ({ path, className }) => (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} dangerouslySetInnerHTML={{__html: path}} />
     );
-    const Book = (p) => <Icon {...p} path='<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>' />;
-    const FileText = (p) => <Icon {...p} path='<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/>' />;
-    const Globe = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>' />;
+    const Bug = (p) => <Icon {...p} path='<path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/>' />;
     const Search = (p) => <Icon {...p} path='<circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/>' />;
     const RefreshCw = (p) => <Icon {...p} path='<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>' />;
     const Beaker = (p) => <Icon {...p} path='<path d="M4.5 3h15"/><path d="M6 3v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3"/><path d="M6 14h12"/>' />;
-    const Bug = (p) => <Icon {...p} path='<path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/>' />;
-    const ShieldAlert = (p) => <Icon {...p} path='<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="M12 8v4"/><path d="M12 16h.01"/>' />;
-    const ShieldCheck = (p) => <Icon {...p} path='<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/>' />;
     const Sparkles = (p) => <Icon {...p} path='<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>' />;
-    const Send = (p) => <Icon {...p} path='<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>' />;
-    const LayoutGrid = (p) => <Icon {...p} path='<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>' />;
-    const MessageSquare = (p) => <Icon {...p} path='<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' />;
-    const Droplets = (p) => <Icon {...p} path='<path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7 6.3 7 6.3s-2.14 2.76-3.29 3.69C2.57 10.92 2 12.02 2 13.18 2 15.4 3.8 17.2 6 17.2c.34 0 .68-.04 1-.1"/><path d="M12.56 6.6c.14-.17.29-.35.44-.52.92-1.07 2.1-2.4 3.73-4.08h.02c.35.34 1 1 2.25 2.5 1.45 1.74 3 3.75 3 6.02 0 2.94-2.3 5.48-5.32 5.48-1.54 0-2.92-.68-3.9-1.73"/>' />;
+    const X = (p) => <Icon {...p} path='<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>' />;
+    const Info = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>' />;
+    const ChevronRight = (p) => <Icon {...p} path='<polyline points="9 18 15 12 9 6"/>' />;
+    const ChevronDown = (p) => <Icon {...p} path='<polyline points="6 9 12 15 18 9"/>' />;
+    const AlertTriangle = (p) => <Icon {...p} path='<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>' />;
+    const ArrowUp = (p) => <Icon {...p} path='<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>' />;
 
-    // --- DATA & CONSTANTS ---
-    const LEGEND = {
-      site: { N: "神經和肌肉 (Nerve & Muscle)", R: "呼吸系統 (Respiration)", G: "生長和發育 (Growth & Dev)", U: "未知/無特定 (Unknown)" },
-      risk: { low: "低風險 (Low)", mid: "中風險 (Med)", high: "高風險 (High)" },
-      mob: { N: "接触性", S: "系統性", SS: "選擇系統性", LS: "局部系統性", TL: "穿層滲透", UD: "上下移行" }
-    };
-
-    const createChemical = (g, n, site, risk, mob, note = null) => ({ g, n, site, risk, mob, note });
+    // ========================================================================
+    // DATABASE — derived from "Bunting A" insecticide rotation chart (Tee, 2024)
+    // ========================================================================
 
     const PESTS = [
-      {
-        id: "grasshopper", zh: "草蜢 / 甲虫", en: "Grasshopper / Beetle",
-        items: [
-          createChemical("1A", "Carbaryl", "N", "high", ["LS"]), createChemical("1B", "Dimethoate", "N", "high", ["S"]),
-          createChemical("1B", "Acephate", "N", "high", ["S"]), createChemical("2A", "Endosulfan", "N", "high", ["N"]),
-          createChemical("2B", "Fipronil", "N", "mid", ["SS"]), createChemical("3A", "Deltamethrin", "N", "high", ["N"]),
-          createChemical("3A", "Cypermethrin", "N", "high", ["N"]), createChemical("22A", "Indoxacarb", "N", "mid", ["N"]),
-          createChemical("28", "Chlorantraniliprole", "N", "mid", ["SS", "TL"], "复配 (多重机制)"),
-          createChemical("15", "Diflubenzuron", "G", "mid", ["N"]), createChemical("15", "Novaluron", "G", "mid", ["N"]),
-          createChemical("UN", "Azadirachtin (印楝油)", "U", "low", ["S"]), createChemical("UN", "Pyridalyl", "U", "low", ["S"])
-        ]
-      },
-      {
-        id: "redspider", zh: "红蜘蛛", en: "Red Spider Mite",
-        items: [
-          createChemical("1A", "Carbaryl", "N", "high", ["S"]), createChemical("1B", "Dimethoate", "N", "high", ["S"]),
-          createChemical("3A", "Bifenthrin", "N", "high", ["N"]), createChemical("6", "Abamectin", "N", "mid", ["LS", "TL"]),
-          createChemical("19", "Amitraz", "N", "mid", ["N"]), createChemical("12A", "Diafenthiuron", "R", "mid", ["N"]),
-          createChemical("12C", "Propargite", "R", "mid", ["N"]), createChemical("13", "Chlorfenapyr", "R", "mid", ["LS", "TL"]),
-          createChemical("21A", "Pyridaben", "R", "mid", ["N"]), createChemical("21A", "Fenpyroximate", "R", "mid", ["N"]),
-          createChemical("25A", "Cyflumetofen", "R", "mid", ["N"]), createChemical("10A", "Hexythiazox", "G", "mid", ["N"]),
-          createChemical("16", "Buprofezin", "G", "mid", ["S"]), createChemical("23", "Spirotetramat", "G", "mid", ["S"]),
-          createChemical("23", "Spirodiclofen", "G", "mid", ["N"]), createChemical("UN", "Dicofol", "U", "mid", ["N"]),
-          createChemical("UN", "Beauveria bassiana", "U", "low", ["N"]), createChemical("UN", "Azadirachtin", "U", "low", ["S"])
-        ]
-      },
-      {
-        id: "mealybug", zh: "粉蚧 / 介殼蟲", en: "Mealybug / Scale",
-        items: [
-          createChemical("1A", "Carbaryl", "N", "high", ["LS"]), createChemical("1A", "Methomyl", "N", "high", ["S"]),
-          createChemical("1B", "Dimethoate", "N", "high", ["S"]), createChemical("1B", "Acephate", "N", "high", ["S"]),
-          createChemical("2B", "Fipronil", "N", "mid", ["SS"]), createChemical("3A", "Deltamethrin", "N", "high", ["N"]),
-          createChemical("3A", "Bifenthrin", "N", "high", ["N"]), createChemical("4A", "Imidacloprid", "N", "high", ["S", "TL", "UD"]),
-          createChemical("4A", "Acetamiprid", "N", "high", ["S", "TL", "UD"]), createChemical("4C", "Sulfoxaflor", "N", "mid", ["S"]),
-          createChemical("6", "Abamectin", "N", "mid", ["LS"]), createChemical("9D", "Afidopyropen", "N", "low", ["S"]),
-          createChemical("28", "Cyantraniliprole", "N", "mid", ["S"]), createChemical("29", "Flonicamid", "N", "low", ["S", "TL"]),
-          createChemical("30", "Isocycloseram", "N", "low", ["N"]), createChemical("7B", "Fenoxycarb", "G", "low", ["N"]),
-          createChemical("16", "Buprofezin", "G", "mid", ["S"]), createChemical("23", "Spirotetramat", "G", "mid", ["S", "TL", "UD"]),
-          createChemical("UN", "Azadirachtin", "U", "low", ["S"]), createChemical("UN", "White Oil", "U", "low", ["N"])
-        ]
-      },
-      {
-        id: "caterpillar", zh: "毛毛虫", en: "Caterpillar",
-        items: [
-          createChemical("1A", "Carbaryl", "N", "high", ["LS"]), createChemical("1B", "Dimethoate", "N", "high", ["S"]),
-          createChemical("2A", "Endosulfan", "N", "high", ["N"]), createChemical("2B", "Fipronil", "N", "mid", ["SS"]),
-          createChemical("3A", "Deltamethrin", "N", "high", ["N"]), createChemical("3A", "Bifenthrin", "N", "high", ["N"]),
-          createChemical("4A", "Imidacloprid", "N", "high", ["S", "TL", "UD"]), createChemical("5", "Spinosad", "N", "mid", ["N"]),
-          createChemical("6", "Abamectin", "N", "mid", ["LS", "TL"]), createChemical("6", "Emamectin benzoate", "N", "mid", ["LS", "TL"]),
-          createChemical("14", "Cartap", "N", "mid", ["S"]), createChemical("22A", "Indoxacarb", "N", "mid", ["N"]),
-          createChemical("28", "Chlorantraniliprole", "N", "mid", ["SS", "TL"]), createChemical("11A", "Bacillus thuringiensis", "N", "low", ["N"]),
-          createChemical("13", "Chlorfenapyr", "R", "mid", ["LS"]), createChemical("21A", "Tolfenpyrad", "R", "mid", ["N"]),
-          createChemical("15", "Lufenuron", "G", "mid", ["S", "TL", "UD"]), createChemical("18", "Chromafenozide", "G", "mid", ["S"]),
-          createChemical("UN", "Azadirachtin", "U", "low", ["S"]), createChemical("UN", "Pyridalyl", "U", "low", ["S"])
-        ]
-      },
-      {
-        id: "psyllid", zh: "木虱", en: "Psyllid",
-        items: [
-          createChemical("1A", "Carbaryl", "N", "high", ["LS"]), createChemical("2B", "Fipronil", "N", "mid", ["SS"]),
-          createChemical("3A", "Bifenthrin", "N", "high", ["N"]), createChemical("4A", "Imidacloprid", "N", "high", ["S", "TL", "UD"]),
-          createChemical("4A", "Thiamethoxam", "N", "high", ["S", "TL", "UD"]), createChemical("4C", "Sulfoxaflor", "N", "mid", ["S"]),
-          createChemical("4D", "Flupyradifurone", "N", "mid", ["S"]), createChemical("6", "Abamectin", "N", "mid", ["LS"]),
-          createChemical("9B", "Pymetrozine", "N", "low", ["S"]), createChemical("9D", "Afidopyropen", "N", "low", ["S"]),
-          createChemical("28", "Cyantraniliprole", "N", "mid", ["S"]), createChemical("12A", "Diafenthiuron", "R", "mid", ["N"]),
-          createChemical("13", "Chlorfenapyr", "R", "mid", ["LS"]), createChemical("21A", "Pyridaben", "R", "mid", ["N"]),
-          createChemical("16", "Buprofezin", "G", "mid", ["S"]), createChemical("23", "Spirotetramat", "G", "mid", ["S", "TL", "UD"]),
-          createChemical("UN", "Beauveria bassiana", "U", "low", ["N"])
-        ]
-      },
-      {
-        id: "thrips", zh: "薊馬", en: "Thrips",
-        items: [
-          createChemical("1A", "Carbaryl", "N", "high", ["LS"]), createChemical("1A", "Methomyl", "N", "high", ["S"]),
-          createChemical("1B", "Dimethoate", "N", "high", ["S"]), createChemical("2B", "Fipronil", "N", "mid", ["SS"]),
-          createChemical("3A", "Bifenthrin", "N", "high", ["N"]), createChemical("4A", "Imidacloprid", "N", "high", ["S", "TL", "UD"]),
-          createChemical("5", "Spinosad", "N", "mid", ["N"]), createChemical("6", "Abamectin", "N", "mid", ["LS", "TL"]),
-          createChemical("9B", "Pymetrozine", "N", "low", ["S"]), createChemical("14", "Cartap", "N", "mid", ["S"]),
-          createChemical("22A", "Indoxacarb", "N", "mid", ["N"]), createChemical("28", "Cyantraniliprole", "N", "mid", ["S"]),
-          createChemical("29", "Flonicamid", "N", "low", ["SS", "TL"]), createChemical("30", "Isocycloseram", "N", "low", ["N"]),
-          createChemical("12A", "Diafenthiuron", "R", "mid", ["N"]), createChemical("13", "Chlorfenapyr", "R", "mid", ["LS"]),
-          createChemical("21A", "Tolfenpyrad", "R", "mid", ["N"]), createChemical("15", "Novaluron", "G", "mid", ["N"]),
-          createChemical("23", "Spirotetramat", "G", "mid", ["S", "TL", "UD"]), createChemical("UN", "Azadirachtin", "U", "low", ["S"])
-        ]
-      },
-      {
-        id: "leafhopper", zh: "青蚊 (葉蟬)", en: "Green Leafhopper",
-        items: [
-          createChemical("1A", "Carbaryl", "N", "high", ["LS"]), createChemical("1A", "Methomyl", "N", "high", ["S"]),
-          createChemical("1B", "Dimethoate", "N", "high", ["S"]), createChemical("2B", "Fipronil", "N", "mid", ["SS"]),
-          createChemical("3A", "Etofenprox", "N", "high", ["N"]), createChemical("4A", "Imidacloprid", "N", "high", ["S", "TL", "UD"]),
-          createChemical("4A", "Thiamethoxam", "N", "high", ["S", "TL", "UD"]), createChemical("4C", "Sulfoxaflor", "N", "mid", ["S"]),
-          createChemical("9B", "Pymetrozine", "N", "low", ["S"]), createChemical("14", "Cartap", "N", "mid", ["S"]),
-          createChemical("28", "Cyantraniliprole", "N", "mid", ["S"]), createChemical("29", "Flonicamid", "N", "low", ["SS", "TL"]),
-          createChemical("36", "Dimpropyridaz", "N", "low", ["S"]), createChemical("12A", "Diafenthiuron", "R", "mid", ["N"]),
-          createChemical("16", "Buprofezin", "G", "mid", ["S"]), createChemical("23", "Spirotetramat", "G", "mid", ["S", "TL", "UD"])
-        ]
-      }
+      { id:"grasshopper", zh:"草蜢 / 甲蟲",   en:"Grasshoppers & Beetles", emoji:"🦗" },
+      { id:"spider_mite", zh:"紅蜘蛛",        en:"Red Spider Mite",        emoji:"🕷️" },
+      { id:"mealybug",    zh:"粉蚧 / 介殼蟲", en:"Mealybugs & Scales",     emoji:"🐞" },
+      { id:"caterpillar", zh:"毛毛蟲",        en:"Caterpillars",           emoji:"🐛" },
+      { id:"psyllid",     zh:"木蝨",          en:"Psyllids",               emoji:"🪲" },
+      { id:"thrips",      zh:"薊馬",          en:"Thrips",                 emoji:"🪰" },
+      { id:"leafhopper",  zh:"青蚊 (葉蟬)",   en:"Leafhoppers",            emoji:"🦟" }
     ];
 
-    const MIX_ORDER = [
-      { step: 1, zh: "水箱配水 ½ ~ ¾", en: "Fill tank ½–¾ with water" },
-      { step: 2, zh: "調整 pH 酸鹼值 (≤ 6.0)", en: "Adjust pH to ≤6.0", note: { zh: "確保殺蟲劑最有效", en: "Maximize Efficacy" } },
-      { step: 3, zh: "水分散粒劑 WDG → 可濕性粉劑 WP", en: "WDG → WP" },
-      { step: 4, zh: "攪拌 5 分鐘", en: "Agitate 5 min" },
-      { step: 5, zh: "乳油 EC → 水乳劑 EW", en: "EC → EW" },
-      { step: 6, zh: "石油分散 OD → 懸浮液 SC → 懸乳劑 SE", en: "OD → SC → SE" },
-      { step: 7, zh: "可溶性粒/粉劑 SG ; SP", en: "SG ; SP" },
-      { step: 8, zh: "可溶性液體 SL", en: "SL" },
-      { step: 9, zh: "表面活性劑 → 加滿水", en: "Surfactant → top up tank" },
+    const ACTIVES = [
+      // GRASSHOPPER & BEETLES
+      {pest:"grasshopper",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
+      {pest:"grasshopper",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
+      {pest:"grasshopper",g:"1B",n:"Acephate",s:"neural",r:"high",m:"S"},
+      {pest:"grasshopper",g:"2A",n:"Endosulfan",s:"neural",r:"high",m:"N"},
+      {pest:"grasshopper",g:"2B",n:"Fipronil",s:"neural",r:"mid",m:"SS"},
+      {pest:"grasshopper",g:"3A",n:"Deltamethrin",s:"neural",r:"high",m:"N"},
+      {pest:"grasshopper",g:"3A",n:"Cypermethrin",s:"neural",r:"high",m:"N"},
+      {pest:"grasshopper",g:"22A",n:"Indoxacarb",s:"neural",r:"mid",m:"N"},
+      {pest:"grasshopper",g:"28",n:"Chlorantraniliprole",s:"neural",r:"mid",m:"SS",tl:true},
+      {pest:"grasshopper",g:"15",n:"Diflubenzuron",s:"growth",r:"low",m:"N"},
+      {pest:"grasshopper",g:"15",n:"Novaluron",s:"growth",r:"low",m:"N"},
+      {pest:"grasshopper",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"},
+      {pest:"grasshopper",g:"UN",n:"Pyridalyl",s:"unknown",r:"low",m:"S"},
+      // SPIDER MITE
+      {pest:"spider_mite",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"S"},
+      {pest:"spider_mite",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
+      {pest:"spider_mite",g:"3A",n:"Bifenthrin",s:"neural",r:"high",m:"N"},
+      {pest:"spider_mite",g:"6",n:"Abamectin",s:"neural",r:"mid",m:"LS",tl:true},
+      {pest:"spider_mite",g:"19",n:"Amitraz",s:"neural",r:"high",m:"N"},
+      {pest:"spider_mite",g:"12A",n:"Diafenthiuron",s:"respiratory",r:"low",m:"N"},
+      {pest:"spider_mite",g:"12C",n:"Propargite",s:"respiratory",r:"low",m:"N"},
+      {pest:"spider_mite",g:"13",n:"Chlorfenapyr",s:"respiratory",r:"mid",m:"LS",tl:true},
+      {pest:"spider_mite",g:"21A",n:"Pyridaben",s:"respiratory",r:"high",m:"N"},
+      {pest:"spider_mite",g:"21A",n:"Fenpyroximate",s:"respiratory",r:"high",m:"N"},
+      {pest:"spider_mite",g:"25A",n:"Cyflumetofen",s:"respiratory",r:"low",m:"N"},
+      {pest:"spider_mite",g:"10A",n:"Hexythiazox",s:"growth",r:"low",m:"N"},
+      {pest:"spider_mite",g:"16",n:"Buprofezin",s:"growth",r:"low",m:"S"},
+      {pest:"spider_mite",g:"23",n:"Spirotetramat",s:"growth",r:"low",m:"S"},
+      {pest:"spider_mite",g:"23",n:"Spirodiclofen",s:"growth",r:"low",m:"N"},
+      {pest:"spider_mite",g:"UN",n:"Dicofol",s:"unknown",r:"low",m:"N"},
+      {pest:"spider_mite",g:"UN",n:"Beauveria bassiana",zh:"白殭菌",s:"unknown",r:"low",m:"N"},
+      {pest:"spider_mite",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"},
+      // MEALYBUG
+      {pest:"mealybug",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
+      {pest:"mealybug",g:"1A",n:"Methomyl",s:"neural",r:"high",m:"S"},
+      {pest:"mealybug",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
+      {pest:"mealybug",g:"1B",n:"Acephate",s:"neural",r:"high",m:"S"},
+      {pest:"mealybug",g:"1B",n:"Fenthion",s:"neural",r:"high",m:"N"},
+      {pest:"mealybug",g:"2B",n:"Fipronil",s:"neural",r:"mid",m:"SS"},
+      {pest:"mealybug",g:"3A",n:"Deltamethrin",s:"neural",r:"high",m:"N"},
+      {pest:"mealybug",g:"3A",n:"Cypermethrin",s:"neural",r:"high",m:"N"},
+      {pest:"mealybug",g:"3A",n:"Bifenthrin",s:"neural",r:"high",m:"N"},
+      {pest:"mealybug",g:"3A",n:"Lambda-cyhalothrin",s:"neural",r:"high",m:"N"},
+      {pest:"mealybug",g:"4A",n:"Imidacloprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"mealybug",g:"4A",n:"Acetamiprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"mealybug",g:"4A",n:"Thiamethoxam",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"mealybug",g:"4A",n:"Clothianidin",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"mealybug",g:"4A",n:"Dinotefuran",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"mealybug",g:"4C",n:"Sulfoxaflor",s:"neural",r:"low",m:"S"},
+      {pest:"mealybug",g:"6",n:"Abamectin",s:"neural",r:"mid",m:"LS",tl:true},
+      {pest:"mealybug",g:"9D",n:"Afidopyropen",s:"neural",r:"low",m:"S"},
+      {pest:"mealybug",g:"28",n:"Cyantraniliprole",s:"neural",r:"mid",m:"S",tl:true},
+      {pest:"mealybug",g:"29",n:"Flonicamid",s:"neural",r:"low",m:"S",tl:true},
+      {pest:"mealybug",g:"30",n:"Isocycloseram",s:"neural",r:"low",m:"N"},
+      {pest:"mealybug",g:"7B",n:"Fenoxycarb",s:"growth",r:"low",m:"N",tl:true},
+      {pest:"mealybug",g:"7C",n:"Pyriproxyfen",s:"growth",r:"low",m:"N",tl:true},
+      {pest:"mealybug",g:"16",n:"Buprofezin",s:"growth",r:"low",m:"N"},
+      {pest:"mealybug",g:"23",n:"Spirotetramat",s:"growth",r:"low",m:"S",tl:true,ud:true},
+      {pest:"mealybug",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"},
+      {pest:"mealybug",g:"UN",n:"White Oil",s:"unknown",r:"low",m:"N"},
+      // CATERPILLAR
+      {pest:"caterpillar",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
+      {pest:"caterpillar",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
+      {pest:"caterpillar",g:"2A",n:"Endosulfan",s:"neural",r:"high",m:"N"},
+      {pest:"caterpillar",g:"2B",n:"Fipronil",s:"neural",r:"mid",m:"SS"},
+      {pest:"caterpillar",g:"3A",n:"Deltamethrin",s:"neural",r:"high",m:"N"},
+      {pest:"caterpillar",g:"3A",n:"Cypermethrin",s:"neural",r:"high",m:"N"},
+      {pest:"caterpillar",g:"3A",n:"Bifenthrin",s:"neural",r:"high",m:"N"},
+      {pest:"caterpillar",g:"3A",n:"Lambda-cyhalothrin",s:"neural",r:"high",m:"N"},
+      {pest:"caterpillar",g:"4A",n:"Imidacloprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"caterpillar",g:"4A",n:"Acetamiprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"caterpillar",g:"5",n:"Spinosad",s:"neural",r:"mid",m:"N"},
+      {pest:"caterpillar",g:"5",n:"Spinetoram",s:"neural",r:"mid",m:"N"},
+      {pest:"caterpillar",g:"6",n:"Abamectin",s:"neural",r:"mid",m:"LS",tl:true},
+      {pest:"caterpillar",g:"6",n:"Emamectin benzoate",s:"neural",r:"mid",m:"LS",tl:true},
+      {pest:"caterpillar",g:"14",n:"Cartap hydrochloride",s:"neural",r:"low",m:"S"},
+      {pest:"caterpillar",g:"22A",n:"Indoxacarb",s:"neural",r:"mid",m:"N"},
+      {pest:"caterpillar",g:"22B",n:"Metaflumizone",s:"neural",r:"mid",m:"N"},
+      {pest:"caterpillar",g:"28",n:"Chlorantraniliprole",s:"neural",r:"mid",m:"SS",tl:true},
+      {pest:"caterpillar",g:"28",n:"Flubendiamide",s:"neural",r:"mid",m:"LS",tl:true},
+      {pest:"caterpillar",g:"13",n:"Chlorfenapyr",s:"respiratory",r:"mid",m:"LS",tl:true},
+      {pest:"caterpillar",g:"21A",n:"Tolfenpyrad",s:"respiratory",r:"low",m:"N"},
+      {pest:"caterpillar",g:"21B",n:"Rotenone",zh:"魚藤",s:"respiratory",r:"low",m:"N"},
+      {pest:"caterpillar",g:"7B",n:"Fenoxycarb",s:"growth",r:"low",m:"N"},
+      {pest:"caterpillar",g:"15",n:"Lufenuron",s:"growth",r:"low",m:"S",tl:true,ud:true},
+      {pest:"caterpillar",g:"15",n:"Hexaflumuron",s:"growth",r:"low",m:"S",tl:true,ud:true},
+      {pest:"caterpillar",g:"15",n:"Diflubenzuron",s:"growth",r:"low",m:"N"},
+      {pest:"caterpillar",g:"18",n:"Chromafenozide",s:"growth",r:"low",m:"S"},
+      {pest:"caterpillar",g:"11A",n:"Bacillus thuringiensis",s:"midgut",r:"mid",m:"N"},
+      {pest:"caterpillar",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"},
+      {pest:"caterpillar",g:"UN",n:"Pyridalyl",s:"unknown",r:"low",m:"S"},
+      // PSYLLID
+      {pest:"psyllid",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
+      {pest:"psyllid",g:"2A",n:"Endosulfan",s:"neural",r:"high",m:"N"},
+      {pest:"psyllid",g:"2B",n:"Fipronil",s:"neural",r:"mid",m:"SS"},
+      {pest:"psyllid",g:"3A",n:"Bifenthrin",s:"neural",r:"high",m:"N"},
+      {pest:"psyllid",g:"3A",n:"Cypermethrin",s:"neural",r:"high",m:"N"},
+      {pest:"psyllid",g:"4A",n:"Imidacloprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"psyllid",g:"4A",n:"Acetamiprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"psyllid",g:"4A",n:"Thiamethoxam",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"psyllid",g:"4A",n:"Clothianidin",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"psyllid",g:"4A",n:"Dinotefuran",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"psyllid",g:"4C",n:"Sulfoxaflor",s:"neural",r:"low",m:"S",tl:true},
+      {pest:"psyllid",g:"4D",n:"Flupyradifurone",s:"neural",r:"low",m:"S"},
+      {pest:"psyllid",g:"6",n:"Abamectin",s:"neural",r:"mid",m:"LS",tl:true},
+      {pest:"psyllid",g:"9B",n:"Pymetrozine",s:"neural",r:"low",m:"S",ud:true},
+      {pest:"psyllid",g:"9D",n:"Afidopyropen",s:"neural",r:"low",m:"S"},
+      {pest:"psyllid",g:"14",n:"Cartap hydrochloride",s:"neural",r:"low",m:"S"},
+      {pest:"psyllid",g:"28",n:"Cyantraniliprole",s:"neural",r:"mid",m:"S",tl:true,note:"piercing-sucking"},
+      {pest:"psyllid",g:"12A",n:"Diafenthiuron",s:"respiratory",r:"low",m:"N"},
+      {pest:"psyllid",g:"13",n:"Chlorfenapyr",s:"respiratory",r:"mid",m:"LS",tl:true},
+      {pest:"psyllid",g:"21A",n:"Pyridaben",s:"respiratory",r:"high",m:"N"},
+      {pest:"psyllid",g:"21A",n:"Tolfenpyrad",s:"respiratory",r:"low",m:"N"},
+      {pest:"psyllid",g:"21B",n:"Rotenone",zh:"魚藤",s:"respiratory",r:"low",m:"N"},
+      {pest:"psyllid",g:"7C",n:"Pyriproxyfen",s:"growth",r:"low",m:"N",tl:true},
+      {pest:"psyllid",g:"16",n:"Buprofezin",s:"growth",r:"low",m:"S"},
+      {pest:"psyllid",g:"23",n:"Spirotetramat",s:"growth",r:"low",m:"S",tl:true,ud:true},
+      {pest:"psyllid",g:"UN",n:"Dicofol",s:"unknown",r:"low",m:"N"},
+      {pest:"psyllid",g:"UN",n:"Beauveria bassiana",zh:"白殭菌",s:"unknown",r:"low",m:"N"},
+      {pest:"psyllid",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"},
+      // THRIPS
+      {pest:"thrips",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
+      {pest:"thrips",g:"1A",n:"Methomyl",s:"neural",r:"high",m:"S"},
+      {pest:"thrips",g:"1A",n:"Methamidophos",s:"neural",r:"high",m:"S"},
+      {pest:"thrips",g:"1A",n:"Formetanate hydrochloride",s:"neural",r:"high",m:"N"},
+      {pest:"thrips",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
+      {pest:"thrips",g:"2B",n:"Fipronil",s:"neural",r:"mid",m:"SS"},
+      {pest:"thrips",g:"3A",n:"Bifenthrin",s:"neural",r:"high",m:"N"},
+      {pest:"thrips",g:"3A",n:"Lambda-cyhalothrin",s:"neural",r:"high",m:"N"},
+      {pest:"thrips",g:"4A",n:"Imidacloprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"thrips",g:"4A",n:"Acetamiprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"thrips",g:"4A",n:"Thiamethoxam",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"thrips",g:"4A",n:"Clothianidin",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"thrips",g:"4A",n:"Dinotefuran",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"thrips",g:"5",n:"Spinosad",s:"neural",r:"mid",m:"N"},
+      {pest:"thrips",g:"5",n:"Spinetoram",s:"neural",r:"mid",m:"N"},
+      {pest:"thrips",g:"6",n:"Abamectin",s:"neural",r:"mid",m:"LS",tl:true},
+      {pest:"thrips",g:"9B",n:"Pymetrozine",s:"neural",r:"low",m:"S",ud:true},
+      {pest:"thrips",g:"9D",n:"Afidopyropen",s:"neural",r:"low",m:"S"},
+      {pest:"thrips",g:"14",n:"Cartap hydrochloride",s:"neural",r:"low",m:"S"},
+      {pest:"thrips",g:"22A",n:"Indoxacarb",s:"neural",r:"mid",m:"N"},
+      {pest:"thrips",g:"28",n:"Cyantraniliprole",s:"neural",r:"mid",m:"S",tl:true,note:"piercing-sucking"},
+      {pest:"thrips",g:"29",n:"Flonicamid",s:"neural",r:"low",m:"SS",tl:true},
+      {pest:"thrips",g:"30",n:"Isocycloseram",s:"neural",r:"low",m:"N"},
+      {pest:"thrips",g:"36",n:"Dimpropyridaz",s:"neural",r:"low",m:"N"},
+      {pest:"thrips",g:"12A",n:"Diafenthiuron",s:"respiratory",r:"low",m:"N"},
+      {pest:"thrips",g:"13",n:"Chlorfenapyr",s:"respiratory",r:"mid",m:"LS",tl:true},
+      {pest:"thrips",g:"21A",n:"Tolfenpyrad",s:"respiratory",r:"low",m:"N"},
+      {pest:"thrips",g:"21B",n:"Rotenone",zh:"魚藤",s:"respiratory",r:"low",m:"N"},
+      {pest:"thrips",g:"15",n:"Novaluron",s:"growth",r:"low",m:"S",tl:true,ud:true},
+      {pest:"thrips",g:"23",n:"Spirotetramat",s:"growth",r:"low",m:"S",tl:true,ud:true},
+      {pest:"thrips",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"},
+      {pest:"thrips",g:"UN",n:"Pyridalyl",s:"unknown",r:"low",m:"S"},
+      // LEAFHOPPER
+      {pest:"leafhopper",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
+      {pest:"leafhopper",g:"1A",n:"Methomyl",s:"neural",r:"high",m:"S"},
+      {pest:"leafhopper",g:"1A",n:"Isoprocarb",s:"neural",r:"high",m:"N"},
+      {pest:"leafhopper",g:"1A",n:"Fenobucarb",s:"neural",r:"high",m:"S"},
+      {pest:"leafhopper",g:"1A",n:"Carbosulfan",s:"neural",r:"high",m:"S"},
+      {pest:"leafhopper",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
+      {pest:"leafhopper",g:"1B",n:"Chlorpyrifos",s:"neural",r:"high",m:"N"},
+      {pest:"leafhopper",g:"1B",n:"Malathion",s:"neural",r:"high",m:"N"},
+      {pest:"leafhopper",g:"1B",n:"Fenitrothion",s:"neural",r:"high",m:"N"},
+      {pest:"leafhopper",g:"2B",n:"Fipronil",s:"neural",r:"mid",m:"SS"},
+      {pest:"leafhopper",g:"2B",n:"Ethiprole",s:"neural",r:"mid",m:"N"},
+      {pest:"leafhopper",g:"3A",n:"Etofenprox",s:"neural",r:"high",m:"N"},
+      {pest:"leafhopper",g:"3A",n:"Esfenvalerate",s:"neural",r:"high",m:"N"},
+      {pest:"leafhopper",g:"3A",n:"Lambda-cyhalothrin",s:"neural",r:"high",m:"N"},
+      {pest:"leafhopper",g:"4A",n:"Imidacloprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"leafhopper",g:"4A",n:"Acetamiprid",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"leafhopper",g:"4A",n:"Thiamethoxam",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"leafhopper",g:"4A",n:"Clothianidin",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"leafhopper",g:"4A",n:"Dinotefuran",s:"neural",r:"high",m:"S",tl:true,ud:true},
+      {pest:"leafhopper",g:"4C",n:"Sulfoxaflor",s:"neural",r:"low",m:"S"},
+      {pest:"leafhopper",g:"4E",n:"Triflumezopyrim",s:"neural",r:"low",m:"S"},
+      {pest:"leafhopper",g:"9B",n:"Pymetrozine",s:"neural",r:"low",m:"S",ud:true},
+      {pest:"leafhopper",g:"9D",n:"Afidopyropen",s:"neural",r:"low",m:"S"},
+      {pest:"leafhopper",g:"14",n:"Cartap hydrochloride",s:"neural",r:"low",m:"S"},
+      {pest:"leafhopper",g:"22A",n:"Indoxacarb",s:"neural",r:"mid",m:"N"},
+      {pest:"leafhopper",g:"28",n:"Cyantraniliprole",s:"neural",r:"mid",m:"S",tl:true,note:"piercing-sucking"},
+      {pest:"leafhopper",g:"29",n:"Flonicamid",s:"neural",r:"low",m:"SS",tl:true},
+      {pest:"leafhopper",g:"36",n:"Dimpropyridaz",s:"neural",r:"low",m:"N"},
+      {pest:"leafhopper",g:"12A",n:"Diafenthiuron",s:"respiratory",r:"low",m:"N"},
+      {pest:"leafhopper",g:"21A",n:"Tolfenpyrad",s:"respiratory",r:"low",m:"N"},
+      {pest:"leafhopper",g:"16",n:"Buprofezin",s:"growth",r:"low",m:"S"},
+      {pest:"leafhopper",g:"18",n:"Methoxyfenozide",s:"growth",r:"low",m:"N"},
+      {pest:"leafhopper",g:"23",n:"Spirotetramat",s:"growth",r:"low",m:"S",tl:true,ud:true},
+      {pest:"leafhopper",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"}
     ];
 
-    const SIMULATED_SOURCES = {
-      bunting: {
-        title: "bunting A.pdf",
-        text: (
-          <div className="space-y-4">
-            <p><b>Tee's Agronomy Notes (July-August 2024 Edition)</b></p>
-            <p><b>[Page 1] Resistance Management</b><br/>
-            "使用農藥時，輪替不同作用機制。最有效防止抗藥性產生的手段。"<br/>
-            To safeguard chemical viability, always rotate between modes of action. Pests frequently targeted by groups like 1A, 1B, 3A, and 4A show rapid cross-resistance if applied continuously.</p>
-            <p><b>[Page 2] Leaf Mobility Guide</b><br/>
-            • <b>Systemic (S):</b> Transports via vascular plant tissues. Excellent for hidden pests (e.g. scales, mealybugs).<br/>
-            • <b>Translaminar (TL):</b> Enters leaf membrane. Ideal for mites on the underside of foliage.<br/>
-            • <b>Contact (N):</b> Stays on foliage outer surface.</p>
-          </div>
-        )
+    const MIX_SEQUENCE = [
+      {step:1, zh:"水箱配 ½ ~ ¾ 水",                 en:"Fill tank ½ ~ ¾ with water"},
+      {step:2, zh:"調整 pH 至 6.0 或以下",             en:"Adjust pH to 6.0 or below"},
+      {step:3, zh:"水分散粒劑 (WDG)、可濕性粉劑 (WP)",  en:"Water-dispersible granules (WDG), wettable powders (WP)"},
+      {step:4, zh:"攪拌 5 分鐘",                      en:"Stir / agitate for 5 minutes"},
+      {step:5, zh:"石油分散 (OD)、懸浮液濃縮 (SC)、懸乳劑 (SE)", en:"Oil dispersion (OD), suspension concentrate (SC), suspoemulsion (SE)"},
+      {step:6, zh:"乳油 (EC)、水乳劑 (EW)",             en:"Emulsifiable concentrate (EC), emulsion in water (EW)"},
+      {step:7, zh:"可溶性液體 (SG, SP)",                en:"Soluble granules / powders (SG, SP)"},
+      {step:8, zh:"可溶性液體 (SL)",                    en:"Soluble liquids (SL)"},
+      {step:9, zh:"表面活性劑 → 加滿水箱",              en:"Surfactants → top up the tank"}
+    ];
+
+    // ========================================================================
+    // LABEL DICTIONARIES (only display strings; data above is universal)
+    // ========================================================================
+    const L = {
+      zh: {
+        appTitle: "蟲害輪替助手", appSubtitle: "依據 Tee 先生《Bunting A》機制圖整理",
+        tabLibrary: "機制庫", tabRotate: "輪替助手", tabMix: "調配順序",
+        assistant: "快速查詢", assistantHint: "問問特定害蟲、機制或活性成分…",
+        searchPlaceholder: "搜尋活性成分、機制或害蟲…",
+        filterAll: "全部", filterRisk: "抗藥性風險", filterSite: "作用部位",
+        selectPest: "選擇害蟲", lastUsed: "上次用過的 IRAC 機制組",
+        rotateTo: "建議輪替", rotateAvoid: "避免使用 (相同機制)",
+        site_neural: "神經與肌肉", site_respiratory: "呼吸系統",
+        site_growth: "生長與發育", site_unknown: "未知 / 無特定", site_midgut: "中腸 (Bt)",
+        risk_low: "低", risk_mid: "中", risk_high: "高",
+        mob_N: "接觸", mob_S: "系統", mob_SS: "選擇系統", mob_LS: "局部系統",
+        tl: "穿層滲透", ud: "上下移行",
+        noResults: "沒有符合的結果。",
+        about: "資料來源",
+        aboutText: "本工具的所有資料整理自 Tee 先生 2024 年 7-8 月編製的《Bunting A》殺蟲劑作用機制 (MoA) 輪替指南。包含 7 類常見害蟲與 180+ 活性成分。每次用藥請輪替不同的 IRAC 機制組,以延緩抗藥性發生。",
+        safetyTitle: "農戶安全提醒",
+        safetyText: "本指南僅為機制輪替參考。實際用藥前請: ① 核對農藥標籤所列適用作物與蟲害, ② 遵守安全採收間隔期 (PHI), ③ 不要與 Glyphosate (草甘膦) 混用其他殺蟲劑, ④ 留意對授粉昆蟲與天敵的影響。",
+        groupsCount: "個機制組", activesCount: "個活性成分",
+        warningHigh: "高抗藥性風險",
+        legend: "圖例", langSwitch: "English", backToTop: "回到頂部",
+        ask1: "紅蜘蛛該如何輪替?", ask2: "Imidacloprid 屬於哪一組?",
+        ask3: "毛毛蟲的低風險選擇?", ask4: "什麼是穿層滲透?",
+        replyIntro: "你好!請從下方挑選快速問題,或用搜尋查特定成分/機制。",
+        replyMobility_TL: "穿層滲透 (Translaminar) 指農藥可穿透葉片表皮,作用於葉背隱藏的害蟲 (例如紅蜘蛛)。",
+        replyMobility_S: "系統性 (Systemic) 農藥可由根或葉吸收進入植物維管束輸送,適用於藏在葉鞘內或樹皮下的害蟲。"
       },
-      guide: {
-        title: "insecticide-rotation-guide.html",
-        text: (
-          <div className="space-y-4">
-            <p><b>Water Tank Preparation Sequencing Standard</b></p>
-            <p><b>Standard Acidification Rules:</b><br/>
-            In order to maximize insecticide half-life, adjust water pH down to 6.0 or below before introducing any soluble powders or emulsions. Highly alkaline waters degrade active chemical groups immediately.</p>
-            <p><b>Formulation Hierarchical Sequence:</b><br/>
-            Powder / Granular Suspensions (WDG, WP) must be introduced first and agitated for at least 5 minutes before adding liquid emulsions (EC, EW) or oil dispersions (OD, SC, SE).</p>
-          </div>
-        )
+      en: {
+        appTitle: "Pest Rotation Assistant", appSubtitle: "Built from Tee's 'Bunting A' MoA chart",
+        tabLibrary: "MoA Library", tabRotate: "Rotation Helper", tabMix: "Tank-Mix Order",
+        assistant: "Quick Lookup", assistantHint: "Ask about a pest, group, or active ingredient…",
+        searchPlaceholder: "Search active, group or pest…",
+        filterAll: "All", filterRisk: "risks", filterSite: "Action site",
+        selectPest: "Select pest", lastUsed: "Last-used IRAC group",
+        rotateTo: "Rotate to", rotateAvoid: "Avoid (same group)",
+        site_neural: "Nerve & Muscle", site_respiratory: "Respiration",
+        site_growth: "Growth & Development", site_unknown: "Unknown / Non-specific", site_midgut: "Midgut (Bt)",
+        risk_low: "Low", risk_mid: "Med", risk_high: "High",
+        mob_N: "Contact", mob_S: "Systemic", mob_SS: "Selective syst.", mob_LS: "Local syst.",
+        tl: "Translaminar", ud: "Xylem/Phloem mobile",
+        noResults: "No matches.",
+        about: "About this data",
+        aboutText: "All data is curated from Tee's July-August 2024 'Bunting A' insecticide mode-of-action (MoA) rotation chart. 7 pest groups, 180+ active ingredients. Rotate IRAC groups every spray to slow resistance.",
+        safetyTitle: "Farmer Safety Notes",
+        safetyText: "This is a rotation guide, not a prescription. Before spraying: ① check the product label for crop & pest, ② respect the pre-harvest interval (PHI), ③ never tank-mix insecticides with Glyphosate, ④ consider pollinators and beneficials.",
+        groupsCount: "MoA groups", activesCount: "active ingredients",
+        warningHigh: "High resistance risk",
+        legend: "Legend", langSwitch: "中文", backToTop: "Back to top",
+        ask1: "How do I rotate for red spider mite?", ask2: "Which group is Imidacloprid?",
+        ask3: "Low-risk options for caterpillars?", ask4: "What is translaminar?",
+        replyIntro: "Hi! Pick a quick question below, or use search to find a specific active/group.",
+        replyMobility_TL: "Translaminar means the chemical penetrates the leaf surface and reaches pests on the underside (e.g. spider mites).",
+        replyMobility_S: "Systemic chemicals are absorbed by roots or foliage and moved through the plant's vascular system — useful for pests hiding inside sheaths or under bark."
       }
     };
 
-    const CHAT_PROMPTS = [
-      { text: "當前蟲害如何安全輪替？", q: "current pest rotation" },
-      { text: "水箱混合順序是什麼？", q: "mixing order" },
-      { text: "什麼是穿層滲透 (TL)？", q: "translaminar" }
-    ];
+    // ========================================================================
+    // PRESENTATION HELPERS
+    // ========================================================================
+    const riskBadge = {
+      low:  "bg-emerald-100 text-emerald-800 border-emerald-200",
+      mid:  "bg-amber-100  text-amber-800  border-amber-200",
+      high: "bg-rose-100   text-rose-800   border-rose-200"
+    };
+    const riskDot = { low: "bg-emerald-500", mid: "bg-amber-500", high: "bg-rose-500" };
+    const siteAccent = {
+      neural:      "border-l-violet-400",
+      respiratory: "border-l-sky-400",
+      growth:      "border-l-emerald-400",
+      unknown:     "border-l-slate-300",
+      midgut:      "border-l-orange-400"
+    };
 
+    // ========================================================================
+    // ROOT COMPONENT
+    // ========================================================================
     function App() {
-      const [lang, setLang] = useState('zh');
-      const [activeTab, setActiveTab] = useState('lookup');
-      const [activeSource, setActiveSource] = useState('bunting');
-      
-      // Tab 1 State
-      const [lookupPest, setLookupPest] = useState(PESTS[1].id);
-      const [lookupFilter, setLookupFilter] = useState('all');
-      
-      // Tab 2 State
-      const [rotPest, setRotPest] = useState(PESTS[1].id);
-      const [lastUsedGroup, setLastUsedGroup] = useState('');
-
-      // Mobile bottom-nav: which single panel is shown on small screens
-      const [mobileView, setMobileView] = useState('workspace'); // 'sources' | 'workspace' | 'assistant'
-
-      // Chat State
-      const [chatInput, setChatInput] = useState('');
-      const [chatLog, setChatLog] = useState([
-        { role: 'bot', text: '你好！我是你的農藝筆記助手。我已深度載入並索引了 bunting A.pdf 與 insecticide-rotation-guide.html。任何關於害蟲抗性、輪替規則或混合調配順序的問題都可以隨時提問。' }
-      ]);
-      const chatRef = useRef(null);
-
+      const [lang, setLang] = useState(() => {
+        try {
+          const saved = localStorage.getItem('moa.lang');
+          return (saved === 'zh' || saved === 'en') ? saved : 'zh';
+        } catch(e) { return 'zh'; }
+      });
       useEffect(() => {
-        if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
-      }, [chatLog]);
+        try { localStorage.setItem('moa.lang', lang); } catch(e) {}
+      }, [lang]);
+      const [fontScale, setFontScale] = useState(() => {
+        try { return localStorage.getItem('moa.fontScale') || 'm'; } catch(e) { return 'm'; }
+      });
+      useEffect(() => {
+        const html = document.documentElement;
+        html.classList.remove('text-scale-m', 'text-scale-l');
+        if (fontScale === 'm') html.classList.add('text-scale-m');
+        else if (fontScale === 'l') html.classList.add('text-scale-l');
+        try { localStorage.setItem('moa.fontScale', fontScale); } catch(e) {}
+      }, [fontScale]);
+      const [tab, setTab] = useState('library');
+      const mainRef = useRef(null);
+      const [showBackToTop, setShowBackToTop] = useState(false);
+      useEffect(() => {
+        const el = mainRef.current;
+        if (!el) return;
+        const onScroll = () => setShowBackToTop(el.scrollTop > 400);
+        el.addEventListener('scroll', onScroll, { passive: true });
+        return () => el.removeEventListener('scroll', onScroll);
+      }, []);
+      // Reset scroll position when switching tabs
+      useEffect(() => {
+        if (mainRef.current) mainRef.current.scrollTop = 0;
+        setShowBackToTop(false);
+      }, [tab]);
+      const scrollToTop = () => {
+        const el = mainRef.current;
+        if (!el) return;
+        try {
+          el.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (e) {
+          el.scrollTop = 0; // fallback for older browsers
+        }
+      };
+      const [showAssistant, setShowAssistant] = useState(false);
+      const [showAbout, setShowAbout] = useState(false);
+      const t = L[lang];
 
-      // Translation Helper
-      const t = (zhText, enText) => lang === 'zh' ? zhText : enText;
+      // ---- Library tab state ----
+      const [query, setQuery] = useState('');
+      const [pestFilter, setPestFilter] = useState('all');
+      const [riskFilter, setRiskFilter] = useState('all');
 
-      // Render Chemical Card
-      const ChemicalCard = ({ item, isFaded = false }) => {
-        const riskColors = {
-          low: "bg-emerald-50 text-emerald-800 border-emerald-200",
-          mid: "bg-amber-50 text-amber-800 border-amber-200",
-          high: "bg-rose-50 text-rose-800 border-rose-200"
-        };
-        const moaGroupColors = { low: "bg-emerald-600", mid: "bg-amber-500", high: "bg-rose-600", unknown: "bg-slate-500" };
-        const styleClass = item.g === 'UN' ? moaGroupColors.unknown : (moaGroupColors[item.risk] || moaGroupColors.unknown);
-        const isMix = item.note && item.note.includes("复配");
-        const mobLabel = item.mob.map(m => LEGEND.mob[m]).join(" · ");
+      const filtered = useMemo(() => {
+        const q = query.trim().toLowerCase();
+        return ACTIVES.filter(a => {
+          if (pestFilter !== 'all' && a.pest !== pestFilter) return false;
+          if (riskFilter !== 'all' && a.r !== riskFilter) return false;
+          if (!q) return true;
+          const pestObj = PESTS.find(p => p.id === a.pest);
+          const hay = (a.n + ' ' + a.g + ' ' + (a.zh||'') + ' ' + pestObj.zh + ' ' + pestObj.en).toLowerCase();
+          return hay.includes(q);
+        });
+      }, [query, pestFilter, riskFilter]);
 
+      // ---- Rotation tab state ----
+      const [rotPest, setRotPest] = useState('spider_mite');
+      const [rotGroup, setRotGroup] = useState('');
+
+      const rotation = useMemo(() => {
+        if (!rotGroup) return null;
+        const pool = ACTIVES.filter(a => a.pest === rotPest);
+        const groupsAvail = [...new Set(pool.map(a => a.g))];
+        const suggested = groupsAvail
+          .filter(g => g !== rotGroup)
+          .map(g => {
+            const items = pool.filter(a => a.g === g);
+            const lowRiskCount = items.filter(x => x.r === 'low').length;
+            return { g, items, lowRiskCount };
+          })
+          .sort((a, b) => b.lowRiskCount - a.lowRiskCount); // prefer low-risk groups
+        const avoid = pool.filter(a => a.g === rotGroup);
+        return { suggested, avoid };
+      }, [rotPest, rotGroup]);
+
+      const groupsForRotPest = useMemo(() => {
+        const gs = [...new Set(ACTIVES.filter(a => a.pest === rotPest).map(a => a.g))];
+        return gs.sort((a, b) => {
+          // numeric IRAC ordering, "UN" last
+          const A = a === 'UN' ? 999 : parseInt(a, 10);
+          const B = b === 'UN' ? 999 : parseInt(b, 10);
+          return A - B || a.localeCompare(b);
+        });
+      }, [rotPest]);
+
+      // ---- Reset rotGroup when pest changes ----
+      useEffect(() => { setRotGroup(''); }, [rotPest]);
+
+      // ========================================================================
+      // SUB-VIEWS
+      // ========================================================================
+
+      const renderActiveCard = (a, i) => {
+        const pestObj = PESTS.find(p => p.id === a.pest);
+        const displayName = lang === 'zh' && a.zh ? `${a.zh} (${a.n})` : a.n;
         return (
-          <div className={`p-4 rounded-2xl border bg-white border-slate-200 shadow-sm hover:shadow-md transition-all flex gap-3.5 items-start ${isFaded ? 'opacity-40 grayscale bg-slate-50' : ''}`}>
-            <div className={`w-12 h-12 rounded-xl text-white font-black text-sm flex items-center justify-center shadow-inner ${styleClass}`}>
-              {item.g}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="font-bold text-sm text-slate-800 truncate">{item.n}</h4>
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${riskColors[item.risk]}`}>
-                  {t(LEGEND.risk[item.risk], LEGEND.risk[item.risk].split(' ')[1].replace(/[()]/g, ''))}
-                </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded border border-slate-200 bg-slate-50 text-slate-600 flex items-center gap-1">
-                  <Droplets className="w-3 h-3 text-blue-500" /> {mobLabel}
-                </span>
-                {isMix && <span className="text-[10px] font-bold px-2 py-0.5 rounded border border-purple-200 bg-purple-50 text-purple-700">复配 (Mix)</span>}
+          <div key={i} className={`bg-white rounded-2xl border border-slate-200 border-l-4 ${siteAccent[a.s]} p-3 shadow-sm`}>
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-extrabold text-base text-slate-900 break-words">{displayName}</span>
+                  <span className="text-xs font-bold bg-[#114b2d] text-white px-2 py-0.5 rounded-full whitespace-nowrap">{a.g}</span>
+                </div>
+                <div className="text-sm text-slate-700 font-bold mt-1 truncate">{pestObj.emoji} {lang === 'zh' ? pestObj.zh : pestObj.en}</div>
               </div>
-              {item.note && <p className="text-[10px] text-slate-500 mt-2 bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-100 italic">{item.note}</p>}
+              <span className={`text-sm font-extrabold px-3 py-1 rounded-full border whitespace-nowrap ${riskBadge[a.r]}`}>{t[`risk_${a.r}`]}</span>
+            </div>
+            <div className="mt-2.5 flex flex-wrap gap-1.5 text-xs">
+              <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`site_${a.s}`]}</span>
+              <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`mob_${a.m}`]}</span>
+              {a.tl && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.tl}</span>}
+              {a.ud && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.ud}</span>}
             </div>
           </div>
         );
       };
 
-      // Chat Logic
-      const handleChat = (query) => {
-        if (!query.trim()) return;
-        setChatLog(prev => [...prev, { role: 'user', text: query }]);
-        setChatInput('');
+      const renderLibraryView = () => (
+        <div className="space-y-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input value={query} onChange={e => setQuery(e.target.value)}
+              placeholder={t.searchPlaceholder}
+              className="w-full bg-white border border-slate-300 rounded-xl pl-10 pr-3 py-3 text-base focus:ring-2 focus:ring-[#114b2d]/30 focus:outline-none shadow-sm" />
+          </div>
 
-        // Gain contextual awareness of the currently selected pest
-        const activePestId = activeTab === 'rotate' ? rotPest : lookupPest;
-        const currentPest = PESTS.find(p => p.id === activePestId);
-        const pestName = t(currentPest.zh, currentPest.en);
+          {/* Filters */}
+          <div className="flex gap-2">
+            <select value={pestFilter} onChange={e => setPestFilter(e.target.value)}
+              className="flex-1 min-w-0 bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#114b2d]/30 truncate">
+              <option value="all">{lang==='zh'?'全部害蟲':'All pests'}</option>
+              {PESTS.map(p => <option key={p.id} value={p.id}>{p.emoji} {lang==='zh'?p.zh:p.en}</option>)}
+            </select>
+            <select value={riskFilter} onChange={e => setRiskFilter(e.target.value)}
+              className="flex-1 min-w-0 bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#114b2d]/30 truncate">
+              <option value="all">{t.filterAll} {t.filterRisk}</option>
+              <option value="low">{t.risk_low}</option>
+              <option value="mid">{t.risk_mid}</option>
+              <option value="high">{t.risk_high}</option>
+            </select>
+          </div>
 
-        setTimeout(() => {
-          let reply = "";
-          const q = query.toLowerCase();
+          {/* Result count */}
+          <div className="text-sm text-slate-500 font-semibold">
+            {filtered.length} / {ACTIVES.length} {t.activesCount}
+          </div>
 
-          if (q.includes('spider') || q.includes('mite') || q.includes('蜘蛛')) {
-            reply = `根據【bunting A.pdf】第 2 頁，紅蜘蛛 (Red Spider Mite) 施用機制在 1A, 1B, 3A 中極容易引發抗藥性。建議輪施呼吸系統機制 (12A, 21A) 以及生長抑制劑 (16, 23)。`;
-          } else if (q.includes('mix') || q.includes('order') || q.includes('混合')) {
-            reply = `依據指南，標準桶混順序：先加水 ½ ~ ¾，調整 pH ≤ 6.0。然後依序加入 WDG/WP → 乳油 EC → 懸浮 SC → 粒粉 SG → 液體 SL，最後加表面活性劑。`;
-          } else if (q.includes('translaminar') || q.includes('tl') || q.includes('穿層')) {
-            reply = `穿層滲透 (Translaminar, TL) 是活性成分穿過葉片表皮並在葉背處停留的能力。這對隱藏在葉背為害的红蜘蛛與薊馬防治尤為關鍵 (如 6 組 Abamectin)。`;
-          } else {
-            // Dynamic contextual response based on the currently selected pest
-            const highRisk = [...new Set(currentPest.items.filter(i => i.risk === 'high').map(i => i.g))].join(', ');
-            
-            if (q.includes('rotate') || q.includes('rotation') || q.includes('輪替') || q.includes('推薦') || q.includes('current')) {
-              reply = `針對你目前查看的「${pestName}」，資料顯示第 ${highRisk || '部分'} 組屬於高抗藥性風險。進行安全輪替時，建議切換不同作用位置。你可以在左側「輪替助手」中輸入上次使用的組別來獲取具體替代方案！`;
-            } else {
-              reply = `我注意到你正在查詢「${pestName}」。你可以問我關於它的高風險抗藥性機制，或是如何為它安排輪替計劃！`;
-            }
-          }
-          setChatLog(prev => [...prev, { role: 'bot', text: reply }]);
-        }, 600);
-      };
-
-      // Renders for Tabs
-      const renderLookupTab = () => {
-        const pest = PESTS.find(p => p.id === lookupPest);
-        let items = pest.items;
-        if (lookupFilter !== 'all') items = items.filter(i => i.site === lookupFilter);
-
-        return (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="bg-[#f5f4ed] p-4 rounded-2xl border border-slate-300/40">
-              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-3">
-                {t("1. 選擇目標蟲害 Target Pest", "1. Select Target Pest")}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {PESTS.map(p => (
-                  <button key={p.id} onClick={() => { setLookupPest(p.id); setLookupFilter('all'); }}
-                    className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-sm border ${
-                      p.id === lookupPest ? 'bg-[#114b2d] text-white border-[#114b2d]' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
-                    }`}>
-                    <Bug className="w-4 h-4" /> {t(p.zh, p.en)}
-                  </button>
-                ))}
-              </div>
+          {/* Results grid */}
+          {filtered.length === 0 ? (
+            <div className="text-center text-sm text-slate-400 py-12">{t.noResults}</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+              {filtered.map((a, i) => renderActiveCard(a, i))}
             </div>
+          )}
+        </div>
+      );
 
-            <div className="flex flex-wrap gap-2">
-              {['all', 'N', 'R', 'G', 'U'].map(f => (
-                <button key={f} onClick={() => setLookupFilter(f)}
-                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
-                    f === lookupFilter ? 'bg-slate-800 text-white border-slate-800 shadow-sm' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
-                  }`}>
-                  {f === 'all' ? t('全部機制 All', 'All MoAs') : t(LEGEND.site[f].split(' ')[0], f)}
+      const renderRotateView = () => (
+        <div className="space-y-5 max-w-3xl">
+          {/* Pest picker */}
+          <div>
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">{t.selectPest}</label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {PESTS.map(p => (
+                <button key={p.id} onClick={() => setRotPest(p.id)}
+                  className={`p-3 rounded-xl border text-sm font-bold transition-all ${rotPest === p.id ? 'bg-[#114b2d] text-white border-[#114b2d] shadow-md' : 'bg-white text-slate-700 border-slate-200 hover:border-[#114b2d]/40'}`}>
+                  <div className="text-3xl mb-1.5">{p.emoji}</div>
+                  {lang === 'zh' ? p.zh : p.en}
                 </button>
               ))}
             </div>
+          </div>
 
-            <div className="space-y-8">
-              {items.length === 0 ? (
-                <div className="text-center py-10 text-slate-400 text-sm">{t('無對應機制的化學藥劑', 'No chemicals found.')}</div>
-              ) : (
-                ["N", "R", "G", "U"].map(site => {
-                  const subItems = items.filter(i => i.site === site);
-                  if (subItems.length === 0) return null;
-                  return (
-                    <div key={site} className="space-y-3">
-                      <div className="flex items-center gap-2 pb-1.5 border-b border-slate-200">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#114b2d]"></div>
-                        <h3 className="font-extrabold text-xs text-slate-600 uppercase tracking-wider">{t(LEGEND.site[site], LEGEND.site[site])}</h3>
-                      </div>
-                      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                        {subItems.map((item, idx) => <ChemicalCard key={idx} item={item} />)}
-                      </div>
-                    </div>
-                  );
-                })
-              )}
+          {/* Group picker */}
+          <div>
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">{t.lastUsed}</label>
+            <div className="flex flex-wrap gap-2">
+              {groupsForRotPest.map(g => (
+                <button key={g} onClick={() => setRotGroup(g)}
+                  className={`px-4 py-2.5 rounded-xl text-base font-extrabold border transition-all ${rotGroup === g ? 'bg-rose-600 text-white border-rose-600 shadow-md' : 'bg-white text-slate-700 border-slate-300 hover:border-rose-400'}`}>
+                  {g}
+                </button>
+              ))}
             </div>
           </div>
-        );
-      };
 
-      const renderRotateTab = () => {
-        const activePest = PESTS.find(p => p.id === rotPest);
-        const uniqueMoAs = Array.from(new Set(activePest.items.map(i => i.g))).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
-        
-        return (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+          {/* Results */}
+          {rotation && (
+            <div className="space-y-4 animate-in">
+              {/* Avoid */}
+              <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="w-4 h-4 text-rose-600" />
+                  <h3 className="text-base font-extrabold text-rose-800">{t.rotateAvoid} — {rotGroup}</h3>
+                </div>
+                <div className="text-sm text-rose-700 font-semibold">
+                  {rotation.avoid.map(a => lang==='zh' && a.zh ? `${a.zh} (${a.n})` : a.n).join(' · ')}
+                </div>
+              </div>
+
+              {/* Suggested */}
               <div>
-                <h2 className="text-lg font-extrabold text-slate-900">{t("作用機制輪替矩陣 MoA Planner", "MoA Rotation Planner")}</h2>
-                <p className="text-xs text-slate-500 mt-1">{t("選擇上次所噴灑施用的藥劑機制，系統將自動推薦安全替代代碼。", "Input last applied MoA to get safe rotation alternatives.")}</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t("目標蟲害 Pest Target", "Target Pest")}</label>
-                  <select value={rotPest} onChange={(e) => { setRotPest(e.target.value); setLastUsedGroup(''); }}
-                    className="w-full bg-slate-50 border border-slate-300/60 p-3 rounded-xl text-sm font-bold text-slate-700 focus:ring-2 focus:ring-[#114b2d]/30 focus:outline-none">
-                    {PESTS.map(p => <option key={p.id} value={p.id}>{t(p.zh, p.en)}</option>)}
-                  </select>
+                <div className="flex items-center gap-2 mb-3">
+                  <RefreshCw className="w-4 h-4 text-[#114b2d]" />
+                  <h3 className="text-base font-extrabold text-[#114b2d]">{t.rotateTo}</h3>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t("上次施用機制 Last MoA Group", "Last MoA Used")}</label>
-                  <select value={lastUsedGroup} onChange={(e) => setLastUsedGroup(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300/60 p-3 rounded-xl text-sm font-bold text-slate-700 focus:ring-2 focus:ring-[#114b2d]/30 focus:outline-none">
-                    <option value="">{t("— 請選擇上期藥劑 —", "— Select Previous Group —")}</option>
-                    {uniqueMoAs.map(g => <option key={g} value={g}>{t(`第 ${g} 組 (Group ${g})`, `Group ${g}`)}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              {lastUsedGroup ? (
-                <div className="bg-rose-50 border border-rose-200 p-4 rounded-xl flex gap-3 text-rose-800">
-                  <ShieldAlert className="w-6 h-6 shrink-0" />
-                  <div className="text-xs leading-relaxed">
-                    <span className="font-extrabold block text-rose-900 mb-0.5 text-sm">{t(`已限制第 ${lastUsedGroup} 組`, `Group ${lastUsedGroup} Restricted`)}</span>
-                    <span>{t("抗藥性風險警告：此輪應當完全排除同代碼產品，請從下方其他作用位置挑選替代成分。", "Avoid applying ingredients sharing the exact same group back-to-back.")}</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-[#f0faf4] border border-[#d1ebd9] p-4 rounded-xl flex gap-3 text-[#115024]">
-                  <ShieldCheck className="w-6 h-6 shrink-0" />
-                  <div className="text-xs font-bold leading-relaxed flex items-center">
-                    {t("請指定上期噴灑作用代碼。系統將立即過濾安全的替代方案。", "Select previous MoA group to filter safe alternatives.")}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {lastUsedGroup && (() => {
-              const safeAlts = activePest.items.filter(i => i.g !== lastUsedGroup);
-              const unsafeAlts = activePest.items.filter(i => i.g === lastUsedGroup);
-              
-              return (
-                <div className="space-y-8">
-                  <div className="space-y-5">
-                    <h3 className="text-xs font-black text-emerald-800 uppercase tracking-widest flex items-center gap-2">
-                      <Sparkles className="w-4 h-4" /> {t("安全推薦輪替成分 Safe Alternatives", "Safe Rotation Alternatives")}
-                    </h3>
-                    {safeAlts.length === 0 ? (
-                       <div className="p-4 bg-amber-50 text-amber-900 border border-amber-200 rounded-xl text-sm">{t("警告：沒有其他作用機制可供輪替！", "No alternatives left.")}</div>
-                    ) : (
-                      ["N", "R", "G", "U"].map(site => {
-                        const matched = safeAlts.filter(i => i.site === site);
-                        if (matched.length === 0) return null;
-                        return (
-                          <div key={site} className="space-y-3">
-                            <h4 className="font-bold text-xs text-slate-500 uppercase pb-1.5 border-b border-slate-200">{t(LEGEND.site[site], LEGEND.site[site])}</h4>
-                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                              {matched.map((item, idx) => <ChemicalCard key={idx} item={item} />)}
-                            </div>
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-                  
-                  <div className="pt-6 border-t border-slate-300 space-y-4">
-                    <h3 className="text-xs font-black text-rose-700 uppercase tracking-widest">
-                      {t("本輪排除（禁止連續施用）Unsafe In This Cycle", "Excluded In This Cycle")}
-                    </h3>
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                      {unsafeAlts.map((item, idx) => <ChemicalCard key={idx} item={item} isFaded={true} />)}
+                  {rotation.suggested.slice(0, 8).map(({ g, items, lowRiskCount }) => (
+                    <div key={g} className="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm font-extrabold bg-[#114b2d] text-white px-3 py-1 rounded-full">{g}</span>
+                        {lowRiskCount > 0 && (
+                          <span className="text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
+                            {lowRiskCount} {t.risk_low}-{lang==='zh'?'風險':'risk'}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {items.map((a, i) => (
+                          <span key={i} className={`text-sm px-2.5 py-1 rounded-lg border font-semibold ${riskBadge[a.r]}`}>
+                            <span className={`inline-block w-1.5 h-1.5 rounded-full ${riskDot[a.r]} mr-1.5 align-middle`}></span>
+                            {lang==='zh' && a.zh ? `${a.zh}` : a.n}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              )
-            })()}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+
+      const renderMixView = () => (
+        <div className="max-w-2xl">
+          <div className="mb-4 text-sm text-slate-600 font-medium leading-relaxed">
+            {lang === 'zh'
+              ? '按下方順序加入水箱,可達到最佳殺蟲效果並避免藥劑互相干擾。'
+              : 'Follow this order when filling the spray tank to maximise efficacy and avoid chemical interference.'}
           </div>
-        );
-      };
-
-      const renderMixTab = () => (
-        <div className="max-w-2xl mx-auto animate-in fade-in duration-300">
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-            <div className="mb-6">
-              <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">Tank-Mixing Standards</span>
-              <h2 className="text-xl font-bold text-slate-800 mt-2">{t("溶液混合順序 Sequence", "Tank-Mixing Order")}</h2>
-              <p className="text-sm text-slate-500 mt-1">{t("嚴格執行各剂型先後加入順序，避免化學分解失效。", "Agitate and mix in this precise hierarchy to prevent clumping.")}</p>
-            </div>
-            <div className="relative pl-2">
-              <div className="absolute left-8 top-5 bottom-5 w-0.5 bg-slate-200 rounded-full"></div>
-              <div className="space-y-6 relative">
-                {MIX_ORDER.map((step, idx) => (
-                  <div key={idx} className="flex gap-4 items-start group">
-                    <div className="w-12 h-12 rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-center font-black text-slate-400 group-hover:border-emerald-600 group-hover:bg-emerald-50 group-hover:text-emerald-700 transition-all shrink-0 shadow-sm z-10">
-                      {step.step}
-                    </div>
-                    <div className="flex-1 pt-1 border-b border-slate-100 pb-4 group-last:border-none">
-                      <h4 className="font-bold text-sm text-slate-800">{t(step.zh, step.en)}</h4>
-                      {lang === 'zh' && <p className="text-xs text-slate-400 mt-1">{step.en}</p>}
-                      {step.note && (
-                        <span className="inline-block mt-2 text-[10px] bg-amber-50 text-amber-700 font-bold border border-amber-200/50 px-2.5 py-0.5 rounded">
-                          {t(step.note.zh, step.note.en)}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <ol className="space-y-2">
+            {MIX_SEQUENCE.map(s => (
+              <li key={s.step} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#114b2d] text-white text-base font-extrabold flex items-center justify-center shrink-0">{s.step}</div>
+                <div className="text-base text-slate-800 font-semibold pt-1.5 leading-relaxed">{lang === 'zh' ? s.zh : s.en}</div>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-5 bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-900 leading-relaxed">
+            <div className="font-extrabold mb-1 flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> {lang === 'zh' ? '重要' : 'Important'}</div>
+            {lang === 'zh'
+              ? '切勿與 Glyphosate (草甘膦) 同箱混用其他殺蟲劑或殺菌劑。'
+              : 'Never tank-mix insecticides or fungicides with Glyphosate.'}
           </div>
         </div>
       );
 
+      // ========================================================================
+      // QUICK-LOOKUP ASSISTANT (canned, honest)
+      // ========================================================================
+      const handleQuickAsk = (question) => {
+        let answer;
+        // Each canned reply is keyed to a specific button, kept short and factual.
+        if (question === 'rotate_mite') {
+          const groups = [...new Set(ACTIVES.filter(a => a.pest === 'spider_mite').map(a => a.g))];
+          answer = lang === 'zh'
+            ? `紅蜘蛛在資料庫中有 ${groups.length} 個機制組可用 (${groups.join(', ')})。建議避免連續使用 1A/1B/3A/4A (高抗藥性風險),改用 13、23、25A 等低風險組。`
+            : `Red spider mite has ${groups.length} groups available (${groups.join(', ')}). Avoid repeating 1A/1B/3A/4A (high resistance risk); rotate into low-risk groups like 13, 23, 25A.`;
+        } else if (question === 'imidacloprid_group') {
+          answer = lang === 'zh'
+            ? `Imidacloprid 屬於 IRAC 第 4A 組 (Neonicotinoid)。系統性、可上下移行,但抗藥性風險高,常用於粉蚧、薊馬、木蝨、青蚊。`
+            : `Imidacloprid is IRAC group 4A (Neonicotinoid). Systemic with xylem/phloem mobility, but high resistance risk. Common against mealybugs, thrips, psyllids, leafhoppers.`;
+        } else if (question === 'low_risk_caterpillar') {
+          const low = ACTIVES.filter(a => a.pest === 'caterpillar' && a.r === 'low');
+          answer = lang === 'zh'
+            ? `毛毛蟲的低風險選擇有 ${low.length} 個: ${low.map(a => a.n).slice(0, 8).join(', ')}${low.length > 8 ? '…' : ''}。生長抑制劑 (Group 15、18) 和 Bt (11A) 是溫和的好選擇。`
+            : `${low.length} low-risk options for caterpillars: ${low.map(a => a.n).slice(0, 8).join(', ')}${low.length > 8 ? '…' : ''}. Growth regulators (Group 15, 18) and Bt (11A) are gentle picks.`;
+        } else if (question === 'what_is_tl') {
+          answer = t.replyMobility_TL;
+        }
+        setChatLog(prev => [...prev, { role: 'user', text: question }, { role: 'bot', text: answer }]);
+      };
+
+      const [chatLog, setChatLog] = useState([{ role: 'bot', text: L[lang].replyIntro }]);
+      const chatRef = useRef(null);
+      useEffect(() => {
+        if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
+      }, [chatLog]);
+      // Reset intro line when language changes
+      useEffect(() => {
+        setChatLog([{ role: 'bot', text: L[lang].replyIntro }]);
+      }, [lang]);
+
+      const askButtons = [
+        { id: 'rotate_mite',          label: t.ask1 },
+        { id: 'imidacloprid_group',   label: t.ask2 },
+        { id: 'low_risk_caterpillar', label: t.ask3 },
+        { id: 'what_is_tl',           label: t.ask4 }
+      ];
+
+      // ========================================================================
+      // MAIN LAYOUT
+      // ========================================================================
       return (
         <div className="min-h-screen bg-[#fcfbf7] text-slate-800 flex flex-col font-sans">
           {/* Header */}
-          <header className="bg-[#f4f2ea] border-b border-slate-300 px-6 py-3.5 flex items-center justify-between z-10 shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-[#114b2d] rounded-xl flex items-center justify-center text-[#fbfbfa] shadow-sm">
-                <Book className="w-5 h-5" />
+          <header className="bg-[#f4f2ea] border-b border-slate-300 px-4 sm:px-6 py-3 flex items-center justify-between gap-3 z-10 shrink-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 bg-[#114b2d] rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
+                <Bug className="w-5 h-5" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="font-extrabold text-sm sm:text-base text-slate-900">NotebookLM</h1>
-                  <span className="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-bold">Agronomy Workspace</span>
-                </div>
-                <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">Tee's Insecticide MoA Guide</p>
+              <div className="min-w-0">
+                <h1 className="font-extrabold text-base sm:text-lg text-slate-900 truncate">{t.appTitle}</h1>
+                <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide truncate">{t.appSubtitle}</p>
               </div>
             </div>
-            <button onClick={() => setLang(l => l === 'zh' ? 'en' : 'zh')}
-              className="text-xs font-bold px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 transition-all border border-slate-300 shadow-sm">
-              {lang === 'zh' ? 'English' : '中文'}
-            </button>
-          </header>
-
-          {/* Main Grid */}
-          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden pb-16 lg:pb-0">
-            
-            {/* Left Sidebar - Sources */}
-            <aside className={`${mobileView === 'sources' ? 'flex' : 'hidden'} lg:flex w-full lg:w-[320px] bg-[#fcfbf9] border-r border-slate-300 p-5 flex-col gap-4 overflow-y-auto shrink-0`}>
-              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                <h2 className="text-xs font-bold text-slate-500 tracking-wider uppercase flex items-center gap-2">
-                  <FileText className="w-4 h-4" /> Sources (2)
-                </h2>
-                <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">Loaded</span>
-              </div>
-
-              <div className="space-y-2.5">
-                <button onClick={() => setActiveSource('bunting')}
-                  className={`w-full text-left p-3.5 rounded-2xl border transition-all shadow-sm ${activeSource === 'bunting' ? 'bg-white border-emerald-600 ring-1 ring-emerald-600/20' : 'bg-slate-50 border-slate-200 hover:bg-white'}`}>
-                  <div className="flex items-start gap-2.5">
-                    <FileText className={`w-5 h-5 mt-0.5 ${activeSource === 'bunting' ? 'text-emerald-600' : 'text-slate-400'}`} />
-                    <div>
-                      <h4 className="font-bold text-sm text-slate-800">bunting A.pdf</h4>
-                      <p className="text-xs text-slate-400 mt-0.5">Pest Rotation Chart (2024)</p>
-                    </div>
-                  </div>
-                </button>
-                <button onClick={() => setActiveSource('guide')}
-                  className={`w-full text-left p-3.5 rounded-2xl border transition-all shadow-sm ${activeSource === 'guide' ? 'bg-white border-emerald-600 ring-1 ring-emerald-600/20' : 'bg-slate-50 border-slate-200 hover:bg-white'}`}>
-                  <div className="flex items-start gap-2.5">
-                    <Globe className={`w-5 h-5 mt-0.5 ${activeSource === 'guide' ? 'text-emerald-600' : 'text-slate-400'}`} />
-                    <div>
-                      <h4 className="font-bold text-sm text-slate-800">insecticide-rotation-guide.html</h4>
-                      <p className="text-xs text-slate-400 mt-0.5">Mixing sequences</p>
-                    </div>
-                  </div>
-                </button>
-              </div>
-
-              <div className="flex-1 min-h-[200px] bg-[#f6f5ee] border border-slate-300/80 rounded-2xl p-4 flex flex-col shadow-inner overflow-hidden mt-2">
-                <div className="flex items-center justify-between border-b border-slate-300 pb-2 mb-3">
-                  <span className="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase">Source Viewer</span>
-                  <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100/50 px-2 py-0.5 rounded">{SIMULATED_SOURCES[activeSource].title}</span>
-                </div>
-                <div className="flex-1 overflow-y-auto text-xs leading-relaxed text-slate-700 pr-2">
-                  {SIMULATED_SOURCES[activeSource].text}
-                </div>
-              </div>
-            </aside>
-
-            {/* Middle Panel - Workspace Tabs */}
-            <main className={`${mobileView === 'workspace' ? 'flex' : 'hidden'} lg:flex flex-1 flex-col overflow-hidden bg-[#fbfbfa]`}>
-              <div className="px-4 sm:px-6 pt-4 border-b border-slate-200 bg-white">
-                <div className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar">
-                  {[
-                    { id: 'lookup', icon: Search, label: t('蟲害機制庫', 'MoA Library') },
-                    { id: 'rotate', icon: RefreshCw, label: t('輪替助手', 'Rotation Planner') },
-                    { id: 'mix', icon: Beaker, label: t('調配與混合', 'Mixing & Sequences') }
-                  ].map(tab => (
-                    <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                      className={`pb-3 px-2 text-sm font-bold border-b-2 transition-all flex items-center gap-2 whitespace-nowrap shrink-0 ${activeTab === tab.id ? 'text-[#114b2d] border-[#114b2d]' : 'text-slate-400 border-transparent hover:text-slate-700'}`}>
-                      <tab.icon className="w-4 h-4" /> {tab.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-[#fbfbfa]">
-                {activeTab === 'lookup' && renderLookupTab()}
-                {activeTab === 'rotate' && renderRotateTab()}
-                {activeTab === 'mix' && renderMixTab()}
-              </div>
-            </main>
-
-            {/* Right Panel - AI Assistant */}
-            <section className={`${mobileView === 'assistant' ? 'flex' : 'hidden'} lg:flex w-full lg:w-[320px] xl:w-[350px] bg-[#f4f2ea] border-t lg:border-t-0 lg:border-l border-slate-300 p-4 flex-col shrink-0`}>
-              <div className="flex items-center gap-2 border-b border-slate-300 pb-3 mb-3">
-                <Sparkles className="w-4 h-4 text-emerald-600" />
-                <h3 className="text-xs font-bold text-slate-700 tracking-wider uppercase">Notebook Assistant</h3>
-              </div>
-
-              <div ref={chatRef} className="flex-1 bg-white border border-slate-300 rounded-2xl p-4 overflow-y-auto space-y-4 text-xs leading-relaxed shadow-sm">
-                {chatLog.map((msg, i) => (
-                  <div key={i} className={`p-3 rounded-xl border ${msg.role === 'user' ? 'bg-slate-50 border-slate-200 self-end ml-10' : 'bg-emerald-50/50 border-emerald-100 mr-10'}`}>
-                    <span className={`font-extrabold text-[9px] uppercase tracking-wide block mb-1.5 ${msg.role === 'user' ? 'text-slate-400' : 'text-emerald-700'}`}>
-                      {msg.role === 'user' ? 'You' : 'Copilot'}
-                    </span>
-                    {msg.text}
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {CHAT_PROMPTS.map((p, i) => (
-                  <button key={i} onClick={() => handleChat(p.q)}
-                    className="text-[10px] font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-300 rounded-full px-3 py-1.5 transition-colors shadow-sm">
-                    {t(p.text, p.q)}
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Font-size toggle: A / A / A */}
+              <div className="flex items-center bg-white border border-slate-300 rounded-xl shadow-sm overflow-hidden">
+                {[
+                  { id: 's', label: 'A', size: 'text-xs', aria: lang==='zh'?'小字':'Small text' },
+                  { id: 'm', label: 'A', size: 'text-sm', aria: lang==='zh'?'中字':'Medium text' },
+                  { id: 'l', label: 'A', size: 'text-base', aria: lang==='zh'?'大字':'Large text' }
+                ].map(b => (
+                  <button key={b.id} onClick={() => setFontScale(b.id)}
+                    aria-label={b.aria}
+                    className={`px-2 py-2 ${b.size} font-extrabold transition-all min-w-[1.75rem] ${fontScale === b.id ? 'bg-[#114b2d] text-white' : 'text-slate-600 hover:bg-slate-50'}`}>
+                    {b.label}
                   </button>
                 ))}
               </div>
+              <button onClick={() => setShowAbout(true)}
+                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-300 shadow-sm transition-all"
+                aria-label={t.about}>
+                <Info className="w-5 h-5" />
+              </button>
+              <button onClick={() => setLang(l => l === 'zh' ? 'en' : 'zh')}
+                className="text-sm font-bold px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 transition-all border border-slate-300 shadow-sm">
+                {t.langSwitch}
+              </button>
+            </div>
+          </header>
 
-              <div className="mt-3 flex gap-2">
-                <input type="text" value={chatInput} onChange={e => setChatInput(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleChat(chatInput)}
-                  placeholder={t("問問這個筆記指南...", "Ask about these notes...")}
-                  className="flex-1 bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#114b2d]/30 focus:outline-none shadow-sm" />
-                <button onClick={() => handleChat(chatInput)}
-                  className="bg-[#114b2d] hover:bg-emerald-800 text-white p-2.5 rounded-xl transition-colors shadow-sm">
-                  <Send className="w-4 h-4" />
+          {/* Tabs */}
+          <div className="bg-white border-b border-slate-200 px-2 sm:px-6 shrink-0">
+            <div className="flex gap-1 sm:gap-3 overflow-x-auto no-scrollbar">
+              {[
+                { id: 'library', icon: Search,    label: t.tabLibrary },
+                { id: 'rotate',  icon: RefreshCw, label: t.tabRotate },
+                { id: 'mix',     icon: Beaker,    label: t.tabMix }
+              ].map(it => (
+                <button key={it.id} onClick={() => setTab(it.id)}
+                  className={`pb-3 pt-3 px-3 text-base font-bold border-b-2 transition-all flex items-center gap-2 whitespace-nowrap shrink-0 ${tab === it.id ? 'text-[#114b2d] border-[#114b2d]' : 'text-slate-400 border-transparent hover:text-slate-700'}`}>
+                  <it.icon className="w-4 h-4" /> {it.label}
                 </button>
-              </div>
-            </section>
-
+              ))}
+            </div>
           </div>
 
-          {/* Mobile Bottom Navigation (hidden on desktop) */}
-          <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#f4f2ea]/95 backdrop-blur border-t border-slate-300 flex items-stretch h-16 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-            {[
-              { id: 'sources', icon: FileText, label: t('來源', 'Sources') },
-              { id: 'workspace', icon: LayoutGrid, label: t('工作區', 'Workspace') },
-              { id: 'assistant', icon: MessageSquare, label: t('助手', 'Assistant') }
-            ].map(nav => (
-              <button key={nav.id} onClick={() => setMobileView(nav.id)}
-                className={`flex-1 flex flex-col items-center justify-center gap-1 transition-colors ${mobileView === nav.id ? 'text-[#114b2d]' : 'text-slate-400'}`}>
-                <nav.icon className="w-5 h-5" />
-                <span className="text-[10px] font-bold tracking-wide">{nav.label}</span>
-                {mobileView === nav.id && <span className="absolute bottom-0 h-0.5 w-10 bg-[#114b2d] rounded-full"></span>}
-              </button>
-            ))}
-          </nav>
+          {/* Main content */}
+          <main ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-6 pb-24">
+            {tab === 'library' && renderLibraryView()}
+            {tab === 'rotate' && renderRotateView()}
+            {tab === 'mix' && renderMixView()}
+          </main>
+
+          {/* Back-to-top button (appears after scrolling) */}
+          {showBackToTop && (
+            <button onClick={scrollToTop}
+              className="fixed bottom-24 right-5 z-30 w-12 h-12 bg-white hover:bg-slate-50 text-[#114b2d] rounded-full shadow-lg flex items-center justify-center border-2 border-[#114b2d] transition-all hover:scale-105 animate-in"
+              aria-label={t.backToTop}>
+              <ArrowUp className="w-5 h-5" />
+            </button>
+          )}
+
+          {/* Floating assistant button */}
+          <button onClick={() => setShowAssistant(true)}
+            className="fixed bottom-5 right-5 z-30 w-14 h-14 bg-[#114b2d] hover:bg-emerald-800 text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105"
+            aria-label={t.assistant}>
+            <Sparkles className="w-6 h-6" />
+          </button>
+
+          {/* Assistant drawer (slide-up sheet on mobile, side panel on desktop) */}
+          {showAssistant && (
+            <>
+              <div className="fixed inset-0 bg-black/30 z-40 animate-in" onClick={() => setShowAssistant(false)}></div>
+              <div className="fixed inset-x-0 bottom-0 sm:inset-y-0 sm:right-0 sm:left-auto sm:w-96 bg-[#fcfbf7] z-50 rounded-t-3xl sm:rounded-none shadow-2xl flex flex-col max-h-[85vh] sm:max-h-none animate-in">
+                <div className="flex items-center justify-between p-4 border-b border-slate-200">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#114b2d]" />
+                    <h2 className="text-base font-extrabold text-slate-800">{t.assistant}</h2>
+                  </div>
+                  <button onClick={() => setShowAssistant(false)}
+                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div ref={chatRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+                  {chatLog.map((m, i) => (
+                    <div key={i} className={`text-sm leading-relaxed rounded-2xl p-3 border ${m.role === 'user' ? 'bg-slate-100 border-slate-200 ml-8' : 'bg-emerald-50/60 border-emerald-100 mr-8'}`}>
+                      {m.text}
+                    </div>
+                  ))}
+                </div>
+                <div className="p-4 border-t border-slate-200 space-y-2">
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">{t.assistantHint}</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {askButtons.map(b => (
+                      <button key={b.id} onClick={() => handleQuickAsk(b.id)}
+                        className="text-sm font-semibold text-slate-700 hover:text-[#114b2d] bg-white border border-slate-300 hover:border-[#114b2d]/40 rounded-full px-3 py-1.5 transition-colors shadow-sm">
+                        {b.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* About / source modal */}
+          {showAbout && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in" onClick={() => setShowAbout(false)}>
+              <div className="absolute inset-0 bg-black/40"></div>
+              <div className="relative bg-white rounded-3xl shadow-2xl max-w-md w-full max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                <div className="flex items-center justify-between p-5 border-b border-slate-200">
+                  <h2 className="text-base font-extrabold text-slate-900">{t.about}</h2>
+                  <button onClick={() => setShowAbout(false)}
+                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="p-5 space-y-4 text-sm text-slate-700 leading-relaxed">
+                  <p>{t.aboutText}</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center">
+                      <div className="text-2xl font-extrabold text-[#114b2d]">{PESTS.length}</div>
+                      <div className="text-xs font-bold text-emerald-700 uppercase tracking-wider mt-0.5">{lang==='zh'?'種害蟲':'pest categories'}</div>
+                    </div>
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center">
+                      <div className="text-2xl font-extrabold text-[#114b2d]">{ACTIVES.length}</div>
+                      <div className="text-xs font-bold text-emerald-700 uppercase tracking-wider mt-0.5">{t.activesCount}</div>
+                    </div>
+                  </div>
+                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <AlertTriangle className="w-4 h-4 text-amber-700" />
+                      <div className="font-extrabold text-sm text-amber-900">{t.safetyTitle}</div>
+                    </div>
+                    <p className="text-xs text-amber-900 leading-relaxed">{t.safetyText}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       );
     }
 
-    // Mount the React Application
+    // Mount
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   
