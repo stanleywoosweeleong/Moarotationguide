@@ -88,3 +88,10 @@ IRAC and peer-reviewed sources. Cross-resistance relationships and the MoA notes
 are evidence-based. This is a **rotation guide, not a prescription** — always
 check the product label, respect the pre-harvest interval, and never tank-mix
 insecticides with glyphosate.
+
+## App icon
+
+The icon (cream bug inside a two-arrow rotation cycle on brand green) is generated
+by `make_icon.py` -> `icon.svg`, then embedded into `index.html` (favicon +
+apple-touch-icon) and `manifest.webmanifest` (192 + 512) as data URIs. To change
+it, edit `make_icon.py`, re-run it, then re-embed. No separate icon files ship.

@@ -1023,6 +1023,8 @@
       const [rotGroup, setRotGroup] = useState('');
       const [groupPickerExpanded, setGroupPickerExpanded] = useState(false);
       const [showCrossInfo, setShowCrossInfo] = useState(false);
+      // Which suggested rotation chemical is expanded inline (by name), or null.
+      const [expandedRotChem, setExpandedRotChem] = useState(null);
 
       const rotation = useMemo(() => {
         if (!rotGroup) return null;
@@ -1090,109 +1092,26 @@
       // SUB-VIEWS
       // ========================================================================
 
-      const renderActiveCard = (a, i) => {
-        const displayName = chemLabel(a.n);
-        const cardKey = `chem-${a.n}`;
-        const isExpanded = expandedCard === cardKey;
-        const effR = effRisk(a, pestFilter);
-        // Notes are pest-specific: show the active pest's note when filtered, else all.
-        const noteRows = pestFilter !== 'all' ? a.rows.filter(x => x.pest === pestFilter) : a.rows;
-        const noteKeys = [...new Set(noteRows.map(x => x.note).filter(k => k && t[`note_${k}`]))];
+      // Shared chemical-detail body — used by the Library card AND inline under a
+      // tapped Rotation-helper pill, so the two never drift. Caller supplies the
+      // outer container chrome and the collapse handler.
+      const renderChemDetail = (a, onCollapse) => {
         const moaText = (GROUP_MOA[lang] || {})[a.g] || '';
         const crText = (GROUP_CROSS_RESISTANCE[lang] || {})[a.g] || '';
         const cropObj = COMMON_CROPS.find(c => c.value === crop);
         const cropTerm = cropObj ? (lang === 'zh' ? cropObj.zh : cropObj.en) : '';
-        // DIRECT link to this chemical's full MRL-by-crop table on the GB 2763-2026
-        // portal (one tap → the data), the same way the DT50 link lands on PPDB.
-        // Falls back to a site-restricted search only for the handful of exempt /
-        // too-new actives that have no MRL page.
-        // NOTE: 2763.foodmate.net has NO working TLS — the https:// endpoint fails / loops
-        // ("A problem repeatedly occurred" in iOS in-app browsers). The http:// endpoint
-        // loads fine and does not upgrade-redirect, so we link to http:// directly.
-        // Top-level navigation from an https page to an http page is permitted by browsers
-        // (mixed-content blocking only applies to embedded subresources).
+        // DIRECT link to this chemical's MRL-by-crop table on GB 2763-2026. NOTE:
+        // 2763.foodmate.net has no working TLS — http:// loads fine (top-level http
+        // nav from https is allowed); https:// loops in iOS in-app browsers. Falls
+        // back to a site-restricted search for actives with no MRL page.
         const fid = CHEM_FOODMATE_ID[a.n];
         const mrlSearchURL = `https://www.google.com/search?q=${encodeURIComponent(
           `site:2763.foodmate.net ${a.n}${cropTerm ? ' ' + cropTerm : ''}`
         )}`;
-        const mrlURL = fid
-          ? `http://2763.foodmate.net/pesticides/limit/${fid}.html`
-          : mrlSearchURL;
+        const mrlURL = fid ? `http://2763.foodmate.net/pesticides/limit/${fid}.html` : mrlSearchURL;
         const dt50URL = `https://www.google.com/search?q=${encodeURIComponent(`${a.n} DT50 PPDB`)}`;
-        const toggleExpand = () => setExpandedCard(isExpanded ? null : cardKey);
         return (
-          <div key={cardKey} className={`bg-white rounded-2xl border border-slate-200 border-l-4 ${siteAccent[a.s]} shadow-sm overflow-hidden`}>
-            {/* Tappable summary area */}
-            <div role="button" tabIndex={0}
-                 onClick={toggleExpand}
-                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(); } }}
-                 className="cursor-pointer p-3 hover:bg-slate-50 transition-colors">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-extrabold text-base text-slate-900 break-words">{displayName}</span>
-                    <span className="text-xs font-bold bg-[#114b2d] text-white px-2 py-0.5 rounded-full whitespace-nowrap">{a.g}</span>
-                    {isBanned(a.n) && (
-                      <span className={`text-xs font-extrabold text-white px-2 py-0.5 rounded-full whitespace-nowrap inline-flex items-center gap-1 ${BANNED_MY[a.n].restricted ? 'bg-amber-500' : 'bg-rose-600'}`}>
-                        <AlertTriangle className="w-3 h-3" />{BANNED_MY[a.n].restricted ? (lang === 'zh' ? '限用' : 'RESTRICTED') : (lang === 'zh' ? '禁用' : 'BANNED')}
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-sm text-slate-700 font-bold mt-1 flex items-center gap-x-3 gap-y-1 flex-wrap">
-                    {a.pests.map((pid) => {
-                      const p = PESTS.find(pp => pp.id === pid);
-                      return (
-                        <span key={pid} className="inline-flex items-center gap-1.5">
-                          <PestIcon pest={pid} className="w-5 h-5 shrink-0" />
-                          <span>{lang === 'zh' ? p.zh : p.en}</span>
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-                <span className={`text-sm font-extrabold px-3 py-1 rounded-full border whitespace-nowrap ${riskBadge[effR]}`}>{t[`risk_${effR}`]}</span>
-              </div>
-              <div className="mt-2.5 flex flex-wrap gap-1.5 text-xs">
-                {(() => {
-                  const tox = TOX_WHO[a.n] || 'NL';
-                  return (
-                    <span className={`px-2.5 py-1 rounded-full font-bold border ${TOX_STYLE[tox]}`}>
-                      {tox === 'NL' ? TOX_LABEL[lang].NL : `${tox} · ${TOX_LABEL[lang][tox]}`}
-                    </span>
-                  );
-                })()}
-                <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`site_${a.s}`]}</span>
-                <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`mob_${a.m}`]}</span>
-                {a.tl && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.tl}</span>}
-                {a.ud && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.ud}</span>}
-              </div>
-              {noteKeys.map((nk) => {
-                const isWarning = nk === 'cross_abamectin';
-                const isAdded = nk.startsWith('added_') || nk.startsWith('challenge_');
-                const cls = isWarning
-                  ? 'bg-amber-50 text-amber-900 border border-amber-200'
-                  : isAdded
-                    ? 'bg-indigo-50 text-indigo-900 border border-indigo-200'
-                    : 'bg-slate-50 text-slate-700 border border-slate-200';
-                return (
-                  <div key={nk} className={`mt-2 flex items-start gap-1.5 text-xs font-semibold rounded-lg px-2.5 py-1.5 ${cls}`}>
-                    {isWarning && <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
-                    {isAdded && <Plus className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
-                    <span>{t[`note_${nk}`]}</span>
-                  </div>
-                );
-              })}
-              {/* Expand affordance — down-chevron, shown only when collapsed */}
-              {!isExpanded && (
-                <div className="mt-1.5 flex items-center justify-center text-slate-300">
-                  <ChevronDown className="w-4 h-4" />
-                </div>
-              )}
-            </div>
-
-            {/* Expanded panel (sibling, not inside tappable area — so link clicks don't collapse) */}
-            {isExpanded && (
-              <div className="border-t border-slate-200 bg-slate-50/70 px-3 py-3 space-y-3 animate-in">
+          <div className="space-y-3">
                 {isBanned(a.n) && (() => {
                   const restricted = BANNED_MY[a.n].restricted;
                   return (
@@ -1304,12 +1223,99 @@
                       : 'Data source: FoodMate (2763.foodmate.net). Reference only — verify against the official GB 2763-2026 text.'}
                   </div>
                 </div>
-                {/* Collapse — at the bottom of the expanded card */}
-                <button onClick={toggleExpand}
-                  aria-label={lang === 'zh' ? '收起' : 'Collapse'}
-                  className="w-full flex items-center justify-center text-slate-300 hover:text-slate-500 transition-colors">
-                  <ChevronDown className="w-4 h-4 rotate-180" />
-                </button>
+            {/* Collapse */}
+            <button onClick={onCollapse}
+              aria-label={lang === 'zh' ? '收起' : 'Collapse'}
+              className="w-full flex items-center justify-center text-slate-300 hover:text-slate-500 transition-colors">
+              <ChevronDown className="w-4 h-4 rotate-180" />
+            </button>
+          </div>
+        );
+      };
+
+      const renderActiveCard = (a, i) => {
+        const displayName = chemLabel(a.n);
+        const cardKey = `chem-${a.n}`;
+        const isExpanded = expandedCard === cardKey;
+        const effR = effRisk(a, pestFilter);
+        // Notes are pest-specific: show the active pest's note when filtered, else all.
+        const noteRows = pestFilter !== 'all' ? a.rows.filter(x => x.pest === pestFilter) : a.rows;
+        const noteKeys = [...new Set(noteRows.map(x => x.note).filter(k => k && t[`note_${k}`]))];
+        const toggleExpand = () => setExpandedCard(isExpanded ? null : cardKey);
+        return (
+          <div key={cardKey} className={`bg-white rounded-2xl border border-slate-200 border-l-4 ${siteAccent[a.s]} shadow-sm overflow-hidden`}>
+            {/* Tappable summary area */}
+            <div role="button" tabIndex={0}
+                 onClick={toggleExpand}
+                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(); } }}
+                 className="cursor-pointer p-3 hover:bg-slate-50 transition-colors">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-extrabold text-base text-slate-900 break-words">{displayName}</span>
+                    <span className="text-xs font-bold bg-[#114b2d] text-white px-2 py-0.5 rounded-full whitespace-nowrap">{a.g}</span>
+                    {isBanned(a.n) && (
+                      <span className={`text-xs font-extrabold text-white px-2 py-0.5 rounded-full whitespace-nowrap inline-flex items-center gap-1 ${BANNED_MY[a.n].restricted ? 'bg-amber-500' : 'bg-rose-600'}`}>
+                        <AlertTriangle className="w-3 h-3" />{BANNED_MY[a.n].restricted ? (lang === 'zh' ? '限用' : 'RESTRICTED') : (lang === 'zh' ? '禁用' : 'BANNED')}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-sm text-slate-700 font-bold mt-1 flex items-center gap-x-3 gap-y-1 flex-wrap">
+                    {a.pests.map((pid) => {
+                      const p = PESTS.find(pp => pp.id === pid);
+                      return (
+                        <span key={pid} className="inline-flex items-center gap-1.5">
+                          <PestIcon pest={pid} className="w-5 h-5 shrink-0" />
+                          <span>{lang === 'zh' ? p.zh : p.en}</span>
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+                <span className={`text-sm font-extrabold px-3 py-1 rounded-full border whitespace-nowrap ${riskBadge[effR]}`}>{t[`risk_${effR}`]}</span>
+              </div>
+              <div className="mt-2.5 flex flex-wrap gap-1.5 text-xs">
+                {(() => {
+                  const tox = TOX_WHO[a.n] || 'NL';
+                  return (
+                    <span className={`px-2.5 py-1 rounded-full font-bold border ${TOX_STYLE[tox]}`}>
+                      {tox === 'NL' ? TOX_LABEL[lang].NL : `${tox} · ${TOX_LABEL[lang][tox]}`}
+                    </span>
+                  );
+                })()}
+                <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`site_${a.s}`]}</span>
+                <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`mob_${a.m}`]}</span>
+                {a.tl && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.tl}</span>}
+                {a.ud && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.ud}</span>}
+              </div>
+              {noteKeys.map((nk) => {
+                const isWarning = nk === 'cross_abamectin';
+                const isAdded = nk.startsWith('added_') || nk.startsWith('challenge_');
+                const cls = isWarning
+                  ? 'bg-amber-50 text-amber-900 border border-amber-200'
+                  : isAdded
+                    ? 'bg-indigo-50 text-indigo-900 border border-indigo-200'
+                    : 'bg-slate-50 text-slate-700 border border-slate-200';
+                return (
+                  <div key={nk} className={`mt-2 flex items-start gap-1.5 text-xs font-semibold rounded-lg px-2.5 py-1.5 ${cls}`}>
+                    {isWarning && <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
+                    {isAdded && <Plus className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
+                    <span>{t[`note_${nk}`]}</span>
+                  </div>
+                );
+              })}
+              {/* Expand affordance — down-chevron, shown only when collapsed */}
+              {!isExpanded && (
+                <div className="mt-1.5 flex items-center justify-center text-slate-300">
+                  <ChevronDown className="w-4 h-4" />
+                </div>
+              )}
+            </div>
+
+            {/* Expanded panel (sibling, not inside tappable area — so link clicks don't collapse) */}
+            {isExpanded && (
+              <div className="border-t border-slate-200 bg-slate-50/70 px-3 py-3 animate-in">
+                {renderChemDetail(a, toggleExpand)}
               </div>
             )}
           </div>
@@ -1480,9 +1486,30 @@
                   <AlertTriangle className="w-4 h-4 text-rose-600" />
                   <h3 className="text-base font-extrabold text-rose-800">{t.rotateAvoid} — {rotGroup}</h3>
                 </div>
-                <div className="text-sm text-rose-700 font-semibold">
-                  {rotation.avoid.map(a => chemLabel(a.n)).join(' · ')}
+                <div className="flex flex-wrap gap-1.5">
+                  {rotation.avoid.map((a, i) => {
+                    const tox = TOX_WHO[a.n] || 'NL';
+                    const open = expandedRotChem === a.n;
+                    return (
+                    <button key={i} type="button"
+                      onClick={() => setExpandedRotChem(open ? null : a.n)}
+                      aria-expanded={open}
+                      className={`text-sm px-2.5 py-1 rounded-lg border font-semibold inline-flex items-center transition bg-white text-rose-900 border-rose-300 ${open ? 'ring-2 ring-rose-600 ring-offset-1' : 'hover:bg-rose-100'}`}>
+                      {chemLabel(a.n)}
+                      <span className={`ml-1.5 text-[10px] font-extrabold px-1 py-0.5 rounded border ${TOX_STYLE[tox]}`}>{tox === 'NL' ? '—' : tox}</span>
+                      <ChevronDown className={`w-3.5 h-3.5 ml-1 -mr-0.5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+                    </button>
+                    );
+                  })}
                 </div>
+                {(() => {
+                  const openChem = rotation.avoid.find(x => x.n === expandedRotChem);
+                  return openChem ? (
+                    <div className="mt-2 rounded-xl border border-rose-200 bg-white px-3 py-3 animate-in">
+                      {renderChemDetail(openChem, () => setExpandedRotChem(null))}
+                    </div>
+                  ) : null;
+                })()}
               </div>
 
               {/* Caution — cross-resistant sibling groups (shared target site) */}
@@ -1501,12 +1528,31 @@
                     {rotation.caution.map(({ g, items }) => (
                       <div key={g} className="flex flex-wrap items-center gap-1.5">
                         <span className="text-xs font-extrabold bg-amber-600 text-white px-2.5 py-0.5 rounded-full shrink-0">{g}</span>
-                        <span className="text-sm text-amber-900 font-semibold">
-                          {items.map(a => chemLabel(a.n)).join(' · ')}
-                        </span>
+                        {items.map((a, i) => {
+                          const tox = TOX_WHO[a.n] || 'NL';
+                          const open = expandedRotChem === a.n;
+                          return (
+                          <button key={i} type="button"
+                            onClick={() => setExpandedRotChem(open ? null : a.n)}
+                            aria-expanded={open}
+                            className={`text-sm px-2.5 py-1 rounded-lg border font-semibold inline-flex items-center transition bg-white text-amber-900 border-amber-300 ${open ? 'ring-2 ring-amber-600 ring-offset-1' : 'hover:bg-amber-100'}`}>
+                            {chemLabel(a.n)}
+                            <span className={`ml-1.5 text-[10px] font-extrabold px-1 py-0.5 rounded border ${TOX_STYLE[tox]}`}>{tox === 'NL' ? '—' : tox}</span>
+                            <ChevronDown className={`w-3.5 h-3.5 ml-1 -mr-0.5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+                          </button>
+                          );
+                        })}
                       </div>
                     ))}
                   </div>
+                  {(() => {
+                    const openChem = rotation.caution.flatMap(c => c.items).find(x => x.n === expandedRotChem);
+                    return openChem ? (
+                      <div className="mt-2 rounded-xl border border-amber-200 bg-white px-3 py-3 animate-in">
+                        {renderChemDetail(openChem, () => setExpandedRotChem(null))}
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
               )}
 
@@ -1543,15 +1589,28 @@
                         <div className="flex flex-wrap gap-1.5">
                           {items.map((a, i) => {
                             const tox = TOX_WHO[a.n] || 'NL';
+                            const open = expandedRotChem === a.n;
                             return (
-                            <span key={i} className={`text-sm px-2.5 py-1 rounded-lg border font-semibold inline-flex items-center ${riskBadge[a.r]}`}>
+                            <button key={i} type="button"
+                              onClick={() => setExpandedRotChem(open ? null : a.n)}
+                              aria-expanded={open}
+                              className={`text-sm px-2.5 py-1 rounded-lg border font-semibold inline-flex items-center transition ${riskBadge[a.r]} ${open ? 'ring-2 ring-[#114b2d] ring-offset-1' : 'hover:brightness-95'}`}>
                               <span className={`inline-block w-1.5 h-1.5 rounded-full ${riskDot[a.r]} mr-1.5 align-middle`}></span>
                               {chemLabel(a.n)}
                               <span className={`ml-1.5 text-[10px] font-extrabold px-1 py-0.5 rounded border ${TOX_STYLE[tox]}`}>{tox === 'NL' ? '—' : tox}</span>
-                          </span>
+                              <ChevronDown className={`w-3.5 h-3.5 ml-1 -mr-0.5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+                          </button>
                           );
                         })}
                       </div>
+                      {(() => {
+                        const openChem = items.find(x => x.n === expandedRotChem);
+                        return openChem ? (
+                          <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-3 animate-in">
+                            {renderChemDetail(openChem, () => setExpandedRotChem(null))}
+                          </div>
+                        ) : null;
+                      })()}
                     </div>
                     );
                   })}
