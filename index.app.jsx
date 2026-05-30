@@ -35,7 +35,9 @@
       { id:"grasshopper", zh:"草蜢 / 甲虫",   en:"Grasshoppers & Beetles", emoji:"🦗" }
     ];
 
-    // Color-accurate SVG icons for each pest, sized 32x32 viewBox.
+    // Pest display priority — the order these pests trouble Malaysian farmers most
+    // (matches the PESTS order above). Used to sort the pest chips on each chemical card.
+    const PEST_INDEX = PESTS.reduce((m, p, i) => { m[p.id] = i; return m; }, {});
     // Colors reflect the actual pest appearance in the field.
     const PestIcon = ({ pest, className = "w-9 h-9" }) => {
       const icons = {
@@ -779,7 +781,7 @@
         tl: "穿层渗透", ud: "上下移行",
         noResults: "没有符合的结果。",
         about: "资料来源",
-        aboutText: "本工具的所有资料整理自 Tee 先生 2024 年 7-8 月编制的《Bunting A》杀虫剂作用机制 (MoA) 轮替指南。包含 7 类常见害虫与 180+ 活性成分。每次用药请轮替不同的 IRAC 机制组,以延缓抗药性发生。",
+        aboutText: "本工具的所有资料整理自 Tee 先生 2024 年 7-8 月编制的《Bunting A》杀虫剂作用机制 (MoA) 轮替指南。包含 7 类常见害虫与 70+ 种活性成分。每次用药请轮替不同的 IRAC 机制组,以延缓抗药性发生。",
         safetyTitle: "农户安全提醒",
         safetyText: "本指南仅为机制轮替参考。实际用药前请: ① 核对农药标签所列适用作物与虫害, ② 遵守安全采收间隔期 (PHI), ③ 不要与 Glyphosate (草甘膦) 混用其他杀虫剂, ④ 留意对授粉昆虫与天敌的影响。",
         groupsCount: "个机制组", activesCount: "个活性成分",
@@ -829,7 +831,7 @@
         tl: "Translaminar", ud: "Xylem/Phloem mobile",
         noResults: "No matches.",
         about: "About this data",
-        aboutText: "All data is curated from Mr. Tee's July-August 2024 'Bunting A' insecticide mode-of-action (MoA) rotation chart. 7 pest groups, 180+ active ingredients. Rotate IRAC groups every spray to slow resistance.",
+        aboutText: "All data is curated from Mr. Tee's July-August 2024 'Bunting A' insecticide mode-of-action (MoA) rotation chart. 7 pest groups, 70+ active ingredients. Rotate IRAC groups every spray to slow resistance.",
         safetyTitle: "Farmer Safety Notes",
         safetyText: "This is a rotation guide, not a prescription. Before spraying: ① check the product label for crop & pest, ② respect the pre-harvest interval (PHI), ③ never tank-mix insecticides with Glyphosate, ④ consider pollinators and beneficials.",
         groupsCount: "MoA groups", activesCount: "active ingredients",
@@ -966,17 +968,45 @@
       const [pestFilter, setPestFilter] = useState('all');
       const [riskFilter, setRiskFilter] = useState('all');
 
+      // The MoA chart lists each chemical once PER pest it controls (182 rows), but
+      // there are only ~72 distinct active ingredients. The Library browses chemicals,
+      // so collapse to one card per unique active. Per-chemical fields (group, site,
+      // mobility) are constant across pests; only resistance risk and notes are
+      // pest-specific, so the original rows are kept on each entry for those.
+      const RISK_ORDER = { low: 0, mid: 1, high: 2 };
+      const chemicals = useMemo(() => {
+        const byName = {};
+        for (const a of ACTIVES) {
+          if (!byName[a.n]) byName[a.n] = { ...a, pests: [], rows: [] };
+          if (!byName[a.n].pests.includes(a.pest)) byName[a.n].pests.push(a.pest);
+          byName[a.n].rows.push(a);
+        }
+        return Object.values(byName).map(c => {
+          // Badge shows the worst-case (highest) resistance risk across covered pests.
+          const worst = c.rows.reduce((m, x) => (RISK_ORDER[x.r] > RISK_ORDER[m] ? x.r : m), 'low');
+          return { ...c, r: worst, pests: [...c.pests].sort((p, q) => PEST_INDEX[p] - PEST_INDEX[q]) };
+        });
+      }, []);
+
+      // Effective resistance risk: pest-specific when a pest filter is active,
+      // otherwise the worst-case shown on the badge.
+      const effRisk = (c, pf) =>
+        pf !== 'all' ? ((c.rows.find(x => x.pest === pf) || {}).r || c.r) : c.r;
+
       const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
-        return ACTIVES.filter(a => {
-          if (pestFilter !== 'all' && a.pest !== pestFilter) return false;
-          if (riskFilter !== 'all' && a.r !== riskFilter) return false;
+        return chemicals.filter(c => {
+          if (pestFilter !== 'all' && !c.pests.includes(pestFilter)) return false;
+          if (riskFilter !== 'all' && effRisk(c, pestFilter) !== riskFilter) return false;
           if (!q) return true;
-          const pestObj = PESTS.find(p => p.id === a.pest);
-          const hay = (a.n + ' ' + a.g + ' ' + (CHEM_ZH[a.n] || a.zh || '') + ' ' + pestObj.zh + ' ' + pestObj.en).toLowerCase();
+          const pestNames = c.pests.map(pid => {
+            const p = PESTS.find(pp => pp.id === pid);
+            return p ? p.zh + ' ' + p.en : '';
+          }).join(' ');
+          const hay = (c.n + ' ' + c.g + ' ' + (CHEM_ZH[c.n] || c.zh || '') + ' ' + pestNames).toLowerCase();
           return hay.includes(q);
         });
-      }, [query, pestFilter, riskFilter]);
+      }, [query, pestFilter, riskFilter, chemicals]);
 
       // ---- Card expansion (one expanded at a time) ----
       const [expandedCard, setExpandedCard] = useState(null);
@@ -1061,10 +1091,13 @@
       // ========================================================================
 
       const renderActiveCard = (a, i) => {
-        const pestObj = PESTS.find(p => p.id === a.pest);
         const displayName = chemLabel(a.n);
-        const cardKey = `${a.pest}-${a.g}-${a.n}`;
+        const cardKey = `chem-${a.n}`;
         const isExpanded = expandedCard === cardKey;
+        const effR = effRisk(a, pestFilter);
+        // Notes are pest-specific: show the active pest's note when filtered, else all.
+        const noteRows = pestFilter !== 'all' ? a.rows.filter(x => x.pest === pestFilter) : a.rows;
+        const noteKeys = [...new Set(noteRows.map(x => x.note).filter(k => k && t[`note_${k}`]))];
         const moaText = (GROUP_MOA[lang] || {})[a.g] || '';
         const crText = (GROUP_CROSS_RESISTANCE[lang] || {})[a.g] || '';
         const cropObj = COMMON_CROPS.find(c => c.value === crop);
@@ -1105,12 +1138,19 @@
                       </span>
                     )}
                   </div>
-                  <div className="text-sm text-slate-700 font-bold mt-1 flex items-center gap-1.5">
-                    <PestIcon pest={a.pest} className="w-5 h-5 shrink-0" />
-                    <span className="truncate">{lang === 'zh' ? pestObj.zh : pestObj.en}</span>
+                  <div className="text-sm text-slate-700 font-bold mt-1 flex items-center gap-x-3 gap-y-1 flex-wrap">
+                    {a.pests.map((pid) => {
+                      const p = PESTS.find(pp => pp.id === pid);
+                      return (
+                        <span key={pid} className="inline-flex items-center gap-1.5">
+                          <PestIcon pest={pid} className="w-5 h-5 shrink-0" />
+                          <span>{lang === 'zh' ? p.zh : p.en}</span>
+                        </span>
+                      );
+                    })}
                   </div>
                 </div>
-                <span className={`text-sm font-extrabold px-3 py-1 rounded-full border whitespace-nowrap ${riskBadge[a.r]}`}>{t[`risk_${a.r}`]}</span>
+                <span className={`text-sm font-extrabold px-3 py-1 rounded-full border whitespace-nowrap ${riskBadge[effR]}`}>{t[`risk_${effR}`]}</span>
               </div>
               <div className="mt-2.5 flex flex-wrap gap-1.5 text-xs">
                 {(() => {
@@ -1126,22 +1166,22 @@
                 {a.tl && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.tl}</span>}
                 {a.ud && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.ud}</span>}
               </div>
-              {a.note && t[`note_${a.note}`] && (() => {
-                const isWarning = a.note === 'cross_abamectin';
-                const isAdded = a.note.startsWith('added_') || a.note.startsWith('challenge_');
+              {noteKeys.map((nk) => {
+                const isWarning = nk === 'cross_abamectin';
+                const isAdded = nk.startsWith('added_') || nk.startsWith('challenge_');
                 const cls = isWarning
                   ? 'bg-amber-50 text-amber-900 border border-amber-200'
                   : isAdded
                     ? 'bg-indigo-50 text-indigo-900 border border-indigo-200'
                     : 'bg-slate-50 text-slate-700 border border-slate-200';
                 return (
-                  <div className={`mt-2 flex items-start gap-1.5 text-xs font-semibold rounded-lg px-2.5 py-1.5 ${cls}`}>
+                  <div key={nk} className={`mt-2 flex items-start gap-1.5 text-xs font-semibold rounded-lg px-2.5 py-1.5 ${cls}`}>
                     {isWarning && <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
                     {isAdded && <Plus className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
-                    <span>{t[`note_${a.note}`]}</span>
+                    <span>{t[`note_${nk}`]}</span>
                   </div>
                 );
-              })()}
+              })}
               {/* Expand affordance — down-chevron, shown only when collapsed */}
               {!isExpanded && (
                 <div className="mt-1.5 flex items-center justify-center text-slate-300">
@@ -1334,7 +1374,7 @@
 
           {/* Result count */}
           <div className="text-sm text-slate-500 font-semibold">
-            {filtered.length} / {ACTIVES.length} {t.activesCount}
+            {filtered.length} / {chemicals.length} {t.activesCount}
           </div>
 
           {/* Results grid */}
@@ -1786,7 +1826,7 @@
                       <div className="text-xs font-bold text-emerald-700 uppercase tracking-wider mt-0.5">{lang==='zh'?'种害虫':'pest categories'}</div>
                     </div>
                     <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center">
-                      <div className="text-2xl font-extrabold text-[#114b2d]">{ACTIVES.length}</div>
+                      <div className="text-2xl font-extrabold text-[#114b2d]">{chemicals.length}</div>
                       <div className="text-xs font-bold text-emerald-700 uppercase tracking-wider mt-0.5">{t.activesCount}</div>
                     </div>
                   </div>
