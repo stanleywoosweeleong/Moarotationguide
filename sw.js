@@ -17,7 +17,7 @@
  *
  * Bump CACHE_VERSION if you ever need to force every device to drop old caches.
  */
-const CACHE_VERSION = 'pestmoa-v4';
+const CACHE_VERSION = 'pestmoa-v5';
 
 self.addEventListener('install', (event) => {
   // Activate this worker as soon as it finishes installing.
