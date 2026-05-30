@@ -1328,6 +1328,8 @@
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input value={query} onChange={e => setQuery(e.target.value)}
+              id="moa-search" name="moa-search" autoComplete="off"
+              aria-label={t.searchPlaceholder}
               placeholder={t.searchPlaceholder}
               className="w-full bg-white border border-slate-300 rounded-xl pl-10 pr-3 py-3 text-base focus:ring-2 focus:ring-[#114b2d]/30 focus:outline-none shadow-sm" />
           </div>
