@@ -14,7 +14,6 @@
     const Sparkles = (p) => <Icon {...p} path='<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>' />;
     const X = (p) => <Icon {...p} path='<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>' />;
     const Info = (p) => <Icon {...p} path='<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>' />;
-    const ChevronRight = (p) => <Icon {...p} path='<polyline points="9 18 15 12 9 6"/>' />;
     const ChevronDown = (p) => <Icon {...p} path='<polyline points="6 9 12 15 18 9"/>' />;
     const AlertTriangle = (p) => <Icon {...p} path='<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>' />;
     const ArrowUp = (p) => <Icon {...p} path='<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>' />;
@@ -766,9 +765,7 @@
       zh: {
         appTitle: "虫药轮替", appSubtitle: "依据 Tee 先生《Bunting A》机制图整理",
         tabLibrary: "机制库", tabRotate: "轮替助手", tabMix: "调配顺序",
-        assistant: "快速查询", assistantHint: "问问特定害虫、机制或活性成分…",
         searchPlaceholder: "搜寻活性成分、机制或害虫…",
-        filterAll: "全部", filterRisk: "抗药性风险", filterSite: "作用部位",
         selectPest: "选择害虫", lastUsed: "上次用过的 IRAC 机制组", tapToChange: "点击更改", siteChanger: "换机制",
         rotateTo: "建议轮替", rotateAvoid: "避免使用 (相同机制)",
         rotateCaution: "谨慎 — 靶标相同",
@@ -784,9 +781,8 @@
         aboutText: "本工具的所有资料整理自 Tee 先生 2024 年 7-8 月编制的《Bunting A》杀虫剂作用机制 (MoA) 轮替指南。包含 7 类常见害虫与 70+ 种活性成分。每次用药请轮替不同的 IRAC 机制组,以延缓抗药性发生。",
         safetyTitle: "农户安全提醒",
         safetyText: "本指南仅为机制轮替参考。实际用药前请: ① 核对农药标签所列适用作物与虫害, ② 遵守安全采收间隔期 (PHI), ③ 不要与 Glyphosate (草甘膦) 混用其他杀虫剂, ④ 留意对授粉昆虫与天敌的影响。",
-        groupsCount: "个机制组", activesCount: "个活性成分",
-        warningHigh: "高抗药性风险",
-        legend: "图例", langSwitch: "EN", backToTop: "回到顶部",
+        activesCount: "个活性成分",
+        langSwitch: "EN", backToTop: "回到顶部",
         note_cross_abamectin: "与 Abamectin (Group 6) 有交叉抗药性,不应轮替使用",
         note_piercing_sucking: "对刺吸式害虫更有效",
         note_added_afido: "Bunting A 未列抗药性资料;白粉虱已有田间抗药性报告 (36-104 倍),建议谨慎使用",
@@ -807,18 +803,11 @@
         note_added_spinetoram_thrips: "本品对其他害虫风险较低,但西方花蓟马 (Frankliniella occidentalis) 已有全球性田间抗药性,故仅蓟马标为高风险",
         note_challenge_methomyl: "Bunting A 此条目未标穿层渗透;但 Lannate (DuPont) 与 Methomyl 90 SP 等多家厂商商品标签、UF Extension 及 ScienceDirect 均确认 Methomyl 具系统性、接触性与穿层渗透三重作用",
         note_challenge_hexythiazox: "Bunting A 此条目标示低风险;但澳洲 1993、PNAS 2012 (希腊 Marathonas 玫瑰株)、塞浦路斯 2013 等多项同行评审研究记录二点叶蝉 Tetranychus urticae 对 Hexythiazox 全球性田间抗药性,本应用采纳网络共识为中风险",
-        ask1: "红蜘蛛该如何轮替?", ask2: "Imidacloprid 属于哪一组?",
-        ask3: "毛毛虫的低风险选择?", ask4: "什么是穿层渗透?",
-        replyIntro: "你好!请从下方挑选快速问题,或用搜寻查特定成分/机制。",
-        replyMobility_TL: "穿层渗透 (Translaminar) 指农药可穿透叶片表皮,作用于叶背隐藏的害虫 (例如红蜘蛛)。",
-        replyMobility_S: "系统性 (Systemic) 农药可由根或叶吸收进入植物维管束输送,适用于藏在叶鞘内或树皮下的害虫。"
       },
       en: {
         appTitle: "Pest MoA", appSubtitle: "Built from Mr. Tee's 'Bunting A' MoA chart",
         tabLibrary: "MoA Library", tabRotate: "Rotation Helper", tabMix: "Tank-Mix Order",
-        assistant: "Quick Lookup", assistantHint: "Ask about a pest, group, or active ingredient…",
         searchPlaceholder: "Search active, group or pest…",
-        filterAll: "All", filterRisk: "risks", filterSite: "Action site",
         selectPest: "Select pest", lastUsed: "Last-used IRAC group", tapToChange: "Tap to change", siteChanger: "Site changer",
         rotateTo: "Rotate to", rotateAvoid: "Avoid (same group)",
         rotateCaution: "Caution — shares a target",
@@ -834,9 +823,8 @@
         aboutText: "All data is curated from Mr. Tee's July-August 2024 'Bunting A' insecticide mode-of-action (MoA) rotation chart. 7 pest groups, 70+ active ingredients. Rotate IRAC groups every spray to slow resistance.",
         safetyTitle: "Farmer Safety Notes",
         safetyText: "This is a rotation guide, not a prescription. Before spraying: ① check the product label for crop & pest, ② respect the pre-harvest interval (PHI), ③ never tank-mix insecticides with Glyphosate, ④ consider pollinators and beneficials.",
-        groupsCount: "MoA groups", activesCount: "active ingredients",
-        warningHigh: "High resistance risk",
-        legend: "Legend", langSwitch: "中文", backToTop: "Back to top",
+        activesCount: "active ingredients",
+        langSwitch: "中文", backToTop: "Back to top",
         note_cross_abamectin: "Cross-resistance with Abamectin (Group 6); do not rotate between them",
         note_piercing_sucking: "More effective against piercing-sucking pests",
         note_added_afido: "Not in Bunting A; field resistance documented in whitefly (36-104×). Use with care.",
@@ -857,11 +845,6 @@
         note_added_spinetoram_thrips: "Lower risk on other pests, but western flower thrips (Frankliniella occidentalis) has global field resistance, hence high risk only for thrips.",
         note_challenge_methomyl: "Bunting A does not mark this entry as translaminar; however, multiple manufacturer labels (Lannate by DuPont, Methomyl 90 SP), UF Extension, and ScienceDirect all confirm methomyl has systemic, contact, and translaminar action.",
         note_challenge_hexythiazox: "Bunting A rates this entry as low risk; however, peer-reviewed studies (Australia 1993, PNAS 2012 Marathonas rose strain in Greece, Cyprus 2013, and a global review) document worldwide field resistance in Tetranychus urticae. App uses web consensus: mid risk.",
-        ask1: "How do I rotate for red spider mite?", ask2: "Which group is Imidacloprid?",
-        ask3: "Low-risk options for caterpillars?", ask4: "What is translaminar?",
-        replyIntro: "Hi! Pick a quick question below, or use search to find a specific active/group.",
-        replyMobility_TL: "Translaminar means the chemical penetrates the leaf surface and reaches pests on the underside (e.g. spider mites).",
-        replyMobility_S: "Systemic chemicals are absorbed by roots or foliage and moved through the plant's vascular system — useful for pests hiding inside sheaths or under bark."
       }
     };
 
@@ -1713,49 +1696,6 @@
           </div>
         </div>
       );
-
-      // ========================================================================
-      // QUICK-LOOKUP ASSISTANT (canned, honest)
-      // ========================================================================
-      const handleQuickAsk = (question) => {
-        let answer;
-        // Each canned reply is keyed to a specific button, kept short and factual.
-        if (question === 'rotate_mite') {
-          const groups = [...new Set(ACTIVES.filter(a => a.pest === 'spider_mite').map(a => a.g))];
-          answer = lang === 'zh'
-            ? `红蜘蛛在资料库中有 ${groups.length} 个机制组可用 (${groups.join(', ')})。建议避免连续使用 1A/1B/3A/4A (高抗药性风险),改用 13、23、25A 等低风险组。`
-            : `Red spider mite has ${groups.length} groups available (${groups.join(', ')}). Avoid repeating 1A/1B/3A/4A (high resistance risk); rotate into low-risk groups like 13, 23, 25A.`;
-        } else if (question === 'imidacloprid_group') {
-          answer = lang === 'zh'
-            ? `Imidacloprid 属于 IRAC 第 4A 组 (Neonicotinoid)。系统性、具穿层渗透,但抗药性风险高,常用于粉蚧、蓟马、木虱、青蚊。`
-            : `Imidacloprid is IRAC group 4A (Neonicotinoid). Systemic with translaminar movement, but high resistance risk. Common against mealybugs, thrips, psyllids, leafhoppers.`;
-        } else if (question === 'low_risk_caterpillar') {
-          const low = ACTIVES.filter(a => a.pest === 'caterpillar' && a.r === 'low');
-          answer = lang === 'zh'
-            ? `毛毛虫的低风险选择有 ${low.length} 个: ${low.map(a => a.n).slice(0, 8).join(', ')}${low.length > 8 ? '…' : ''}。生长抑制剂 (Group 15、18) 和 Bt (11A) 是温和的好选择。`
-            : `${low.length} low-risk options for caterpillars: ${low.map(a => a.n).slice(0, 8).join(', ')}${low.length > 8 ? '…' : ''}. Growth regulators (Group 15, 18) and Bt (11A) are gentle picks.`;
-        } else if (question === 'what_is_tl') {
-          answer = t.replyMobility_TL;
-        }
-        setChatLog(prev => [...prev, { role: 'user', text: question }, { role: 'bot', text: answer }]);
-      };
-
-      const [chatLog, setChatLog] = useState([{ role: 'bot', text: L[lang].replyIntro }]);
-      const chatRef = useRef(null);
-      useEffect(() => {
-        if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
-      }, [chatLog]);
-      // Reset intro line when language changes
-      useEffect(() => {
-        setChatLog([{ role: 'bot', text: L[lang].replyIntro }]);
-      }, [lang]);
-
-      const askButtons = [
-        { id: 'rotate_mite',          label: t.ask1 },
-        { id: 'imidacloprid_group',   label: t.ask2 },
-        { id: 'low_risk_caterpillar', label: t.ask3 },
-        { id: 'what_is_tl',           label: t.ask4 }
-      ];
 
       // ========================================================================
       // MAIN LAYOUT
