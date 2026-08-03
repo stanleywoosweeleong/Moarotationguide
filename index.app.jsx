@@ -2269,7 +2269,14 @@
           )}
 
           {/* Main content */}
-          <main ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-6 pb-20">
+          {/* Bottom padding is set inline, not via pb-*, for two reasons:
+              (1) sm:p-6 lives in a media query the compiler emits AFTER .pb-20,
+                  so a utility class silently loses at >=640px;
+              (2) the back-to-top FAB is offset by env(safe-area-inset-bottom),
+                  so the content must clear the same inset or it sits under it.
+              Clearance = 1.25rem offset + 3rem button + margin, plus the inset. */}
+          <main ref={mainRef} className="flex-1 overflow-y-auto p-4 sm:p-6"
+                style={{ paddingBottom: 'calc(5.5rem + env(safe-area-inset-bottom))' }}>
             {tab === 'library' && renderLibraryView()}
             {tab === 'rotate' && renderRotateView()}
             {tab === 'mix' && renderMixView()}

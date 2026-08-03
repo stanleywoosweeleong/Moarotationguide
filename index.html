@@ -4840,7 +4840,10 @@ function App() {
     className: "w-4 h-4"
   })))), /*#__PURE__*/React.createElement("main", {
     ref: mainRef,
-    className: "flex-1 overflow-y-auto p-4 sm:p-6 pb-20"
+    className: "flex-1 overflow-y-auto p-4 sm:p-6",
+    style: {
+      paddingBottom: 'calc(5.5rem + env(safe-area-inset-bottom))'
+    }
   }, tab === 'library' && renderLibraryView(), tab === 'rotate' && renderRotateView(), tab === 'mix' && renderMixView()), showBackToTop && /*#__PURE__*/React.createElement("button", {
     onClick: scrollToTop,
     style: {
