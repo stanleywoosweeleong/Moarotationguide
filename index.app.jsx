@@ -1,5 +1,5 @@
 
-    const { useState, useRef, useEffect, useMemo } = React;
+    const { useState, useRef, useEffect, useMemo, useCallback } = React;
 
     // ========================================================================
     // ICONS (stand-ins for lucide-react, inline so no extra runtime needed)
@@ -169,7 +169,7 @@
         "5":"刺糖菌素", "6":"阿维菌素",
         "7B":"保幼激素类", "7C":"保幼激素类",
         "9B":"吡啶杂氮", "9D":"吡咯杂环",
-        "10A":"螨生长抑制",
+        "10A":"螨生长抑制", "10B":"螨生长抑制",
         "11A":"苏云金菌",
         "12A":"ATP酶抑制", "12C":"ATP酶抑制",
         "13":"解偶联剂",
@@ -177,6 +177,7 @@
         "15":"苯甲酰脲", "16":"几丁质",
         "18":"蜕皮激素",
         "19":"章鱼胺",
+        "20D":"复合体 III",
         "21A":"METI 杀螨", "21B":"METI 杀螨",
         "22A":"钠通道阻断", "22B":"钠通道阻断",
         "23":"脂质合成",
@@ -193,7 +194,7 @@
         "5":"Spinosyn", "6":"Avermectin",
         "7B":"JH Analog", "7C":"JH Analog",
         "9B":"Pyridine az.", "9D":"Pyropene",
-        "10A":"Mite Grow Inh",
+        "10A":"Mite Grow Inh", "10B":"Mite Grow Inh",
         "11A":"Bt",
         "12A":"ATP Synth", "12C":"ATP Synth",
         "13":"Uncoupler",
@@ -201,6 +202,7 @@
         "15":"Benzoylurea", "16":"Chitin Inh",
         "18":"Ecdysone Ag",
         "19":"Octopamine",
+        "20D":"Complex III",
         "21A":"METI", "21B":"METI",
         "22A":"VG-Na Blkr", "22B":"VG-Na Blkr",
         "23":"Lipid Biosyn",
@@ -229,7 +231,8 @@
         "7C":"保幼激素类似物 (Pyriproxyfen)。与 7B 同位点但化学结构不同,效力更强,广泛用于粉虱、介壳虫与蚊虫。",
         "9B":"吡啶杂氮甲烷 (Pymetrozine)。作用于刺吸式害虫弦音器 TRPV 通道,使害虫停止取食、几日内饿死。",
         "9D":"吡咯杂环 (Afidopyropen)。与 9B 同靶点不同位点。",
-        "10A":"螨生长抑制剂 (Hexythiazox/Etoxazole)。抑制螨类几丁质合成酶 CHS1,若螨蜕皮失败死亡。仅对未成熟期有效,需在初期施用。",
+        "10A":"螨生长抑制剂 (Hexythiazox/Clofentezine)。抑制螨类几丁质合成酶 CHS1,若螨蜕皮失败死亡。仅对未成熟期有效,需在初期施用。",
+        "10B":"螨生长抑制剂 (Etoxazole 乙螨唑)。同样抑制几丁质合成酶 CHS1、阻断蜕皮;具杀卵及幼若螨活性,对成螨效果弱。与 10A (噻螨酮/四螨嗪) 交叉抗性明显。",
         "11A":"苏云金芽孢杆菌 (Bt)。产生 Cry 蛋白晶体,在昆虫中肠碱性环境激活后,与中肠膜受体结合并打孔,导致中毒死亡。极具选择性,几乎无抗药性。",
         "12A":"ATP 酶抑制剂 (Diafenthiuron)。前体药,经害虫氧化代谢转化为活性硫脲,抑制线粒体 ATP 合成酶。",
         "12C":"ATP 酶抑制剂 (Propargite/Tetradifon)。与 12A 同机制,化学结构不同。",
@@ -239,6 +242,7 @@
         "16":"几丁质合成抑制剂 (Buprofezin)。机制与 15 不同,并干扰激素与产卵,专攻同翅目 (粉虱、介壳虫、飞虱)。",
         "18":"蜕皮激素受体激动剂 (Methoxyfenozide/Tebufenozide)。激动昆虫蜕皮激素受体,引发过早、不完全蜕皮致死。主要对鳞翅目。",
         "19":"章鱼胺受体激动剂 (Amitraz)。激动昆虫与螨类章鱼胺受体,扰乱神经传导。多用于螨与蜱。",
+        "20D":"线粒体复合体 III 抑制剂 (Bifenazate 联苯肼酯)。作用于复合体 III 的 Qo 位点 (细胞色素 b),中断能量代谢。以触杀为主,对多种叶螨有效;与神经类杀螨剂无交叉抗性,是良好的轮替机制。",
         "21A":"线粒体复合体 I 抑制剂 (Pyridaben/Tebufenpyrad/Fenpyroximate)。METI 杀螨剂,抑制电子传递链复合体 I,中断能量代谢。",
         "21B":"线粒体复合体 I 抑制剂 (Rotenone)。与 21A 同靶点,源自鱼藤、毛鱼藤等植物根部的天然提取物。",
         "22A":"电压钠通道阻断剂 (Indoxacarb)。前体药,经害虫酯酶代谢激活,阻断电压门控钠通道 (与 3A 修饰通道方向相反)。",
@@ -269,7 +273,8 @@
         "7C":"Juvenile Hormone Analog (Pyriproxyfen). Similar to 7B but different chemistry; higher potency. Widely used against whiteflies, scales, and mosquitoes.",
         "9B":"Pyridine azomethine (Pymetrozine). Acts on TRPV channels in sucking-insect chordotonal organs, causing them to stop feeding and starve within days.",
         "9D":"Pyropene (Afidopyropen). Same target as 9B at a different binding pocket.",
-        "10A":"Mite Growth Inhibitor (Hexythiazox/Etoxazole). Inhibits mite chitin synthase CHS1; nymphs fail to molt. Effective only on immature stages — apply early.",
+        "10A":"Mite Growth Inhibitor (Hexythiazox/Clofentezine). Inhibits mite chitin synthase CHS1; nymphs fail to molt. Effective only on immature stages — apply early.",
+        "10B":"Mite Growth Inhibitor (Etoxazole). Also inhibits chitin synthase CHS1 and blocks moulting; ovicidal and active on immature mites, weak on adults. Strongly cross-resistant with 10A (hexythiazox/clofentezine).",
         "11A":"Bacillus thuringiensis (Bt). Cry protein crystals are activated in the alkaline insect midgut, bind to membrane receptors, and form pores → systemic intoxication. Highly selective, very low resistance pressure.",
         "12A":"ATP Synthase Inhibitor (Diafenthiuron). Pro-insecticide bioactivated to a thiourea form that inhibits mitochondrial ATP synthase.",
         "12C":"ATP Synthase Inhibitor (Propargite/Tetradifon). Same mechanism as 12A, different chemistry.",
@@ -279,6 +284,7 @@
         "16":"Chitin Inhibitor (Buprofezin). Different mechanism from 15; also disrupts hormones and oviposition. Specific to Homoptera (whiteflies, scales, planthoppers).",
         "18":"Ecdysone Agonist (Methoxyfenozide/Tebufenozide). Activates insect ecdysone receptor, triggering premature incomplete molt → death. Mostly used against Lepidoptera.",
         "19":"Octopamine Agonist (Amitraz). Activates octopamine receptors in insects and mites, disrupting nerve transmission. Mostly used against mites and ticks.",
+        "20D":"Mitochondrial Complex III Inhibitor (Bifenazate). Acts at the Qo site of Complex III (cytochrome b), halting energy metabolism. Mainly contact; effective on several spider mites and shares no cross-resistance with neurotoxic acaricides — a useful rotation mechanism.",
         "21A":"Mitochondrial Complex I Inhibitor (Pyridaben/Tebufenpyrad/Fenpyroximate). METI acaricide that blocks electron transport chain Complex I → energy metabolism halt.",
         "21B":"Mitochondrial Complex I Inhibitor (Rotenone). Same target as 21A, derived from Derris and related plant roots.",
         "22A":"Voltage-Na Blocker (Indoxacarb). Pro-insecticide bioactivated by insect esterases; blocks voltage-gated sodium channels (opposite direction to 3A which holds them open).",
@@ -317,10 +323,13 @@
         "7C":"与 7B (Fenoxycarb) 同靶标 (保幼激素),可能相互交叉抗性。",
         "9B":"与吡咯杂环 (9D,Afidopyropen) 同靶标 (弦音器 TRPV) 但结合位点不同,交叉抗性通常较低。",
         "9D":"与 9B (Pymetrozine) 同靶标不同位点,设计上交叉抗性较低。",
+        "10A":"与 10B (乙螨唑) 同抑制几丁质合成酶 CHS1;CHS1 突变 (I1017F) 对噻螨酮、四螨嗪与乙螨唑同时高度抗性。三者属同一交叉抗性组,轮换无效。",
+        "10B":"与 10A (噻螨酮/四螨嗪) 同抑制几丁质合成酶 CHS1;CHS1 突变 (I1017F) 对乙螨唑、噻螨酮、四螨嗪同时高度抗性。三者属同一交叉抗性组,轮换无效。",
         "12A":"与 12C 同为线粒体 ATP 合成酶抑制剂,共享靶标,可能相互交叉抗性。",
         "12C":"与 12A (Diafenthiuron) 同靶标,可能相互交叉抗性。",
         "15":"所有苯甲酰脲 (除虫脲/氟铃脲/虱螨脲/六伏隆) 同抑制几丁质合成酶,相互交叉抗性明显。15 类内部轮换无效。",
         "18":"蜕皮激素受体激动剂 (灭幼脲/甲氧虫酰肼) 同靶标,相互交叉抗性明显 (小菜蛾、夜蛾已有报告)。内部轮换无效。",
+        "20D":"作用于线粒体复合体 III 的 Qo 位点 (细胞色素 b)。部分联苯肼酯抗性突变可对灭螨醌 (Acequinocyl, 20B) 交叉抗性;与神经类杀螨剂无交叉抗性,是良好的轮替机制。",
         "21A":"所有 METI-I 类 (哒螨灵/唑螨酯/唑虫酰胺) 同抑制线粒体复合体 I,相互交叉抗性明显 (叶螨已有报告);与 21B (鱼藤酮) 同靶标。内部轮换无效。",
         "21B":"鱼藤酮与 21A 同抑制线粒体复合体 I,可能交叉抗性。",
         "22A":"茚虫威 (22A) 与氰氟虫腙 (22B) 同阻断电压钠通道 (与 3A 方向相反),共享靶标,部分害虫已有相互交叉抗性报告。",
@@ -345,10 +354,13 @@
         "7C":"Shares the juvenile-hormone target with 7B (fenoxycarb); mutual cross-resistance possible.",
         "9B":"Shares the chordotonal TRPV target with pyropene (9D, afidopyropen) at a different binding site; cross-resistance is usually low.",
         "9D":"Same target as 9B (pymetrozine) at a different site; designed for low cross-resistance.",
+        "10A":"Shares the CHS1 chitin-synthase target with 10B (etoxazole); the CHS1 mutation (I1017F) cross-resists hexythiazox, clofentezine and etoxazole. They are one cross-resistance group — rotating among them is futile.",
+        "10B":"Shares the CHS1 chitin-synthase target with 10A (hexythiazox/clofentezine); the CHS1 mutation (I1017F) confers high cross-resistance to etoxazole, hexythiazox and clofentezine. Rotating among them is futile.",
         "12A":"Shares the mitochondrial ATP-synthase target with 12C; mutual cross-resistance possible.",
         "12C":"Shares the target with 12A (diafenthiuron); mutual cross-resistance possible.",
         "15":"All benzoylureas (diflubenzuron/novaluron/lufenuron/hexaflumuron) inhibit chitin synthase and show clear mutual cross-resistance. Rotating within Group 15 is futile.",
         "18":"Ecdysone-receptor agonists (chromafenozide/methoxyfenozide) share the target with clear mutual cross-resistance (documented in diamondback moth, armyworm). Rotating within the group is futile.",
+        "20D":"Acts on the Qo site of mitochondrial Complex III (cytochrome b). Some bifenazate resistance mutations can cross-resist acequinocyl (20B); no cross-resistance with neurotoxic acaricides — a useful rotation mechanism.",
         "21A":"All METI-I compounds (pyridaben/fenpyroximate/tolfenpyrad) inhibit mitochondrial Complex I with clear mutual cross-resistance (documented in spider mites); same target as 21B (rotenone). Rotating within the group is futile.",
         "21B":"Rotenone inhibits Complex I like 21A; cross-resistance possible.",
         "22A":"Indoxacarb (22A) and metaflumizone (22B) both block the voltage-gated sodium channel (opposite direction to 3A); they share the target and mutual cross-resistance has been reported in some pests.",
@@ -371,6 +383,7 @@
       { groups: ['2A','2B'],            kind: 'shared'  }, // GABA-gated chloride channel (RDL)
       { groups: ['4A','4C','4D','4E'],  kind: 'partial' }, // nicotinic ACh receptor (nAChR)
       { groups: ['7B','7C'],            kind: 'shared'  }, // juvenile hormone receptor
+      { groups: ['10A','10B'],          kind: 'shared'  }, // mite growth inhibitors — CHS1 (I1017F)
       { groups: ['12A','12C'],          kind: 'shared'  }, // mitochondrial ATP synthase
       { groups: ['21A','21B'],          kind: 'shared'  }, // mitochondrial Complex I
       { groups: ['22A','22B'],          kind: 'shared'  }, // voltage-gated Na channel (blocker)
@@ -408,17 +421,17 @@
       "Abamectin": 12, "Acephate": 515, "Acetamiprid": 116, "Afidopyropen": 420,
       "Amitraz": 425, "Azadirachtin": 539, "Bifenthrin": 277, "Buprofezin": 380,
       "Carbaryl": 244, "Carbosulfan": 111, "Cartap hydrochloride": 411,
-      "Chlorantraniliprole": 302, "Chlorfenapyr": 75, "Chlorpyrifos": 125,
+      "Chlorantraniliprole": 302, "Chlorfenapyr": 75, 
       "Chromafenozide": 213, "Clothianidin": 370, "Cyantraniliprole": 487,
       "Cyflumetofen": 110, "Cypermethrin": 312, "Deltamethrin": 488,
-      "Diafenthiuron": 112, "Dicofol": 395, "Diflubenzuron": 79, "Dimethoate": 272,
-      "Dinotefuran": 152, "Emamectin benzoate": 226, "Endosulfan": 284,
+      "Diafenthiuron": 112, "Diflubenzuron": 79, "Dimethoate": 272,
+      "Dinotefuran": 152, "Emamectin benzoate": 226, 
       "Esfenvalerate": 362, "Ethiprole": 504, "Etofenprox": 330, "Fenitrothion": 412,
       "Fenobucarb": 550, "Fenoxycarb": 43, "Fenpyroximate": 556, "Fenthion": 24,
       "Fipronil": 167, "Flonicamid": 173, "Flubendiamide": 158, "Flupyradifurone": 161,
       "Hexaflumuron": 181, "Hexythiazox": 378, "Imidacloprid": 48, "Indoxacarb": 541,
       "Isoprocarb": 526, "Lambda-cyhalothrin": 307, "Lufenuron": 418, "Malathion": 320,
-      "Metaflumizone": 360, "Methamidophos": 227, "Methomyl": 341,
+      "Metaflumizone": 360, 
       "Methoxyfenozide": 250, "Novaluron": 194, "Propargite": 366, "Pymetrozine": 53,
       "Pyridaben": 81, "Pyridalyl": 388, "Pyriproxyfen": 46, "Rotenone": 545,
       "Spinetoram": 505, "Spinosad": 131, "Spirodiclofen": 293, "Spirotetramat": 290,
@@ -433,24 +446,24 @@
       "Abamectin": "阿维菌素", "Acephate": "乙酰甲胺磷", "Acetamiprid": "啶虫脒",
       "Afidopyropen": "双丙环虫酯", "Amitraz": "双甲脒", "Azadirachtin": "印楝素",
       "Bacillus thuringiensis": "苏云金杆菌", "Beauveria bassiana": "球孢白僵菌",
-      "Bifenthrin": "联苯菊酯", "Buprofezin": "噻嗪酮", "Carbaryl": "甲萘威",
+      "Bifenazate": "联苯肼酯", "Bifenthrin": "联苯菊酯", "Buprofezin": "噻嗪酮", "Carbaryl": "甲萘威",
       "Carbosulfan": "丁硫克百威", "Cartap hydrochloride": "杀螟丹",
       "Chlorantraniliprole": "氯虫苯甲酰胺", "Chlorfenapyr": "虫螨腈",
-      "Chlorpyrifos": "毒死蜱", "Chromafenozide": "环虫酰肼", "Clothianidin": "噻虫胺",
+      "Chromafenozide": "环虫酰肼", "Clothianidin": "噻虫胺",
       "Cyantraniliprole": "溴氰虫酰胺", "Cyflumetofen": "丁氟螨酯",
       "Cypermethrin": "氯氰菊酯", "Deltamethrin": "溴氰菊酯", "Diafenthiuron": "丁醚脲",
-      "Dicofol": "三氯杀螨醇", "Diflubenzuron": "除虫脲", "Dimethoate": "乐果",
+      "Diflubenzuron": "除虫脲", "Dimethoate": "乐果",
       "Dinotefuran": "呋虫胺", "Emamectin benzoate": "甲氨基阿维菌素苯甲酸盐",
-      "Endosulfan": "硫丹", "Esfenvalerate": "S-氰戊菊酯", "Ethiprole": "乙虫腈",
-      "Etofenprox": "醚菊酯", "Fenitrothion": "杀螟硫磷", "Fenobucarb": "仲丁威",
+      "Esfenvalerate": "S-氰戊菊酯", "Ethiprole": "乙虫腈",
+      "Etofenprox": "醚菊酯", "Etoxazole": "乙螨唑", "Fenitrothion": "杀螟硫磷", "Fenobucarb": "仲丁威",
       "Fenoxycarb": "苯氧威", "Fenpyroximate": "唑螨酯", "Fenthion": "倍硫磷",
       "Fipronil": "氟虫腈", "Flonicamid": "氟啶虫酰胺", "Flubendiamide": "氟苯虫酰胺",
       "Flupyradifurone": "氟吡呋喃酮", "Formetanate hydrochloride": "伐虫脒盐酸盐",
       "Hexaflumuron": "氟铃脲", "Hexythiazox": "噻螨酮", "Imidacloprid": "吡虫啉",
       "Indoxacarb": "茚虫威", "Isoprocarb": "异丙威",
       "Lambda-cyhalothrin": "高效氯氟氰菊酯", "Lufenuron": "虱螨脲",
-      "Malathion": "马拉硫磷", "Metaflumizone": "氰氟虫腙", "Methamidophos": "甲胺磷",
-      "Methomyl": "灭多威", "Methoxyfenozide": "甲氧虫酰肼", "Novaluron": "氟酰脲",
+      "Malathion": "马拉硫磷", "Metaflumizone": "氰氟虫腙", 
+      "Methoxyfenozide": "甲氧虫酰肼", "Novaluron": "氟酰脲",
       "Propargite": "炔螨特", "Pymetrozine": "吡蚜酮", "Pyridaben": "哒螨灵",
       "Pyridalyl": "三氟甲吡醚", "Pyriproxyfen": "吡丙醚", "Rotenone": "鱼藤酮",
       "Spinetoram": "乙基多杀菌素", "Spinosad": "多杀霉素", "Spirodiclofen": "螺螨酯",
@@ -468,22 +481,22 @@
     const TOX_WHO = {
       "Abamectin":"Ib","Acephate":"III","Acetamiprid":"II","Afidopyropen":"NL",
       "Amitraz":"II","Azadirachtin":"NL","Bacillus thuringiensis":"NL","Beauveria bassiana":"NL",
-      "Bifenthrin":"II","Buprofezin":"U","Carbaryl":"II","Carbosulfan":"II",
-      "Cartap hydrochloride":"II","Chlorantraniliprole":"U","Chlorfenapyr":"II","Chlorpyrifos":"II",
+      "Bifenazate":"U","Bifenthrin":"II","Buprofezin":"U","Carbaryl":"II","Carbosulfan":"II",
+      "Cartap hydrochloride":"II","Chlorantraniliprole":"U","Chlorfenapyr":"II",
       "Chromafenozide":"U","Clothianidin":"U","Cyantraniliprole":"U","Cyflumetofen":"III",
-      "Cypermethrin":"II","Deltamethrin":"II","Diafenthiuron":"III","Dicofol":"II",
+      "Cypermethrin":"II","Deltamethrin":"II","Diafenthiuron":"III",
       "Diflubenzuron":"U","Dimethoate":"II","Dimpropyridaz":"NL","Dinotefuran":"III",
-      "Emamectin benzoate":"II","Endosulfan":"II","Esfenvalerate":"II","Ethiprole":"U",
-      "Etofenprox":"U","Fenitrothion":"II","Fenobucarb":"II","Fenoxycarb":"U",
+      "Emamectin benzoate":"II","Esfenvalerate":"II","Ethiprole":"U",
+      "Etofenprox":"U","Etoxazole":"U","Fenitrothion":"II","Fenobucarb":"II","Fenoxycarb":"U",
       "Fenpyroximate":"II","Fenthion":"II","Fipronil":"II","Flonicamid":"III",
       "Flubendiamide":"U","Flupyradifurone":"III","Formetanate hydrochloride":"Ib",
       "Hexaflumuron":"U","Hexythiazox":"U","Imidacloprid":"II","Indoxacarb":"II",
       "Isocycloseram":"NL","Isoprocarb":"II","Lambda-cyhalothrin":"II","Lufenuron":"U",
-      "Malathion":"III","Metaflumizone":"U","Methamidophos":"Ib","Methomyl":"Ib",
+      "Malathion":"III","Metaflumizone":"U",
       "Methoxyfenozide":"U","Novaluron":"U","Propargite":"III","Pymetrozine":"U",
       "Pyridaben":"II","Pyridalyl":"U","Pyriproxyfen":"U","Rotenone":"II",
       "Spinetoram":"U","Spinosad":"U","Spirodiclofen":"U","Spirotetramat":"U",
-      "Sulfoxaflor":"II","Thiamethoxam":"III","Tolfenpyrad":"II","Triflumezopyrim":"NL",
+      "Sulfoxaflor":"II","Thiamethoxam":"III","Tolfenpyrad":"NL","Triflumezopyrim":"NL",
       "White Oil":"NL",
     };
     // Colour ramp: red (Ia/Ib) → orange (II) → yellow (III) → green (U) → grey (NL)
@@ -504,44 +517,362 @@
     // chemistries), so it is not pushed down unfairly.
     const TOX_SEVERITY = { Ia:4, Ib:3, II:2, III:1, U:0, NL:0 };
     const toxSev = (n) => TOX_SEVERITY[TOX_WHO[n] || 'NL'] ?? 0;
+
+    // ── Weather & spray-timing effects ───────────────────────────────────────
+    // QUALITATIVE ONLY — deliberately no half-life figures. Field half-lives
+    // swing wildly with formulation, adjuvant, canopy and weather, and we have
+    // no way of knowing when a grower actually sprays; a specific number would
+    // be false precision. Each tag below is verified from published research:
+    //   'sun'  — deposit destroyed quickly by sunlight/UV
+    //            Abamectin: photolysis half-life ~21 h on surfaces (US EPA);
+    //            >90% typically lost to photo-instability (ScienceDirect).
+    //   'bio'  — living organism, inactivated by UV within minutes-hours
+    //            B. bassiana: >95% of conidia dead after 15 min UV-B (J.Invert.
+    //            Pathol.); "not adapted to tolerate direct sunlight" (Pest Manag
+    //            Sci 2019). Bt requires UV protection to persist (Morris 1983).
+    //   'cool' — negative temperature coefficient: LESS effective when hot
+    //            Lambda-cyhalothrin & bifenthrin: toxicity fell 9.5x and 13.6x
+    //            from 24->35C (Ostrinia nubilalis); cypermethrin & deltamethrin
+    //            negative coefficients (Musca domestica); spinosad -3.8x,
+    //            spinetoram -3.89x (Spodoptera frugiperda).
+    //   'warm' — positive temperature coefficient: MORE effective when hot
+    //            Chlorfenapyr, indoxacarb, imidacloprid, fipronil sensitivity
+    //            rose markedly from 24->32C (Reticulitermes flaviceps);
+    //            acetamiprid +2.0x, chlorpyrifos +1.79x, emamectin +1.83x.
+    const ENV_TAGS = {
+      "Abamectin": ["sun"], "Emamectin benzoate": ["sun", "warm"],
+      "Bacillus thuringiensis": ["bio"], "Beauveria bassiana": ["bio"],
+      "Bifenthrin": ["cool"], "Cypermethrin": ["cool"], "Deltamethrin": ["cool"],
+      "Lambda-cyhalothrin": ["cool"], "Esfenvalerate": ["cool"],
+      "Spinosad": ["sun", "cool"], "Spinetoram": ["sun", "cool"],
+      "Chlorfenapyr": ["warm"], "Indoxacarb": ["warm"],
+      "Imidacloprid": ["warm"], "Fipronil": ["warm"], "Acetamiprid": ["warm"],
+    };
+    const ENV_LABEL = {
+      sun:  { zh: "强光下分解快 — 建议傍晚或清晨施药,让药液有整夜时间发挥",
+              en: "Breaks down fast in strong sunlight — spray late afternoon or early morning so the deposit gets a full night" },
+      bio:  { zh: "活体微生物,阳光紫外线会在短时间内杀死它 — 务必傍晚施药,湿度高时效果最好",
+              en: "A living organism — UV kills it quickly. Spray late in the day; works best in humid conditions" },
+      cool: { zh: "高温时药效反而下降(负温度系数) — 炎热午后施药效果较差",
+              en: "Less effective in high heat (negative temperature coefficient) — a hot afternoon spray works poorly" },
+      warm: { zh: "高温时药效较佳(正温度系数)",
+              en: "Works better in warm conditions (positive temperature coefficient)" },
+    };
+    // ── Bee / pollinator toxicity ────────────────────────────────────────────
+    // Categories follow the standard EPA/extension bands for adult honeybee
+    // acute CONTACT LD50: high <2 ug/bee, moderate 2-10.99, low >11.
+    // Verified values behind each entry:
+    //   high: fipronil 0.007, bifenthrin 0.015, imidacloprid 0.018-0.029,
+    //     clothianidin 0.022, thiamethoxam 0.024-0.03, dinotefuran 0.075,
+    //     esfenvalerate 0.019, indoxacarb 0.0018 (all ug/bee); "all synthetic
+    //     pyrethroids except tau-fluvalinate", plus carbaryl and pyridaben,
+    //     have topical LD50 <=1 ug/bee (Sanchez-Bayo & Goka 2014).
+    //     Emamectin is 133x more toxic topically than abamectin (Zhu 2018),
+    //     and abamectin is flagged an ecotoxicological risk to bees (EFSA).
+    //   wet: spinosad/spinetoram are acutely toxic to bees while the spray is
+    //     WET, but residues dried ~3 h are not acutely harmful (Mayes 2003);
+    //     US EPA treats spinosad as reduced-risk on that basis.
+    //   mod: acetamiprid 7.1 ug/bee (Iwasa 2004), bifenazate 8.5 (PPDB).
+    //   low: chlorantraniliprole 107 ug/bee, etoxazole >200 (PPDB),
+    //     B. thuringiensis LD50 >100 ug/bee.
+    const BEE_TAGS = {
+      "Bifenthrin": "high", "Cypermethrin": "high", "Deltamethrin": "high",
+      "Lambda-cyhalothrin": "high", "Esfenvalerate": "high",
+      "Imidacloprid": "high", "Thiamethoxam": "high", "Clothianidin": "high",
+      "Dinotefuran": "high", "Fipronil": "high", "Indoxacarb": "high",
+      "Carbaryl": "high", "Pyridaben": "high",
+      "Abamectin": "high", "Emamectin benzoate": "high",
+      "Diafenthiuron": "high",
+      "Spinosad": "wet", "Spinetoram": "wet",
+      "Acetamiprid": "mod", "Bifenazate": "mod",
+      "Chlorantraniliprole": "low", "Etoxazole": "low",
+      "Bacillus thuringiensis": "low",
+      // Added 2026-08-03 — these four were absent while PPDB rated them HIGH for
+      // acute bee toxicity. Each is taken from the record's own ecotoxicity
+      // alert, not inferred from the HHP flag alone:
+      //   Malathion        contact LD50 0.16, oral 0.40 ug/bee  (both High)
+      //   Triflumezopyrim  contact High, oral High; HHP R10 (<= 2 ug/bee)
+      //   Isocycloseram    contact High, oral High; HHP R10
+      //   Rotenone         contact High (BPDB record)
+      // NOTE on Triflumezopyrim: some agronomic literature markets it as
+      // pollinator-safe in rice. That refers to field exposure patterns, not
+      // acute toxicity — PPDB's own numbers put it well under the R10 threshold.
+      // Tagged on the hazard, consistent with every other entry here.
+      "Malathion": "high", "Triflumezopyrim": "high",
+      "Isocycloseram": "high", "Rotenone": "high",
+    };
+    const BEE_LABEL = {
+      high: { zh: "对蜜蜂剧毒 — 开花期请勿施用",
+              en: "Highly toxic to bees — do not spray during flowering" },
+      wet:  { zh: "药液未干时对蜜蜂剧毒;干透后(约 3 小时)残留基本无急性危害",
+              en: "Acutely toxic to bees while the spray is wet; dried residues (~3 h) are not acutely harmful" },
+      mod:  { zh: "对蜜蜂中等毒 — 开花期避免施用",
+              en: "Moderately toxic to bees — avoid spraying during flowering" },
+      low:  { zh: "对蜜蜂低毒",
+              en: "Low toxicity to bees" },
+    };
+    const BEE_STYLE = {
+      high: "bg-rose-100 text-rose-900 border-rose-300",
+      wet:  "bg-amber-100 text-amber-900 border-amber-300",
+      mod:  "bg-yellow-100 text-yellow-900 border-yellow-300",
+      low:  "bg-emerald-100 text-emerald-900 border-emerald-300",
+    };
+    // ── Effect on predatory mites / natural enemies ──────────────────────────
+    // Matters for IPM: wiping out phytoseiid predators is a common cause of
+    // spider-mite flare-ups AFTER spraying for something else.
+    //   'harmful' — consistently harmful across studies. Cypermethrin,
+    //     deltamethrin, dimethoate and chlorpyrifos were highly harmful to both
+    //     eggs and adults of Phytoseiulus longipes, residues still harmful after
+    //     31 days (Savi 2024). Imidacloprid, lambda-cyhalothrin and
+    //     fenpyroximate were highly toxic to A. swirskii, A. andersoni and
+    //     P. persimilis (Plant Protection Sci.). Pyridaben harmed T. pyri in
+    //     orchard trials (Hardman 2003). Bifenthrin/esfenvalerate included on
+    //     the well-established pyrethroid class effect.
+    //   'soft' — bifenazate, chlorfenapyr and flufenoxuron did not
+    //     substantially reduce P. persimilis survival, fecundity or prey
+    //     consumption (BioControl); cyflumetofen innocuous, IOBC class 1
+    //     (Frontiers 2023); azadirachtin harmless to N. barkeri (Exp Appl Acarol).
+    //   'mixed' — evidence genuinely conflicts and we do not pick a side:
+    //     abamectin, hexythiazox and spinosad were rated SAFE to three
+    //     phytoseiid species in one trial, while other work reports abamectin
+    //     moderately-to-highly harmful and hexythiazox among the most harmful.
+    //     Outcome varies with predator species, dose and residue age.
+    const BENEFICIAL_TAGS = {
+      "Cypermethrin": "harmful", "Deltamethrin": "harmful",
+      "Lambda-cyhalothrin": "harmful", "Bifenthrin": "harmful",
+      "Esfenvalerate": "harmful", "Imidacloprid": "harmful",
+      "Fenpyroximate": "harmful", "Pyridaben": "harmful",
+      "Bifenazate": "soft", "Chlorfenapyr": "soft",
+      "Cyflumetofen": "soft", "Azadirachtin": "soft",
+      "Diafenthiuron": "soft",
+      "Abamectin": "mixed", "Hexythiazox": "mixed", "Spinosad": "mixed",
+    };
+    const BENEFICIAL_LABEL = {
+      harmful: { zh: "对捕食螨等天敌有害 — 施用后红蜘蛛容易反弹",
+                 en: "Harmful to predatory mites and other natural enemies — spider mites often rebound after use" },
+      soft:    { zh: "对捕食螨相对温和,适合与生物防治并用",
+                 en: "Relatively soft on predatory mites — fits alongside biological control" },
+      mixed:   { zh: "各研究结果不一致:部分试验判定安全,另有报告为中至高度有害。视捕食螨种类、剂量与残留时间而定",
+                 en: "Studies disagree: some trials rate it safe, others moderately to highly harmful. Depends on predator species, dose and residue age" },
+    };
+    const BENEFICIAL_STYLE = {
+      harmful: "bg-rose-100 text-rose-900 border-rose-300",
+      soft:    "bg-emerald-100 text-emerald-900 border-emerald-300",
+      mixed:   "bg-slate-100 text-slate-700 border-slate-300",
+    };
+    // ── Compatibility with entomopathogenic fungi (Beauveria/Metarhizium) ────
+    // Matters when tank-mixing or alternating with a Beauveria product.
+    // NOTE: these are IN VITRO results (conidial germination, vegetative growth,
+    // sporulation on treated media) — a laboratory proxy, not a field guarantee.
+    //   'ok'  — spinosad compatible at all three tested concentrations;
+    //     abamectin, imidacloprid and deltamethrin compatible at half and mean
+    //     field dose (Bugti/Depieri in-vitro studies). Fipronil,
+    //     chlorantraniliprole and acetamiprid compatible at the recommended
+    //     dose (Hirapara 2023).
+    //   'bad' — indoxacarb rated highly toxic to B. bassiana growth (poisoned-
+    //     food assay, cotton IPM screen).
+    // Deliberately untagged where evidence conflicts (e.g. dimethoate: rated
+    // compatible at label dose in one study, while organophosphates as a class
+    // drastically inhibited germination in another).
+    const FUNGUS_TAGS = {
+      "Spinosad": "ok", "Abamectin": "ok", "Imidacloprid": "ok",
+      "Deltamethrin": "ok", "Fipronil": "ok",
+      "Chlorantraniliprole": "ok", "Acetamiprid": "ok",
+      "Indoxacarb": "bad",
+    };
+    const FUNGUS_LABEL = {
+      ok:  { zh: "室内试验显示与白僵菌等虫生真菌相容性较佳(依推荐剂量)",
+             en: "In-vitro tests show good compatibility with Beauveria-type fungi at label rate" },
+      bad: { zh: "室内试验显示会强烈抑制白僵菌生长 — 不宜与之混用",
+             en: "In-vitro tests show strong inhibition of Beauveria growth — do not tank-mix" },
+    };
+    const FUNGUS_STYLE = {
+      ok:  "bg-emerald-100 text-emerald-900 border-emerald-300",
+      bad: "bg-rose-100 text-rose-900 border-rose-300",
+    };
+    const ENV_STYLE = {
+      sun:  "bg-amber-100 text-amber-900 border-amber-300",
+      bio:  "bg-amber-100 text-amber-900 border-amber-300",
+      cool: "bg-sky-100 text-sky-900 border-sky-300",
+      warm: "bg-emerald-100 text-emerald-900 border-emerald-300",
+    };
     // ── Banned for agricultural use in Malaysia ──────────────────────────────
     // Sources: MY Pesticides Board banned/restricted list, the 2025–2030 HHP
     // phase-out, and the Stockholm Convention (POPs). These stay visible in the
     // Library with a clear warning, but are never offered as rotation suggestions.
+    // ── Malaysia bans ────────────────────────────────────────────────────────
+    // POLICY: actives banned (or banned for farm use) in Malaysia are REMOVED
+    // from the database entirely — this app is a spraying aid, so listing them
+    // at all risks a grower reaching for one. Removed 2026-08-03:
+    //   Endosulfan, Dicofol, Methamidophos, Methomyl (banned),
+    //   Chlorpyrifos (farm use banned in MY since 2023; non-agricultural use
+    //   only, which is outside this app's scope).
+    // This map is intentionally kept but empty: if a new ban lands, adding one
+    // line here re-activates the red banner AND excludes it from rotation
+    // suggestions, as defence-in-depth until the rows themselves are deleted.
     const BANNED_MY = {
-      "Endosulfan":    { zh: "斯德哥尔摩公约 POP；马来西亚禁用", en: "Stockholm POP; banned in Malaysia" },
-      "Dicofol":       { zh: "斯德哥尔摩公约 POP；列入 2025–2030 淘汰", en: "Stockholm POP; on MY 2025–2030 phase-out" },
-      "Chlorpyrifos":  { restricted: true, zh: "马来西亚农业用途自 2023 年起禁用；仅准用于非农业害虫防治", en: "Farm use banned in MY since 2023; allowed for non-agricultural pest control only" },
-      "Methamidophos": { zh: "马来西亚 2025–2030 淘汰名单；WHO Ib", en: "On MY 2025–2030 ban list; WHO Ib" },
-      "Methomyl":      { zh: "马来西亚禁用/限用名单；WHO Ib", en: "On MY banned/restricted list; WHO Ib" },
     };
     const isBanned = (n) => !!BANNED_MY[n];
+
+    // ── Removed-actives notice ───────────────────────────────────────────────
+    // These are NOT in the database — they cannot be browsed, rotated, or added
+    // to a spray plan. This map exists only so that a grower who SEARCHES for a
+    // banned active gets an honest answer instead of a blank "no matches",
+    // together with a pointer to the pests it used to be used against so they
+    // can find legal alternatives. Keyed by lowercase search terms (EN + 中文).
+    const REMOVED_MY = [
+      { terms: ["chlorpyrifos", "毒死蜱"], en: "Chlorpyrifos", zh: "毒死蜱",
+        basisZh: "马来西亚自 2023 年起禁止农业用途；仅准用于非农业害虫防治。",
+        basisEn: "Farm use banned in Malaysia since 2023; permitted only for non-agricultural pest control.",
+        pests: ["leafhopper", "caterpillar", "grasshopper"] },
+      { terms: ["methomyl", "灭多威"], en: "Methomyl", zh: "灭多威",
+        basisZh: "马来西亚禁用（WHO Ib 高毒）。",
+        basisEn: "Banned in Malaysia (WHO class Ib, highly hazardous).",
+        pests: ["mealybug", "thrips", "leafhopper"] },
+      { terms: ["methamidophos", "甲胺磷"], en: "Methamidophos", zh: "甲胺磷",
+        basisZh: "马来西亚禁用（WHO Ib 高毒），列入 2025–2030 淘汰名单。",
+        basisEn: "Banned in Malaysia (WHO class Ib); on the 2025–2030 phase-out list.",
+        pests: ["leafhopper", "thrips"] },
+      { terms: ["endosulfan", "硫丹"], en: "Endosulfan", zh: "硫丹",
+        basisZh: "马来西亚禁用；斯德哥尔摩公约列为持久性有机污染物 (POP)。",
+        basisEn: "Banned in Malaysia; listed as a Persistent Organic Pollutant under the Stockholm Convention.",
+        pests: ["spider_mite", "caterpillar"] },
+      { terms: ["dicofol", "三氯杀螨醇"], en: "Dicofol", zh: "三氯杀螨醇",
+        basisZh: "马来西亚禁用；斯德哥尔摩公约 POP，2025–2030 淘汰名单。",
+        basisEn: "Banned in Malaysia; Stockholm Convention POP, on the 2025–2030 phase-out list.",
+        pests: ["spider_mite"] },
+    ];
+    const findRemoved = (q) => {
+      const s = (q || '').trim().toLowerCase();
+      if (s.length < 3) return null;
+      return REMOVED_MY.find(r => r.terms.some(term => term.includes(s) || s.includes(term))) || null;
+    };
     // ── Not approved / banned in the EU (informational only) ─────────────────
     // Shown ONLY inside the card details — not on the card face, and with no
     // effect on rotation (this is EU status, for context, not Malaysian law).
     // Verified against EFSA residue reports, EUR-Lex, and EU Commission sources.
     // The modern chemistries (diamides, spinosyns, IGRs, acetamiprid,
     // flupyradifurone, etc.) remain EU-approved, so they are intentionally absent.
+    // ── EU regulatory status ─────────────────────────────────────────────────
+    // AUDIT LOG — last full review: 2026-08-03. Sources: PPDB/BPDB (Univ. of
+    // Hertfordshire), EUR-Lex, EFSA, CropLife "EU Pesticide Renewal Monitor".
+    //
+    // Round 1 — PPDB records pulled individually for Amitraz, Tolfenpyrad,
+    //   Fenobucarb, Cartap hydrochloride, Diafenthiuron, Bifenazate, Etoxazole.
+    //   WHO cross-check: Cartap (II) and Diafenthiuron (III) confirmed;
+    //   Tolfenpyrad corrected (was II, actually not listed).
+    //
+    // Round 2 — PPDB/BPDB records pulled individually for Rotenone, Isoprocarb,
+    //   Ethiprole, Triflumezopyrim, Isocycloseram, Hexaflumuron, Malathion,
+    //   Dimpropyridaz. Every line below that came out of round 2 was read
+    //   directly off the record; nothing was inferred.
+    //   WHO cross-check CONFIRMED: Isoprocarb (II), Malathion (III),
+    //     Dimpropyridaz (not listed). No errors found this round.
+    //   WHO cross-check NOT POSSIBLE: Rotenone, Ethiprole, Triflumezopyrim,
+    //     Isocycloseram, Hexaflumuron — their WHO rows sit past the point where
+    //     the fetched record truncates. Those five stored classes are still
+    //     UNVERIFIED; carry the same suspicion that caught Tolfenpyrad.
+    //     Retried 2026-08-03 (round 3) on Triflumezopyrim: the record truncates
+    //     at the same place again, before the ecotox table and the WHO row. The
+    //     cut is systematic on long records, not a transient fetch failure, so
+    //     these five need a different route entirely — the downloadable PPDB
+    //     dataset or the IUPAC-format mirror — rather than another page fetch.
+    //   NOTE: Rotenone lives in the BPDB (biopesticides), not the PPDB. BPDB
+    //     pages truncate much earlier than PPDB ones, so other plant-derived
+    //     actives will hit the same wall.
+    //
+    // VERIFIED EU-APPROVED (deliberately absent from this map — do NOT re-flag):
+    //   Acetamiprid, Bifenazate (to 2037), Deltamethrin, Esfenvalerate (CfS),
+    //   Etofenprox, Etoxazole (to 2028, CfS), Flupyradifurone, Formetanate,
+    //   Lambda-cyhalothrin, Pyriproxyfen, Spinosad, and the modern diamides /
+    //   spinosyns / IGRs / ketoenols not listed below.
+    //   NOTE: Spinosad is approved — trade articles claiming otherwise confuse
+    //   it with Spinetoram, whose approval did lapse (30 Jun 2024).
+    //
+    // WATCH:
+    //   Buprofezin — approved only to Dec 2026, draft EU non-approval pending
+    //     (endocrine disruptor). Still legal now, so intentionally unflagged.
+    //   Dimpropyridaz — EU status reads PENDING, not refused: dossier under
+    //     assessment with Austria as rapporteur, listed in the EU database, and
+    //     Croatia already showing a national authorisation. Deliberately NOT
+    //     flagged; "pending" is not "banned". Re-check when the decision lands.
+    //
+    // NOT YET VERIFIED: none. The round-2 eight are all resolved and flagged
+    //   below, except Dimpropyridaz (pending — see WATCH).
+    //
+    // NOT PLANT PROTECTION: Hexaflumuron's 1107/2009 inclusion has EXPIRED, so
+    //   it is flagged below. Carried over from the earlier audit, and NOT
+    //   re-checked this round: it is understood to hold an EU *biocide* (PT18)
+    //   approval, which is a wood/termite authorisation and never was plant
+    //   protection. No expiry date is recorded here because none was verified.
+    //
+    // ALSO NOTED THIS ROUND (read off the same records; not regulatory status):
+    //   PPDB tags Hexaflumuron and Isocycloseram as PFAS ("forever chemicals").
+    //   Isocycloseram is additionally very persistent (typical soil DT50 ~390 d);
+    //   Hexaflumuron field DT50 ~170 d. Ethiprole is flagged an endocrine
+    //   disruptor; Triflumezopyrim a possible carcinogen.
+    //   BEE GAP — RESOLVED 2026-08-03. Malathion, Triflumezopyrim, Isocycloseram
+    //   and Rotenone each carry HIGH acute bee toxicity in PPDB but were absent
+    //   from BEE_TAGS; all four are now tagged "high" there, sourced from each
+    //   record's own ecotoxicity alert. See the comment in BEE_TAGS for values.
+    //
+    // GUS: only two numeric values recovered — Malathion 0.00 (low leachability)
+    //   and Dimpropyridaz 2.51 (transition state). Isoprocarb has no value at
+    //   all (Koc missing, so it cannot be calculated). Two out of 69 is nowhere
+    //   near enough to display; keep the field hidden.
+    //
+    // Regulatory status decays on its own — re-audit this map ~yearly.
     const EU_BANNED = {
       "Acephate":      { zh: "欧盟未批准使用", en: "Not approved in the EU" },
       "Bifenthrin":    { zh: "欧盟未批准使用", en: "Not approved in the EU" },
       "Carbaryl":      { zh: "欧盟未批准使用", en: "Not approved in the EU" },
       "Carbosulfan":   { zh: "欧盟未批准使用 (2007)", en: "Not approved in the EU (2007)" },
+      "Cartap hydrochloride": { zh: "欧盟未批准使用（已过期）", en: "Not approved in the EU (approval expired)" },
       "Chlorfenapyr":  { zh: "欧盟未批准使用", en: "Not approved in the EU" },
-      "Chlorpyrifos":  { zh: "欧盟自 2020 年起禁用", en: "Banned in the EU since 2020" },
       "Clothianidin":  { zh: "欧盟禁止露天使用 (2018)", en: "Outdoor use banned in the EU (2018)" },
-      "Dicofol":       { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Dimethoate":    { zh: "欧盟未批准使用 (2019 未续期)", en: "Not approved in the EU (non-renewed 2019)" },
+      "Diafenthiuron":  { zh: "欧盟已于 2008 年撤销", en: "Withdrawn from the EU in 2008" },
       "Dinotefuran":   { zh: "欧盟未批准使用", en: "Not approved in the EU" },
-      "Endosulfan":    { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Fenobucarb":     { zh: "欧盟未批准使用", en: "Not approved in the EU" },
       "Fenitrothion":  { zh: "欧盟未批准使用", en: "Not approved in the EU" },
       "Fenthion":      { zh: "欧盟未批准使用", en: "Not approved in the EU" },
       "Fipronil":      { zh: "欧盟未批准使用", en: "Not approved in the EU" },
       "Imidacloprid":  { zh: "欧盟禁止露天使用 (2018)", en: "Outdoor use banned in the EU (2018)" },
-      "Methamidophos": { zh: "欧盟未批准使用", en: "Not approved in the EU" },
-      "Methomyl":      { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Methoxyfenozide": { zh: "欧盟批准已于 2026 年 3 月到期", en: "EU approval expired March 2026" },
       "Propargite":    { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Pymetrozine":   { zh: "欧盟未批准使用 (2018 未续期)", en: "Not approved in the EU (non-renewed 2018)" },
       "Sulfoxaflor":   { zh: "欧盟禁止露天使用 (2022)", en: "Outdoor use banned in the EU (2022)" },
       "Thiamethoxam":  { zh: "欧盟禁止露天使用 (2018)", en: "Outdoor use banned in the EU (2018)" },
+      "Tolfenpyrad":    { zh: "欧盟未批准使用", en: "Not approved in the EU" },
+      "Amitraz":        { zh: "欧盟未批准使用（批准已到期）", en: "Not approved in the EU (approval expired)" },
+      "Chromafenozide": { zh: "欧盟批准已于 2025 年 3 月到期", en: "EU approval expired March 2025" },
+      "Flubendiamide":  { zh: "欧盟批准已于 2024 年 8 月到期", en: "EU approval expired August 2024" },
+      "Metaflumizone":  { zh: "欧盟批准已于 2024 年 12 月到期", en: "EU approval expired December 2024" },
+      "Pyridalyl":      { zh: "欧盟批准已于 2024 年 6 月到期", en: "EU approval expired June 2024" },
+      "Spinetoram":     { zh: "欧盟批准已于 2024 年 6 月到期", en: "EU approval expired June 2024" },
+      "Spirotetramat":  { zh: "欧盟批准已于 2024 年 4 月到期", en: "EU approval expired April 2024" },
+      // ── Added 2026-08-03, round 2. Dimpropyridaz deliberately absent: its
+      //    status is PENDING, not refused (see WATCH above). ────────────────
+      "Rotenone":        { zh: "欧盟未批准使用（2008 年撤销）",
+                           en: "Not approved in the EU (withdrawn 2008)" },
+      "Isoprocarb":      { zh: "欧盟未批准使用（从未进入评估程序）",
+                           en: "Not approved in the EU (never entered assessment)" },
+      "Ethiprole":       { zh: "欧盟未批准使用（从未进入评估程序）",
+                           en: "Not approved in the EU (never entered assessment)" },
+      "Triflumezopyrim": { zh: "欧盟未批准使用（未列入欧盟登记册）",
+                           en: "Not approved in the EU (not in the EU register)" },
+      "Isocycloseram":   { zh: "欧盟未批准使用（未列入欧盟登记册）",
+                           en: "Not approved in the EU (not in the EU register)" },
+      "Hexaflumuron":    { zh: "欧盟植保批准已到期",
+                           en: "EU plant-protection approval has expired" },
+      // Malathion's PPDB record still reads "Approved", but that record was last
+      // updated 01/04/2026 and the approval period ran to 31/07/2026 — three
+      // days before this audit. The 2018 renewal had already restricted it to
+      // GREENHOUSE use only (high risk to birds). For an outdoor orchard this
+      // sits closer to the neonicotinoid outdoor bans than to a live approval,
+      // so it is flagged rather than left clean.
+      "Malathion":       { zh: "欧盟仅限温室使用；批准期已于 2026 年 7 月 31 日届满，续期未确认",
+                           en: "EU: greenhouse use only; approval period ended 31 July 2026, renewal unconfirmed" },
     };
     // "English 中文" label (Chinese appended only when we have an official name).
     const chemLabel = (n) => (CHEM_ZH[n] ? `${n} ${CHEM_ZH[n]}` : n);
@@ -559,7 +890,6 @@
       {pest:"grasshopper",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
       {pest:"grasshopper",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
       {pest:"grasshopper",g:"1B",n:"Acephate",s:"neural",r:"high",m:"S"},
-      {pest:"grasshopper",g:"2A",n:"Endosulfan",s:"neural",r:"high",m:"N"},
       {pest:"grasshopper",g:"2B",n:"Fipronil",s:"neural",r:"mid",m:"SS"},
       {pest:"grasshopper",g:"3A",n:"Deltamethrin",s:"neural",r:"high",m:"N"},
       {pest:"grasshopper",g:"3A",n:"Cypermethrin",s:"neural",r:"high",m:"N"},
@@ -582,15 +912,15 @@
       {pest:"spider_mite",g:"21A",n:"Fenpyroximate",s:"respiratory",r:"low",m:"N"},
       {pest:"spider_mite",g:"25A",n:"Cyflumetofen",s:"respiratory",r:"low",m:"N"},
       {pest:"spider_mite",g:"10A",n:"Hexythiazox",s:"growth",r:"mid",m:"N",note:"challenge_hexythiazox"},
+      {pest:"spider_mite",g:"10B",n:"Etoxazole",s:"growth",r:"mid",m:"N"},
+      {pest:"spider_mite",g:"20D",n:"Bifenazate",s:"respiratory",r:"mid",m:"N"},
       {pest:"spider_mite",g:"16",n:"Buprofezin",s:"growth",r:"low",m:"N"},
       {pest:"spider_mite",g:"23",n:"Spirotetramat",s:"growth",r:"low",m:"S",tl:true,ud:true},
       {pest:"spider_mite",g:"23",n:"Spirodiclofen",s:"growth",r:"low",m:"N"},
-      {pest:"spider_mite",g:"UN",n:"Dicofol",s:"unknown",r:"low",m:"N",note:"cross_abamectin"},
       {pest:"spider_mite",g:"UNF",n:"Beauveria bassiana",zh:"白僵菌",s:"unknown",r:"low",m:"N"},
       {pest:"spider_mite",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"},
       // MEALYBUG
       {pest:"mealybug",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
-      {pest:"mealybug",g:"1A",n:"Methomyl",s:"neural",r:"high",m:"S",tl:true,note:"challenge_methomyl"},
       {pest:"mealybug",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
       {pest:"mealybug",g:"1B",n:"Acephate",s:"neural",r:"high",m:"S"},
       {pest:"mealybug",g:"1B",n:"Fenthion",s:"neural",r:"high",m:"N"},
@@ -619,7 +949,6 @@
       // CATERPILLAR
       {pest:"caterpillar",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
       {pest:"caterpillar",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
-      {pest:"caterpillar",g:"2A",n:"Endosulfan",s:"neural",r:"high",m:"N"},
       {pest:"caterpillar",g:"2B",n:"Fipronil",s:"neural",r:"mid",m:"SS"},
       {pest:"caterpillar",g:"3A",n:"Deltamethrin",s:"neural",r:"high",m:"N"},
       {pest:"caterpillar",g:"3A",n:"Cypermethrin",s:"neural",r:"high",m:"N"},
@@ -649,7 +978,6 @@
       {pest:"caterpillar",g:"UN",n:"Pyridalyl",s:"unknown",r:"low",m:"S"},
       // PSYLLID
       {pest:"psyllid",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
-      {pest:"psyllid",g:"2A",n:"Endosulfan",s:"neural",r:"high",m:"N"},
       {pest:"psyllid",g:"2B",n:"Fipronil",s:"neural",r:"mid",m:"SS"},
       {pest:"psyllid",g:"3A",n:"Bifenthrin",s:"neural",r:"high",m:"N"},
       {pest:"psyllid",g:"3A",n:"Cypermethrin",s:"neural",r:"high",m:"N"},
@@ -673,13 +1001,10 @@
       {pest:"psyllid",g:"7C",n:"Pyriproxyfen",s:"growth",r:"low",m:"N",tl:true,note:"added_pyriproxyfen"},
       {pest:"psyllid",g:"16",n:"Buprofezin",s:"growth",r:"low",m:"N"},
       {pest:"psyllid",g:"23",n:"Spirotetramat",s:"growth",r:"low",m:"S",tl:true,ud:true},
-      {pest:"psyllid",g:"UN",n:"Dicofol",s:"unknown",r:"low",m:"N"},
       {pest:"psyllid",g:"UNF",n:"Beauveria bassiana",zh:"白僵菌",s:"unknown",r:"low",m:"N",note:"added_beauveria"},
       {pest:"psyllid",g:"UN",n:"Azadirachtin",zh:"印楝油",s:"unknown",r:"low",m:"S"},
       // THRIPS
       {pest:"thrips",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
-      {pest:"thrips",g:"1A",n:"Methomyl",s:"neural",r:"high",m:"S",tl:true,note:"challenge_methomyl"},
-      {pest:"thrips",g:"1B",n:"Methamidophos",s:"neural",r:"high",m:"S"},
       {pest:"thrips",g:"1A",n:"Formetanate hydrochloride",s:"neural",r:"high",m:"N"},
       {pest:"thrips",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
       {pest:"thrips",g:"2B",n:"Fipronil",s:"neural",r:"mid",m:"SS"},
@@ -711,12 +1036,10 @@
       {pest:"thrips",g:"UN",n:"Pyridalyl",s:"unknown",r:"low",m:"S"},
       // LEAFHOPPER
       {pest:"leafhopper",g:"1A",n:"Carbaryl",s:"neural",r:"high",m:"LS"},
-      {pest:"leafhopper",g:"1A",n:"Methomyl",s:"neural",r:"high",m:"S",tl:true,note:"challenge_methomyl"},
       {pest:"leafhopper",g:"1A",n:"Isoprocarb",s:"neural",r:"high",m:"N"},
       {pest:"leafhopper",g:"1A",n:"Fenobucarb",s:"neural",r:"high",m:"N"},
       {pest:"leafhopper",g:"1A",n:"Carbosulfan",s:"neural",r:"high",m:"S"},
       {pest:"leafhopper",g:"1B",n:"Dimethoate",s:"neural",r:"high",m:"S"},
-      {pest:"leafhopper",g:"1B",n:"Chlorpyrifos",s:"neural",r:"high",m:"N"},
       {pest:"leafhopper",g:"1B",n:"Malathion",s:"neural",r:"high",m:"N"},
       {pest:"leafhopper",g:"1B",n:"Fenitrothion",s:"neural",r:"high",m:"N"},
       {pest:"leafhopper",g:"2B",n:"Fipronil",s:"neural",r:"mid",m:"SS"},
@@ -778,12 +1101,11 @@
         tl: "穿层渗透", ud: "上下移行",
         noResults: "没有符合的结果。",
         about: "资料来源",
-        aboutText: "本工具的所有资料整理自 Tee 先生 2024 年 7-8 月编制的《Bunting A》杀虫剂作用机制 (MoA) 轮替指南。包含 7 类常见害虫与 70+ 种活性成分。每次用药请轮替不同的 IRAC 机制组,以延缓抗药性发生。",
+        aboutText: "本工具最初依据 Tee 先生 2024 年 7-8 月编制的《Bunting A》杀虫剂作用机制 (MoA) 轮替图整理,其后经多次修订与查证:作用机制与交叉抗性已对照 IRAC 分类核实,毒性依 WHO 农药危害分级标示,并补充较新的活性成分;凡马来西亚禁用的成分已从本工具中移除。每次用药请轮替不同的 IRAC 机制组,以延缓抗药性发生。",
         safetyTitle: "农户安全提醒",
         safetyText: "本指南仅为机制轮替参考。实际用药前请: ① 核对农药标签所列适用作物与虫害, ② 遵守安全采收间隔期 (PHI), ③ 不要与 Glyphosate (草甘膦) 混用其他杀虫剂, ④ 留意对授粉昆虫与天敌的影响。",
         activesCount: "个活性成分",
         langSwitch: "EN", backToTop: "回到顶部",
-        note_cross_abamectin: "与 Abamectin (Group 6) 有交叉抗药性,不应轮替使用",
         note_piercing_sucking: "对刺吸式害虫更有效",
         note_added_afido: "Bunting A 未列抗药性资料;白粉虱已有田间抗药性报告 (36-104 倍),建议谨慎使用",
         note_added_tl: "Bunting A 未列穿层渗透;IRAC 文献确认此化学具穿层渗透特性",
@@ -801,7 +1123,6 @@
         note_added_diafen_mite: "本品对其他害虫风险较低,但红蜘蛛已有 10-40 倍田间抗药性 (Kerala 印度 Tetranychus gloveri 2025、T. truncatus 2019 研究记录),故仅红蜘蛛标为中风险",
         note_added_pyridaben_mite: "本品对其他害虫风险较低,但红蜘蛛已有极高田间抗药性 (最高达 5500 倍,Tetranychus urticae 多国报告),故仅红蜘蛛标为高风险",
         note_added_spinetoram_thrips: "本品对其他害虫风险较低,但西方花蓟马 (Frankliniella occidentalis) 已有全球性田间抗药性,故仅蓟马标为高风险",
-        note_challenge_methomyl: "Bunting A 此条目未标穿层渗透;但 Lannate (DuPont) 与 Methomyl 90 SP 等多家厂商商品标签、UF Extension 及 ScienceDirect 均确认 Methomyl 具系统性、接触性与穿层渗透三重作用",
         note_challenge_hexythiazox: "Bunting A 此条目标示低风险;但澳洲 1993、PNAS 2012 (希腊 Marathonas 玫瑰株)、塞浦路斯 2013 等多项同行评审研究记录二点叶蝉 Tetranychus urticae 对 Hexythiazox 全球性田间抗药性,本应用采纳网络共识为中风险",
       },
       en: {
@@ -820,12 +1141,11 @@
         tl: "Translaminar", ud: "Xylem/Phloem mobile",
         noResults: "No matches.",
         about: "About this data",
-        aboutText: "All data is curated from Mr. Tee's July-August 2024 'Bunting A' insecticide mode-of-action (MoA) rotation chart. 7 pest groups, 70+ active ingredients. Rotate IRAC groups every spray to slow resistance.",
+        aboutText: "Originally compiled from Mr. Tee's July-August 2024 'Bunting A' insecticide mode-of-action (MoA) rotation chart, and revised through several rounds since: modes of action and cross-resistance checked against the IRAC classification, toxicity labelled by WHO hazard class, newer actives added, and actives banned in Malaysia removed. Rotate to a different IRAC group every spray to slow resistance.",
         safetyTitle: "Farmer Safety Notes",
         safetyText: "This is a rotation guide, not a prescription. Before spraying: ① check the product label for crop & pest, ② respect the pre-harvest interval (PHI), ③ never tank-mix insecticides with Glyphosate, ④ consider pollinators and beneficials.",
         activesCount: "active ingredients",
         langSwitch: "中文", backToTop: "Back to top",
-        note_cross_abamectin: "Cross-resistance with Abamectin (Group 6); do not rotate between them",
         note_piercing_sucking: "More effective against piercing-sucking pests",
         note_added_afido: "Not in Bunting A; field resistance documented in whitefly (36-104×). Use with care.",
         note_added_tl: "Not in Bunting A; IRAC sources confirm this chemistry is translaminar",
@@ -843,7 +1163,6 @@
         note_added_diafen_mite: "Low risk on other pests, but red spider mite has documented 10-40× field resistance (Kerala India: Tetranychus gloveri 2025 study, T. truncatus 2019 Anushree et al.), hence mid risk only for mites.",
         note_added_pyridaben_mite: "Low risk on other pests, but red spider mite has extreme field resistance (up to 5500× in Tetranychus urticae across multiple countries), hence high risk only for mites.",
         note_added_spinetoram_thrips: "Lower risk on other pests, but western flower thrips (Frankliniella occidentalis) has global field resistance, hence high risk only for thrips.",
-        note_challenge_methomyl: "Bunting A does not mark this entry as translaminar; however, multiple manufacturer labels (Lannate by DuPont, Methomyl 90 SP), UF Extension, and ScienceDirect all confirm methomyl has systemic, contact, and translaminar action.",
         note_challenge_hexythiazox: "Bunting A rates this entry as low risk; however, peer-reviewed studies (Australia 1993, PNAS 2012 Marathonas rose strain in Greece, Cyprus 2013, and a global review) document worldwide field resistance in Tetranychus urticae. App uses web consensus: mid risk.",
       }
     };
@@ -868,6 +1187,94 @@
     // ========================================================================
     // ROOT COMPONENT
     // ========================================================================
+    // Effective resistance risk: pest-specific when a pest filter is active,
+    // otherwise the worst-case shown on the badge. Module scope so the memoized
+    // card below can call it without taking it as a prop.
+    const effRisk = (c, pf) =>
+      pf !== 'all' ? ((c.rows.find(x => x.pest === pf) || {}).r || c.r) : c.r;
+
+    // Only one card is expanded at a time, so tapping card B re-rendered all 69.
+    // The summary is split out and memoized: every prop here is a primitive or
+    // stable across renders, so the other 68 bail out instead of re-rendering.
+    // The expanded detail deliberately stays in App — it is only ever built for
+    // the single open card, so it does not belong behind this boundary.
+    const ActiveCardSummary = React.memo(function ActiveCardSummary({ a, lang, t, pestFilter, isExpanded, onToggle }) {
+      const displayName = chemLabel(a.n);
+      const effR = effRisk(a, pestFilter);
+      // Notes are pest-specific: show the active pest's note when filtered, else all.
+      const noteRows = pestFilter !== 'all' ? a.rows.filter(x => x.pest === pestFilter) : a.rows;
+      const noteKeys = [...new Set(noteRows.map(x => x.note).filter(k => k && t[`note_${k}`]))];
+      const toggle = () => onToggle(`chem-${a.n}`);
+      return (
+        <div role="button" tabIndex={0}
+             onClick={toggle}
+             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } }}
+             className="cursor-pointer p-3 hover:bg-slate-50 transition-colors">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-extrabold text-base text-slate-900 break-words">{displayName}</span>
+                    <span className="text-xs font-bold bg-[#114b2d] text-white px-2 py-0.5 rounded-full whitespace-nowrap">{a.g}</span>
+                    {isBanned(a.n) && (
+                      <span className={`text-xs font-extrabold text-white px-2 py-0.5 rounded-full whitespace-nowrap inline-flex items-center gap-1 ${BANNED_MY[a.n].restricted ? 'bg-amber-500' : 'bg-rose-600'}`}>
+                        <AlertTriangle className="w-3 h-3" />{BANNED_MY[a.n].restricted ? (lang === 'zh' ? '限用' : 'RESTRICTED') : (lang === 'zh' ? '禁用' : 'BANNED')}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-sm text-slate-700 font-bold mt-1 flex items-center gap-x-3 gap-y-1 flex-wrap">
+                    {a.pests.map((pid) => {
+                      const p = PESTS.find(pp => pp.id === pid);
+                      return (
+                        <span key={pid} className="inline-flex items-center gap-1.5">
+                          <PestIcon pest={pid} className="w-5 h-5 shrink-0" />
+                          <span>{lang === 'zh' ? p.zh : p.en}</span>
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+                <span className={`text-sm font-extrabold px-3 py-1 rounded-full border whitespace-nowrap ${riskBadge[effR]}`}>{t[`risk_${effR}`]}</span>
+              </div>
+              <div className="mt-2.5 flex flex-wrap gap-1.5 text-xs">
+                {(() => {
+                  const tox = TOX_WHO[a.n] || 'NL';
+                  return (
+                    <span className={`px-2.5 py-1 rounded-full font-bold border ${TOX_STYLE[tox]}`}>
+                      {tox === 'NL' ? TOX_LABEL[lang].NL : `${tox} · ${TOX_LABEL[lang][tox]}`}
+                    </span>
+                  );
+                })()}
+                <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`site_${a.s}`]}</span>
+                <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`mob_${a.m}`]}</span>
+                {a.tl && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.tl}</span>}
+                {a.ud && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.ud}</span>}
+              </div>
+              {noteKeys.map((nk) => {
+                const isWarning = nk === 'cross_abamectin';
+                const isAdded = nk.startsWith('added_') || nk.startsWith('challenge_');
+                const cls = isWarning
+                  ? 'bg-amber-50 text-amber-900 border border-amber-200'
+                  : isAdded
+                    ? 'bg-indigo-50 text-indigo-900 border border-indigo-200'
+                    : 'bg-slate-50 text-slate-700 border border-slate-200';
+                return (
+                  <div key={nk} className={`mt-2 flex items-start gap-1.5 text-xs font-semibold rounded-lg px-2.5 py-1.5 ${cls}`}>
+                    {isWarning && <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
+                    {isAdded && <Plus className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
+                    <span>{t[`note_${nk}`]}</span>
+                  </div>
+                );
+              })}
+              {/* Expand affordance — down-chevron, shown only when collapsed */}
+              {!isExpanded && (
+                <div className="mt-1.5 flex items-center justify-center text-slate-300">
+                  <ChevronDown className="w-4 h-4" />
+                </div>
+              )}
+        </div>
+      );
+    });
+
     function App() {
       const [lang, setLang] = useState(() => {
         try {
@@ -971,11 +1378,6 @@
         });
       }, []);
 
-      // Effective resistance risk: pest-specific when a pest filter is active,
-      // otherwise the worst-case shown on the badge.
-      const effRisk = (c, pf) =>
-        pf !== 'all' ? ((c.rows.find(x => x.pest === pf) || {}).r || c.r) : c.r;
-
       const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
         return chemicals.filter(c => {
@@ -993,6 +1395,38 @@
 
       // ---- Card expansion (one expanded at a time) ----
       const [expandedCard, setExpandedCard] = useState(null);
+      // Stable across renders (functional update, empty deps) so passing it to
+      // the memoized card summary does not defeat the memo.
+      const handleToggle = useCallback(
+        (key) => setExpandedCard(prev => (prev === key ? null : key)), []);
+      // Card DOM nodes, keyed by cardKey, so we can bring a newly-opened card
+      // back into view (see the effect below).
+      const cardRefs = useRef({});
+      // Opening a card can move it: only one card is open at a time, so if the
+      // previously-open card sat ABOVE this one, it collapses in the same render
+      // and everything below jumps up — often taking the tapped card's header
+      // off the top of the screen. Re-anchor the header after the layout settles.
+      useEffect(() => {
+        if (!expandedCard) return;            // collapsing: leave the scroll alone
+        const el = cardRefs.current[expandedCard];
+        if (!el) return;
+        // rAF so we measure after React has painted the collapse of the old card.
+        const id = requestAnimationFrame(() => {
+          const reduce = window.matchMedia
+            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          const GAP = 12;                     // breathing room above the header
+          const top = Math.max(
+            0,
+            el.getBoundingClientRect().top + (window.scrollY || 0) - GAP
+          );
+          try {
+            window.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' });
+          } catch (e) {
+            window.scrollTo(0, top);          // older browsers
+          }
+        });
+        return () => cancelAnimationFrame(id);
+      }, [expandedCard]);
       // ---- Selected crop for MRL search refinement (persists globally) ----
       const [crop, setCrop] = useState(() => {
         try { return localStorage.getItem('moa.crop') || ''; } catch(e) { return ''; }
@@ -1137,6 +1571,83 @@
                     </div>
                   </div>
                 )}
+                {BEE_TAGS[a.n] && (
+                  <div>
+                    <div className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                      {lang === 'zh' ? '蜜蜂与授粉者' : 'Bees and pollinators'}
+                    </div>
+                    <div className={`text-sm font-semibold rounded-lg border px-2.5 py-2 leading-snug ${BEE_STYLE[BEE_TAGS[a.n]]}`}>
+                      {BEE_LABEL[BEE_TAGS[a.n]][lang === 'zh' ? 'zh' : 'en']}
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-1 leading-snug">
+                      {lang === 'zh'
+                        ? '依成年蜜蜂接触急性 LD50 分级。榴莲主要由夜行的果蝠与蛾类授粉,黄昏与夜间施药同样有风险 — 开花期请尽量停喷。'
+                        : 'Based on adult honeybee acute contact LD50. Durian is pollinated mainly by night-flying bats and moths, so dusk and night spraying carries risk too — avoid spraying while trees are in flower.'}
+                    </div>
+                  </div>
+                )}
+                {BENEFICIAL_TAGS[a.n] && (
+                  <div>
+                    <div className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                      {lang === 'zh' ? '对天敌 (捕食螨) 的影响' : 'Effect on natural enemies'}
+                    </div>
+                    <div className={`text-sm font-semibold rounded-lg border px-2.5 py-2 leading-snug ${BENEFICIAL_STYLE[BENEFICIAL_TAGS[a.n]]}`}>
+                      {BENEFICIAL_LABEL[BENEFICIAL_TAGS[a.n]][lang === 'zh' ? 'zh' : 'en']}
+                    </div>
+                  </div>
+                )}
+                {(FUNGUS_TAGS[a.n] || a.n === 'Beauveria bassiana') && (
+                  <div>
+                    <div className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                      {lang === 'zh' ? '与虫生真菌 (白僵菌) 的相容性' : 'Compatibility with entomopathogenic fungi'}
+                    </div>
+                    {a.n === 'Beauveria bassiana' ? (
+                      <div className="text-sm font-semibold rounded-lg border px-2.5 py-2 leading-snug bg-amber-100 text-amber-900 border-amber-300">
+                        {lang === 'zh'
+                          ? '切勿与杀菌剂混用 — 试验中所有受测杀菌剂都会抑制白僵菌的发芽与生长。部分杀虫剂亦有抑制作用,混用前请先查看对方成分卡。'
+                          : 'Never tank-mix with fungicides — every fungicide tested inhibited Beauveria germination and growth. Some insecticides inhibit it too; check the other product\u2019s card before mixing.'}
+                      </div>
+                    ) : (
+                      <div className={`text-sm font-semibold rounded-lg border px-2.5 py-2 leading-snug ${FUNGUS_STYLE[FUNGUS_TAGS[a.n]]}`}>
+                        {FUNGUS_LABEL[FUNGUS_TAGS[a.n]][lang === 'zh' ? 'zh' : 'en']}
+                      </div>
+                    )}
+                    <div className="text-[11px] text-slate-400 mt-1 leading-snug">
+                      {lang === 'zh'
+                        ? '依室内 (in vitro) 试验整理,为参考方向;田间表现可能不同,建议先小面积试混。'
+                        : 'From in-vitro laboratory studies — directional only. Field behaviour may differ; trial a small mix first.'}
+                    </div>
+                  </div>
+                )}
+                {ENV_TAGS[a.n] && ENV_TAGS[a.n].length > 0 && (
+                  <div>
+                    <div className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                      {lang === 'zh' ? '天气与施药时机' : 'Weather and spray timing'}
+                    </div>
+                    <div className="space-y-1.5">
+                      {ENV_TAGS[a.n].map(tag => (
+                        <div key={tag} className={`text-sm font-semibold rounded-lg border px-2.5 py-2 leading-snug ${ENV_STYLE[tag]}`}>
+                          {ENV_LABEL[tag][lang === 'zh' ? 'zh' : 'en']}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-1 leading-snug">
+                      {lang === 'zh'
+                        ? '为方向性提示,依已发表研究整理;本工具不提供具体半衰期数值。实际快慢受剂型、助剂与天气影响。'
+                        : 'Directional guidance from published research. No half-life figures are given here — actual persistence depends on formulation, adjuvant and weather.'}
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <div className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                    {lang === 'zh' ? '安全采收间隔 (PHI)' : 'Pre-harvest interval (PHI)'}
+                  </div>
+                  <div className="text-sm font-semibold text-slate-700 bg-slate-100 border border-slate-300 rounded-lg px-2.5 py-2 leading-snug">
+                    {lang === 'zh'
+                      ? '以产品标签为准。安全采收间隔依作物与登记产品而异,本工具不提供数值。'
+                      : 'Follow the product label. The interval varies by crop and by registered product — no figure is given here.'}
+                  </div>
+                </div>
                 {/* DT50 */}
                 <div>
                   <div className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
@@ -1216,89 +1727,19 @@
         );
       };
 
-      const renderActiveCard = (a, i) => {
-        const displayName = chemLabel(a.n);
+      const renderActiveCard = (a) => {
         const cardKey = `chem-${a.n}`;
         const isExpanded = expandedCard === cardKey;
-        const effR = effRisk(a, pestFilter);
-        // Notes are pest-specific: show the active pest's note when filtered, else all.
-        const noteRows = pestFilter !== 'all' ? a.rows.filter(x => x.pest === pestFilter) : a.rows;
-        const noteKeys = [...new Set(noteRows.map(x => x.note).filter(k => k && t[`note_${k}`]))];
-        const toggleExpand = () => setExpandedCard(isExpanded ? null : cardKey);
         return (
-          <div key={cardKey} className={`bg-white rounded-2xl border border-slate-200 border-l-4 ${siteAccent[a.s]} shadow-sm overflow-hidden`}>
-            {/* Tappable summary area */}
-            <div role="button" tabIndex={0}
-                 onClick={toggleExpand}
-                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(); } }}
-                 className="cursor-pointer p-3 hover:bg-slate-50 transition-colors">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-extrabold text-base text-slate-900 break-words">{displayName}</span>
-                    <span className="text-xs font-bold bg-[#114b2d] text-white px-2 py-0.5 rounded-full whitespace-nowrap">{a.g}</span>
-                    {isBanned(a.n) && (
-                      <span className={`text-xs font-extrabold text-white px-2 py-0.5 rounded-full whitespace-nowrap inline-flex items-center gap-1 ${BANNED_MY[a.n].restricted ? 'bg-amber-500' : 'bg-rose-600'}`}>
-                        <AlertTriangle className="w-3 h-3" />{BANNED_MY[a.n].restricted ? (lang === 'zh' ? '限用' : 'RESTRICTED') : (lang === 'zh' ? '禁用' : 'BANNED')}
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-sm text-slate-700 font-bold mt-1 flex items-center gap-x-3 gap-y-1 flex-wrap">
-                    {a.pests.map((pid) => {
-                      const p = PESTS.find(pp => pp.id === pid);
-                      return (
-                        <span key={pid} className="inline-flex items-center gap-1.5">
-                          <PestIcon pest={pid} className="w-5 h-5 shrink-0" />
-                          <span>{lang === 'zh' ? p.zh : p.en}</span>
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-                <span className={`text-sm font-extrabold px-3 py-1 rounded-full border whitespace-nowrap ${riskBadge[effR]}`}>{t[`risk_${effR}`]}</span>
-              </div>
-              <div className="mt-2.5 flex flex-wrap gap-1.5 text-xs">
-                {(() => {
-                  const tox = TOX_WHO[a.n] || 'NL';
-                  return (
-                    <span className={`px-2.5 py-1 rounded-full font-bold border ${TOX_STYLE[tox]}`}>
-                      {tox === 'NL' ? TOX_LABEL[lang].NL : `${tox} · ${TOX_LABEL[lang][tox]}`}
-                    </span>
-                  );
-                })()}
-                <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`site_${a.s}`]}</span>
-                <span className="bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full font-bold">{t[`mob_${a.m}`]}</span>
-                {a.tl && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.tl}</span>}
-                {a.ud && <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">{t.ud}</span>}
-              </div>
-              {noteKeys.map((nk) => {
-                const isWarning = nk === 'cross_abamectin';
-                const isAdded = nk.startsWith('added_') || nk.startsWith('challenge_');
-                const cls = isWarning
-                  ? 'bg-amber-50 text-amber-900 border border-amber-200'
-                  : isAdded
-                    ? 'bg-indigo-50 text-indigo-900 border border-indigo-200'
-                    : 'bg-slate-50 text-slate-700 border border-slate-200';
-                return (
-                  <div key={nk} className={`mt-2 flex items-start gap-1.5 text-xs font-semibold rounded-lg px-2.5 py-1.5 ${cls}`}>
-                    {isWarning && <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
-                    {isAdded && <Plus className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
-                    <span>{t[`note_${nk}`]}</span>
-                  </div>
-                );
-              })}
-              {/* Expand affordance — down-chevron, shown only when collapsed */}
-              {!isExpanded && (
-                <div className="mt-1.5 flex items-center justify-center text-slate-300">
-                  <ChevronDown className="w-4 h-4" />
-                </div>
-              )}
-            </div>
-
+          <div key={cardKey}
+               ref={(el) => { if (el) cardRefs.current[cardKey] = el; else delete cardRefs.current[cardKey]; }}
+               className={`bg-white rounded-2xl border border-slate-200 border-l-4 ${siteAccent[a.s]} shadow-sm overflow-hidden`}>
+            <ActiveCardSummary a={a} lang={lang} t={t} pestFilter={pestFilter}
+                               isExpanded={isExpanded} onToggle={handleToggle} />
             {/* Expanded panel (sibling, not inside tappable area — so link clicks don't collapse) */}
             {isExpanded && (
               <div className="border-t border-slate-200 bg-slate-50/70 px-3 py-3 animate-in">
-                {renderChemDetail(a, toggleExpand)}
+                {renderChemDetail(a, () => handleToggle(cardKey))}
               </div>
             )}
           </div>
@@ -1370,10 +1811,50 @@
 
           {/* Results grid */}
           {filtered.length === 0 ? (
-            <div className="text-center text-sm text-slate-400 py-12">{t.noResults}</div>
+            (() => {
+              const rm = findRemoved(query);
+              if (!rm) return <div className="text-center text-sm text-slate-400 py-12">{t.noResults}</div>;
+              return (
+                <div className="bg-rose-50 border-2 border-rose-200 rounded-2xl p-4 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="w-5 h-5 text-rose-600 mt-0.5 shrink-0" />
+                    <div>
+                      <div className="text-base font-extrabold text-rose-800">
+                        {rm.en} {rm.zh}
+                      </div>
+                      <div className="text-sm font-extrabold text-rose-700 mt-0.5">
+                        {lang === 'zh' ? '马来西亚已禁用 — 本工具不提供' : 'Banned in Malaysia — not available in this tool'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-rose-900 leading-relaxed">
+                    {lang === 'zh' ? rm.basisZh : rm.basisEn}
+                  </div>
+                  <div className="text-sm text-rose-900 leading-relaxed font-semibold">
+                    {lang === 'zh'
+                      ? '请改用合法的替代药剂。以下是它过去常用于防治的害虫，点选可查看可用成分：'
+                      : 'Please use a legal alternative. It was commonly used against these pests — tap to see what is available:'}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {rm.pests.map(pid => {
+                      const p = PESTS.find(pp => pp.id === pid);
+                      if (!p) return null;
+                      return (
+                        <button key={pid} type="button"
+                          onClick={() => { setQuery(''); setPestFilter(pid); setRiskFilter('all'); }}
+                          className="inline-flex items-center gap-1.5 bg-white border-2 border-rose-300 text-rose-900 rounded-xl px-3 py-2 text-sm font-bold hover:bg-rose-100 transition">
+                          <PestIcon pest={pid} className="w-5 h-5" />
+                          {lang === 'zh' ? p.zh : p.en}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-              {filtered.map((a, i) => renderActiveCard(a, i))}
+              {filtered.map((a) => renderActiveCard(a))}
             </div>
           )}
         </div>
@@ -1724,7 +2205,7 @@
             </div>
             <div className="flex items-center gap-2 shrink-0">
               {/* Font-size toggle: A / A / A — uniform 40px height, evenly sized segments */}
-              <div className="flex items-center h-10 bg-white border border-slate-300 rounded-xl shadow-sm overflow-hidden">
+              <div className="flex items-center h-11 bg-white border border-slate-300 rounded-xl shadow-sm overflow-hidden">
                 {[
                   { id: 's', label: 'A', size: 'text-xs', aria: lang==='zh'?'小字':'Small text' },
                   { id: 'm', label: 'A', size: 'text-sm', aria: lang==='zh'?'中字':'Medium text' },
@@ -1738,12 +2219,12 @@
                 ))}
               </div>
               <button onClick={() => setShowAbout(true)}
-                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-300 shadow-sm transition-all shrink-0"
+                className="w-11 h-11 flex items-center justify-center rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-300 shadow-sm transition-all shrink-0"
                 aria-label={t.about}>
                 <Info className="w-5 h-5" />
               </button>
               <button onClick={() => setLang(l => l === 'zh' ? 'en' : 'zh')}
-                className="h-10 min-w-[5rem] justify-center text-sm font-bold px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-700 transition-all border border-slate-300 shadow-sm flex items-center gap-1.5 shrink-0">
+                className="h-11 min-w-[5rem] justify-center text-sm font-bold px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-700 transition-all border border-slate-300 shadow-sm flex items-center gap-1.5 shrink-0">
                 <Layers className="w-4 h-4" />
                 {t.langSwitch}
               </button>
