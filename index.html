@@ -2111,6 +2111,54 @@ const findRemoved = q => {
 //   (Bunting A's footnote that Cyantraniliprole beats Chlorantraniliprole on
 //   piercing-sucking pests) is folded into note_cyan_tl and the key removed.
 //
+// ═══ REJECTED BY DESIGN — DO NOT PROPOSE THESE AGAIN ════════════════════
+//  A fresh session reading this file will be tempted by each of these. They
+//  were considered and refused for reasons that have not changed. If you are
+//  about to suggest one, read the reason first.
+//
+//  1. AN MRL DATABASE (rejected ~2026-05; re-proposed and re-rejected
+//     2026-08-04). Maximum Residue Limits are revised on schedules this app
+//     cannot track — MY Schedule 16 was updated within the last few months,
+//     and destination markets (CN GB 2763, EU, JP) each move independently.
+//     An offline single-file PWA has no way to know its numbers went stale.
+//     An exporter reads a limit here, loads a container, and it is rejected —
+//     and this app is blamed for it. The same logic already governs the PHI
+//     section, which deliberately gives NO numbers and says 以产品标签为准.
+//     Shipping MRLs would break that principle exactly where being wrong is
+//     most expensive. This includes "just for reference" or "with a
+//     disclaimer" variants. The answer is no.
+//     WHAT THE APP DOES INSTEAD — and this is the right answer, already
+//     built: a per-chemical LINK to the live GB 2763-2026 table on the
+//     FoodMate portal, labelled 中国 MRL, carrying 以国家标准原文为准. The
+//     grower reaches the current numbers; the app never caches one. Extend
+//     that pattern for any other jurisdiction (link out, never store). Do not
+//     read item 1 as "no MRL feature" — it means "no MRL VALUES in this file".
+//
+//  2. NAMING THE ABSENCE OF A DURIAN MRL on a card (see Malathion below).
+//     Upwards of 95% of actives registered in Malaysia carry no durian-
+//     specific listing — Malaysia mostly imports and repacks concentrate,
+//     and durian is a minor crop in residue-trial terms. Saying it on one
+//     card implies a problem specific to that active; saying it on all of
+//     them implies nothing is legal to spray. Say it on neither.
+//
+//  3. POPULATING BANNED_MY to "activate" the ban UI — see the note at that
+//     map. It is empty on purpose.
+// ════════════════════════════════════════════════════════════════════════
+//
+// MALATHION WORDING — 2026-08-04. Reworded from an assertion ("approval
+//   ended 31 July 2026") to an attribution ("the PPDB record lists the period
+//   as running to 2026-07-31"). The distinction is deliberate and should be
+//   preserved: PPDB was last updated 01/04/2026, so a renewal could have
+//   landed in the gap without the record showing it. The app reports the
+//   source, names the date, and tells the reader to re-check — it does not
+//   declare the approval dead. The verified, undisputed part (2018 renewal =
+//   greenhouse use only, high risk to birds) is stated plainly, because that
+//   is what actually matters for an outdoor orchard.
+//   The closing sentence — "EU status only, not a statement about Malaysian
+//   registration" — is there because this map renders an EU badge on a card a
+//   Malaysian grower is reading. NOTE: this app has NOT verified Malathion's
+//   Malaysian registration either way; the line disclaims, it does not assert.
+//
 // BANNED_MY IS EMPTY ON PURPOSE — do not "fix" it. The policy above removes
 //   banned actives from the database outright; the map is a defence-in-depth
 //   hook for a fresh ban that has not yet had its rows deleted. An earlier
@@ -2289,15 +2337,27 @@ const EU_BANNED = {
     zh: "欧盟植保批准已到期",
     en: "EU plant-protection approval has expired"
   },
-  // Malathion's PPDB record still reads "Approved", but that record was last
-  // updated 01/04/2026 and the approval period ran to 31/07/2026 — three
-  // days before this audit. The 2018 renewal had already restricted it to
-  // GREENHOUSE use only (high risk to birds). For an outdoor orchard this
-  // sits closer to the neonicotinoid outdoor bans than to a live approval,
-  // so it is flagged rather than left clean.
+  // Malathion — worded to ATTRIBUTE, not assert. The tool reports what the
+  // PPDB record says and who said it; it does not itself declare the approval
+  // dead. That is deliberate: the record was last updated 01/04/2026 and the
+  // listed period ran to 31/07/2026, so between those dates a renewal may
+  // have landed that PPDB has not yet reflected. Stating "expired" as fact
+  // would be a claim this app cannot stand behind. The 2018 renewal had
+  // already cut it to GREENHOUSE use only (high risk to birds), which is the
+  // part that actually matters for an outdoor orchard and is not in doubt.
+  // The closing lines exist because this map renders an EU badge, and an EU
+  // badge must not be read as a statement about Malaysian registration.
+  // MY status VERIFIED 2026-08-04 against mymrl.doa.gov.my/AIs/84 (DOA
+  // residue database, Schedule 16 / Food Regulations 1985): malathion is
+  // registered here, with statutory MRLs and PHIs on 7 food crops.
+  // DELIBERATELY NOT SAID: that durian is absent from that commodity list.
+  // It is — but per Stanley, upwards of 95% of actives registered in Malaysia
+  // carry no durian-specific listing, so naming the absence would read as a
+  // warning about malathion in particular when it is simply the norm. Do not
+  // re-add it for this or any other active without that context.
   "Malathion": {
-    zh: "欧盟仅限温室使用；批准期已于 2026 年 7 月 31 日届满，续期未确认",
-    en: "EU: greenhouse use only; approval period ended 31 July 2026, renewal unconfirmed"
+    zh: "欧盟：2018 年续期决定将其限于温室使用。PPDB 所列批准期至 2026-07-31,续期结果本工具无法确认,请不时自行查证。马来西亚：农业部残留数据库列有本品 (IRAC 1B) 的法定残留限量与安全采收间隔 (杨桃、木瓜、菠萝、番茄、黄瓜、芥菜、辣椒),即在马来西亚属登记使用。请以产品标签为准。",
+    en: "EU: the 2018 renewal restricted it to greenhouse use. PPDB lists the approval period as running to 2026-07-31; this tool cannot confirm the renewal outcome, so re-check periodically. Malaysia: registered — the DOA residue database lists statutory MRLs and pre-harvest intervals for this active (IRAC 1B) on starfruit, papaya, pineapple, tomato, cucumber, mustard greens and chilli. Follow the product label."
   }
 };
 // "English 中文" label (Chinese appended only when we have an official name).
