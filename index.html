@@ -1937,11 +1937,12 @@ const ENV_STYLE = {
   cool: "bg-sky-100 text-sky-900 border-sky-300",
   warm: "bg-emerald-100 text-emerald-900 border-emerald-300"
 };
-// ── Banned for agricultural use in Malaysia ──────────────────────────────
-// Sources: MY Pesticides Board banned/restricted list, the 2025–2030 HHP
-// phase-out, and the Stockholm Convention (POPs). These stay visible in the
-// Library with a clear warning, but are never offered as rotation suggestions.
 // ── Malaysia bans ────────────────────────────────────────────────────────
+// Sources: MY Pesticides Board banned/restricted list, the 2025–2030 HHP
+// phase-out, and the Stockholm Convention (POPs).
+// NOTE 2026-08-03: an earlier header here said these actives "stay visible in
+// the Library with a clear warning". That was the OLD policy and is no longer
+// true — it was removed to stop it contradicting the current policy below.
 // POLICY: actives banned (or banned for farm use) in Malaysia are REMOVED
 // from the database entirely — this app is a spraying aid, so listing them
 // at all risks a grower reaching for one. Removed 2026-08-03:
@@ -2069,6 +2070,79 @@ const findRemoved = q => {
 //   and Rotenone each carry HIGH acute bee toxicity in PPDB but were absent
 //   from BEE_TAGS; all four are now tagged "high" there, sourced from each
 //   record's own ecotoxicity alert. See the comment in BEE_TAGS for values.
+//
+// BUNTING A CROSS-CHECK — 2026-08-03, every note re-tested against the source
+//   PDF, per pest chart (not just per active). RESULT: all 12 rows that claimed
+//   "Not in Bunting A" were wrong. Every one of those actives is present on the
+//   exact chart its row is attached to. Not one absence claim survived.
+//
+//   ROOT CAUSE — translation drift, not bad research. The ZH notes make a
+//   precise claim about a MISSING FIELD ("Bunting A 未列抗药性资料" = gives no
+//   resistance-risk rating). The EN notes flattened that into "Not in Bunting
+//   A" = the entry is absent entirely. Different claim, and false. The ZH text
+//   was right in 4 of 5 cases; only the English needed correcting.
+//     note_added_afido      ZH correct (entry marked "no data")   -> EN fixed
+//     note_added_beauveria  ZH correct (no mobility marker)       -> EN fixed
+//     note_added_new_chem   ZH correct (marked "no data")         -> EN fixed
+//     note_added_white_oil  ZH correct (listed, no data at all)   -> EN fixed
+//
+//   WRONG IN BOTH LANGUAGES — note_added_pyriproxyfen claimed Bunting A does
+//     not mark 7C translaminar. It DOES, on both the mealybug and psyllid
+//     charts, and the app already agreed with it. Rewritten as corroboration
+//     rather than a correction.
+//
+//   MERGED — Cyantraniliprole carried two contradictory notes on the same
+//     claim (added_tl said "not in Bunting A", challenge_tl said "Bunting A
+//     marks it not translaminar"). Bunting A lists it on all four charts and
+//     marks none translaminar, so challenge_tl was right. Both replaced by a
+//     single note_cyan_tl across all four rows. Same failure mode as Cartap.
+//
+// CONSISTENCY SWEEP — 2026-08-03. Every active's rows were compared against
+//   each other. Six disagreed internally. Three are CORRECT BY DESIGN, because
+//   the risk genuinely differs by pest and a note says so: Diafenthiuron (mid
+//   on mite, low elsewhere), Pyridaben (high on mite, low on psyllid),
+//   Spinetoram (high on thrips, mid on caterpillar). Leave those alone.
+//   The other three were oversights — a note attached to one row but not to an
+//   otherwise identical sibling — now fixed: Dimpropyridaz (thrips),
+//   Isocycloseram (thrips), Pyriproxyfen (mealybug). Two more surfaced only
+//   after the audit parser was widened: Rotenone (caterpillar, thrips) and
+//   Beauveria bassiana (spider mite).
+//   note_piercing_sucking was defined but attached to nothing; its content
+//   (Bunting A's footnote that Cyantraniliprole beats Chlorantraniliprole on
+//   piercing-sucking pests) is folded into note_cyan_tl and the key removed.
+//
+// BANNED_MY IS EMPTY ON PURPOSE — do not "fix" it. The policy above removes
+//   banned actives from the database outright; the map is a defence-in-depth
+//   hook for a fresh ban that has not yet had its rows deleted. An earlier
+//   pass in this session wrongly flagged the empty map as a broken feature.
+//   The live safety net is REMOVED_MY (5 entries), which answers a search for
+//   a banned active instead of returning "no matches". check_data.py now
+//   enforces the real invariant: nothing in REMOVED_MY may also appear in
+//   ACTIVES. That check is negative-tested — injecting Chlorpyrifos back into
+//   ACTIVES makes it fail, as it must.
+//
+// RUN check_data.py AFTER ADDING ANY ACTIVE. It catches exactly the failures
+//   found in this session: notes missing from one language, orphaned note
+//   definitions, "not in Bunting A" claims, sibling rows that disagree without
+//   explanation, and lookup-map keys (EU_BANNED / BEE_TAGS / TOX_WHO) naming
+//   an active that does not exist. It exits non-zero on error.
+//   CAUTION: some rows carry an optional zh:"..." label between n and s. The
+//   first version of that script's regex omitted it and silently skipped 12
+//   rows — every UN/UNF botanical plus Rotenone — reporting 66 actives instead
+//   of 69. If the row count printed is not 69, the parser is wrong, not the data.
+//
+//   LESSON FOR FUTURE EDITS: when checking a Bunting A claim, read the WHOLE
+//   panel. Actives live in five separate boxes — main neural column, secondary
+//   neural box (9D/14/22A/28/29/30/36), UN, respiratory, and growth. A blank
+//   risk star means unrated; "(沒有資料)" means explicitly no data. Those are
+//   not the same as absent, and neither is "not on this chart".
+//
+// CARTAP — the two old notes (added_cartap / challenge_cartap) were BOTH wrong
+//   and contradicted each other: one said "not in Bunting A", the other said
+//   "Bunting A rates it low risk". Neither holds. Bunting A lists it on all
+//   four charts, marked systemic, with NO risk rating at all. Merged into a
+//   single note_cartap_risk applied to all four rows, which also removes the
+//   near-duplicate that showed on the card when no pest filter was active.
 //
 // GUS: only two numeric values recovered — Malathion 0.00 (low leachability)
 //   and Dimpropyridaz 2.51 (transition state). Isoprocarb has no value at
@@ -2489,7 +2563,8 @@ const ACTIVES = [
   zh: "白僵菌",
   s: "unknown",
   r: "low",
-  m: "N"
+  m: "N",
+  note: "added_beauveria"
 }, {
   pest: "spider_mite",
   g: "UN",
@@ -2634,7 +2709,7 @@ const ACTIVES = [
   r: "mid",
   m: "S",
   tl: true,
-  note: "added_tl"
+  note: "cyan_tl"
 }, {
   pest: "mealybug",
   g: "29",
@@ -2665,7 +2740,8 @@ const ACTIVES = [
   s: "growth",
   r: "low",
   m: "N",
-  tl: true
+  tl: true,
+  note: "added_pyriproxyfen"
 }, {
   pest: "mealybug",
   g: "16",
@@ -2803,7 +2879,7 @@ const ACTIVES = [
   r: "mid",
   m: "S",
   tl: true,
-  note: "added_cartap"
+  note: "cartap_risk"
 }, {
   pest: "caterpillar",
   g: "22A",
@@ -2857,7 +2933,8 @@ const ACTIVES = [
   zh: "鱼藤",
   s: "respiratory",
   r: "low",
-  m: "N"
+  m: "N",
+  note: "added_rotenone"
 }, {
   pest: "caterpillar",
   g: "7B",
@@ -3034,7 +3111,7 @@ const ACTIVES = [
   r: "mid",
   m: "S",
   tl: true,
-  note: "added_cartap"
+  note: "cartap_risk"
 }, {
   pest: "psyllid",
   g: "28",
@@ -3043,7 +3120,7 @@ const ACTIVES = [
   r: "mid",
   m: "S",
   tl: true,
-  note: "added_tl"
+  note: "cyan_tl"
 }, {
   pest: "psyllid",
   g: "12A",
@@ -3257,7 +3334,7 @@ const ACTIVES = [
   r: "mid",
   m: "S",
   tl: true,
-  note: "challenge_cartap"
+  note: "cartap_risk"
 }, {
   pest: "thrips",
   g: "22A",
@@ -3273,7 +3350,7 @@ const ACTIVES = [
   r: "mid",
   m: "S",
   tl: true,
-  note: "added_tl"
+  note: "cyan_tl"
 }, {
   pest: "thrips",
   g: "29",
@@ -3288,14 +3365,16 @@ const ACTIVES = [
   n: "Isocycloseram",
   s: "neural",
   r: "low",
-  m: "N"
+  m: "N",
+  note: "added_new_chem"
 }, {
   pest: "thrips",
   g: "36",
   n: "Dimpropyridaz",
   s: "neural",
   r: "low",
-  m: "N"
+  m: "N",
+  note: "added_new_chem"
 }, {
   pest: "thrips",
   g: "12A",
@@ -3325,7 +3404,8 @@ const ACTIVES = [
   zh: "鱼藤",
   s: "respiratory",
   r: "low",
-  m: "N"
+  m: "N",
+  note: "added_rotenone"
 }, {
   pest: "thrips",
   g: "15",
@@ -3524,7 +3604,7 @@ const ACTIVES = [
   r: "mid",
   m: "S",
   tl: true,
-  note: "challenge_cartap"
+  note: "cartap_risk"
 }, {
   pest: "leafhopper",
   g: "22A",
@@ -3540,7 +3620,7 @@ const ACTIVES = [
   r: "mid",
   m: "S",
   tl: true,
-  note: "challenge_tl"
+  note: "cyan_tl"
 }, {
   pest: "leafhopper",
   g: "29",
@@ -3683,19 +3763,16 @@ const L = {
     activesCount: "个活性成分",
     langSwitch: "EN",
     backToTop: "回到顶部",
-    note_piercing_sucking: "对刺吸式害虫更有效",
     note_added_afido: "Bunting A 未列抗药性资料;白粉虱已有田间抗药性报告 (36-104 倍),建议谨慎使用",
-    note_added_tl: "Bunting A 未列穿层渗透;IRAC 文献确认此化学具穿层渗透特性",
     note_added_new_chem: "Bunting A 未列抗药性资料;新化学,目前无田间抗药性或交叉抗药性报告",
     note_added_white_oil: "Bunting A 未列资料;IRAC 报告此类油剂从未出现抗药性,作用为物理性窒息",
-    note_added_cartap: "Bunting A 未列抗药性;番茄夜蛾 (巴西)、菜蛾 (中国) 已有田间抗药性报告;商品资料显示具系统性、接触性与穿层渗透",
+    note_cyan_tl: "Bunting A 在粉蚧、木虱、蓟马、青蚊四表均列有 Cyantraniliprole,但均未标示穿层渗透。IRAC 文献、PubMed 同行评审论文与商品标签 (Benevia、Minecto Xtra 等) 一致确认其具穿层渗透特性,本应用采纳网络共识。 Bunting A 另于木虱、蓟马、青蚊三表附脚注:与 Chlorantraniliprole 相比,据称 Cyantraniliprole 对刺吸式害虫更有效。",
+    note_cartap_risk: "Bunting A 在毛毛虫、木虱、蓟马、青蚊四张表上均列有杀螟丹 (14),标示为系统性 (S),但未给出抗药性风险等级 (既无风险星号,也无「沒有資料」标注)。Tuta absoluta (巴西)、Plutella xylostella (中国)、Cnaphalocrocis medinalis (印度 Kerala) 已有田间抗药性报告,故本应用采纳网络共识列为中风险。穿层渗透特性取自商品资料,非 Bunting A。",
     note_added_meta: "Bunting A 列为低风险;甜菜夜蛾 Spodoptera exigua (中国广东) 田间已出现高抗药性 (60-942 倍, 2014 年研究),建议监测使用",
     note_added_bt: "Bunting A 未列细节;Plutella xylostella (小菜蛾)、Helicoverpa zea、Spodoptera frugiperda 等鳞翅目害虫已有田间抗药性报告 (Tabashnik 综述等);由幼虫取食后中肠激活,接触+取食活性",
-    note_added_pyriproxyfen: "Bunting A 未列穿层渗透;Ishaaya & Horowitz 1995 与 2020 综述均证实此 IGR 具穿层渗透特性",
+    note_added_pyriproxyfen: "Bunting A 已在粉蚧与木虱两表标示此项具穿层渗透,本应用与之一致;Ishaaya & Horowitz 1995 与 2020 综述亦独立证实此 IGR 具穿层渗透特性",
     note_added_rotenone: "Bunting A 列为系统性,但 IRAC、AERU、PIM、ScienceDirect 等权威资料皆指鱼藤为非系统性,仅具接触与胃毒作用",
     note_added_beauveria: "Bunting A 未列作用方式;白僵菌孢子需附着虫体表皮,以芽管穿透角质层感染,属接触性",
-    note_challenge_tl: "Bunting A 在此项标示非穿层渗透;但 IRAC 文献、PubMed 同行评审论文、商品标签 (Benevia、Minecto Xtra 等) 一致确认 Cyantraniliprole 具穿层渗透特性。本应用采纳网络共识",
-    note_challenge_cartap: "Bunting A 此条目标示为低风险;但 Tuta absoluta (巴西)、Plutella xylostella (中国)、Cnaphalocrocis medinalis (印度 Kerala) 已有田间抗药性报告。本应用采纳网络共识为中风险,并补上穿层渗透特性",
     note_challenge_pymetrozine: "Bunting A 此条目未标穿层渗透;但 Wyss & Bolsinger 1997、LSU Ag Center、维基百科等多源确认 Pymetrozine 同时具系统性 (木质部+韧皮部) 与穿层渗透特性",
     note_added_diafen_mite: "本品对其他害虫风险较低,但红蜘蛛已有 10-40 倍田间抗药性 (Kerala 印度 Tetranychus gloveri 2025、T. truncatus 2019 研究记录),故仅红蜘蛛标为中风险",
     note_added_pyridaben_mite: "本品对其他害虫风险较低,但红蜘蛛已有极高田间抗药性 (最高达 5500 倍,Tetranychus urticae 多国报告),故仅红蜘蛛标为高风险",
@@ -3740,19 +3817,16 @@ const L = {
     activesCount: "active ingredients",
     langSwitch: "中文",
     backToTop: "Back to top",
-    note_piercing_sucking: "More effective against piercing-sucking pests",
-    note_added_afido: "Not in Bunting A; field resistance documented in whitefly (36-104×). Use with care.",
-    note_added_tl: "Not in Bunting A; IRAC sources confirm this chemistry is translaminar",
-    note_added_new_chem: "Not in Bunting A; new chemistry, no field resistance or cross-resistance reported yet",
-    note_added_white_oil: "Not in Bunting A; IRAC reports no resistance ever observed (physical suffocation)",
-    note_added_cartap: "Not in Bunting A; field resistance reported in Tuta absoluta (Brazil) and Plutella xylostella (China). Commercial sources describe systemic, contact and translaminar action.",
+    note_added_afido: "Bunting A gives this entry no resistance-risk rating (marked 'no data'); field resistance documented in whitefly (36-104x). Use with care.",
+    note_added_new_chem: "Bunting A lists this entry but marks it 'no data' for resistance risk; new chemistry, no field resistance or cross-resistance reported yet.",
+    note_added_white_oil: "Bunting A lists this entry with no data at all; IRAC reports no resistance ever observed (physical suffocation).",
+    note_cyan_tl: "Bunting A lists Cyantraniliprole on all four charts (mealybug, psyllid, thrips, leafhopper) but marks none of them translaminar. IRAC sources, peer-reviewed PubMed papers and commercial labels (Benevia, Minecto Xtra) all confirm translaminar action, so this app follows the web consensus. Bunting A also footnotes the psyllid, thrips and leafhopper charts: compared with Chlorantraniliprole, Cyantraniliprole is said to be more effective against piercing-sucking pests.",
+    note_cartap_risk: "Bunting A lists Cartap (14) on all four charts — caterpillar, psyllid, thrips and leafhopper — marked systemic (S) but with no resistance-risk rating at all (no risk star, and no 'no data' marker either). Field resistance is documented in Tuta absoluta (Brazil), Plutella xylostella (China) and Cnaphalocrocis medinalis (Kerala, India), so this app follows web consensus and rates it mid risk. Translaminar action comes from commercial sources, not from Bunting A.",
     note_added_meta: "Bunting A rates this low; field resistance in beet armyworm Spodoptera exigua (Guangdong, China) documented at 60.3-942× (2014 study). Use with monitoring.",
     note_added_bt: "Bunting A only gave IRAC code; field resistance documented in lepidopteran pests including Plutella xylostella, Helicoverpa zea, and Spodoptera frugiperda (per Tabashnik review and others). Activated in larval midgut after ingestion (contact + stomach action).",
-    note_added_pyriproxyfen: "Not in Bunting A; translaminar action confirmed by Ishaaya & Horowitz (1995) on cotton leaves and by 2020 fate review.",
+    note_added_pyriproxyfen: "Bunting A does mark this entry translaminar (mealybug and psyllid charts) and this app agrees; Ishaaya & Horowitz (1995) and a 2020 fate review independently confirm translaminar action for this IGR.",
     note_added_rotenone: "Bunting A marks as systemic, but IRAC, AERU, PIM 474, ScienceDirect all describe rotenone as non-systemic with contact and stomach action only.",
-    note_added_beauveria: "Not in Bunting A; spores must adhere to insect cuticle, then penetrate via germ tubes — fundamentally a contact-action biopesticide.",
-    note_challenge_tl: "Bunting A marks this entry as not translaminar; however, IRAC sources, peer-reviewed PubMed papers, and commercial labels (Benevia, Minecto Xtra, etc.) all confirm cyantraniliprole has translaminar action. App uses the web consensus.",
-    note_challenge_cartap: "Bunting A rates this entry as low risk; however, field resistance is documented in Tuta absoluta (Brazil), Plutella xylostella (China), and Cnaphalocrocis medinalis (Kerala, India). App uses web consensus: mid risk with translaminar action.",
+    note_added_beauveria: "Bunting A lists this entry but gives it no mode-of-action marker; spores must adhere to the insect cuticle, then penetrate via germ tubes - fundamentally a contact-action biopesticide.",
     note_challenge_pymetrozine: "Bunting A does not mark this entry as translaminar; however, Wyss & Bolsinger 1997, LSU Ag Center, Wikipedia, and other sources confirm pymetrozine has both systemic (xylem + phloem) and translaminar action.",
     note_added_diafen_mite: "Low risk on other pests, but red spider mite has documented 10-40× field resistance (Kerala India: Tetranychus gloveri 2025 study, T. truncatus 2019 Anushree et al.), hence mid risk only for mites.",
     note_added_pyridaben_mite: "Low risk on other pests, but red spider mite has extreme field resistance (up to 5500× in Tetranychus urticae across multiple countries), hence high risk only for mites.",
@@ -4409,7 +4483,7 @@ function App() {
       }), lang === 'zh' ? p.zh : p.en);
     })));
   })() : /*#__PURE__*/React.createElement("div", {
-    className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"
+    className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 items-start"
   }, filtered.map(a => renderActiveCard(a))));
 
   // Small building blocks for the cross-resistance explainer (HTML, so text uses the
